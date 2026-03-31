@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "node scripts/dev-server.mjs",
     "start": "node scripts/dev-server.mjs",
-    "check": "node -e \"console.log('ok')\""
+    "check": "node -e \"console.log('ok')\"",
+    "proof:mb-011": "node scripts/prove-mb-011.mjs",
+    "proof:mb-012": "node scripts/prove-mb-012.mjs",
+    "updates:timeline": "node scripts/read-updates-timeline.mjs"
   }
 }

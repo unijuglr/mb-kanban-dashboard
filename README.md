@@ -9,23 +9,40 @@ A first-party local app for:
 - updates timeline
 - metrics/dashboard views
 
-## Initial scope
-- file-backed board reader
-- local API/app shell
-- metrics-aware development
-- reviewable GitHub-ready repo structure
+## Current status
+MB-020 is now beyond scaffold:
+- minimal app shell route structure
+- local read-only board surface
+- decision list/detail route
+- updates timeline route
+- JSON summary endpoint for quick inspection
+
+## Routes
+- `/` — overview shell
+- `/board` — status-grouped card board
+- `/cards/:id` — card detail view
+- `/decisions` — decision list
+- `/decisions/:id` — decision detail view
+- `/updates` — updates timeline
+- `/api/summary` — read-only JSON counts/status summary
+- `/health` — health probe
 
 ## Local structure
 - `docs/` — imported product docs/specs
-- `src/` — app code
+- `src/` — parser/read-model code
 - `public/` — static assets
-- `scripts/` — utility scripts
+- `scripts/` — utility scripts and local dev server
 
-## Next planned tasks
-- MB-002 import docs/specs
-- MB-003 metrics baseline
-- MB-010 parser
-- MB-020 app shell
+## Run
+```bash
+npm run dev
+```
 
-## Run status
-Scaffold only for now.
+Then open:
+- `http://127.0.0.1:4187/`
+- `http://127.0.0.1:4187/board`
+
+## Notes
+- This build reads markdown directly from `docs/cards`, `docs/decisions`, and `docs/updates`.
+- It is intentionally read-only for now.
+- Safe write operations can layer on later without replacing the file-backed source of truth.

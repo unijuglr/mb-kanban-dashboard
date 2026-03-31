@@ -46,12 +46,17 @@
   {
     "id": "MB-012",
     "title": "Updates timeline reader",
-    "state": "ready",
-    "owner": "Coder-2",
+    "state": "done",
+    "owner": "Coder-3",
     "depends_on": [
       "MB-001"
     ],
-    "artifacts": []
+    "artifacts": [
+      "src/updatesTimeline.js",
+      "scripts/read-updates-timeline.mjs",
+      "scripts/prove-mb-012.mjs",
+      "PROOF_MB_012.md"
+    ]
   },
   {
     "id": "MB-020",
