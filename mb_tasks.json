@@ -204,12 +204,17 @@
   {
     "id": "MB-042",
     "title": "Dashboard overview screen",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-4",
     "depends_on": [
       "MB-041"
     ],
-    "artifacts": []
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-042.mjs",
+      "PROOF_MB_042.md",
+      "README.md"
+    ]
   },
   {
     "id": "MB-043",

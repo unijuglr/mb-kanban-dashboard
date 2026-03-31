@@ -18,6 +18,14 @@ MB-030 through MB-033 are now live on top of the existing shell/API:
 - API-backed updates timeline route with search, author/section filters, and detail inspection
 - read-only JSON API for board, cards, decisions, and updates
 
+MB-042 upgrades `/` into a real dashboard overview on top of the metrics API:
+- top KPI strip combining board + run metrics
+- board snapshot by status
+- run status mix
+- owner throughput summary
+- recent runs panel
+- daily metrics timeline panel
+
 MB-050 adds the first safe write path:
 - `POST /api/cards/:id/status`
 - guarded status transitions only

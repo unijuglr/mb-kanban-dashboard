@@ -106,38 +106,109 @@ function shell({ title, currentPath, body }) {
 </html>`;
 }
 
-function renderOverview(model) {
+function formatDuration(ms) {
+  const value = Number(ms || 0);
+  if (!Number.isFinite(value) || value <= 0) return '0m';
+  const totalSeconds = Math.round(value / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours) return `${hours}h ${minutes}m`;
+  if (minutes) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
+function formatPercent(numerator, denominator) {
+  const top = Number(numerator || 0);
+  const bottom = Number(denominator || 0);
+  if (!bottom) return '0%';
+  return `${Math.round((top / bottom) * 100)}%`;
+}
+
+function renderOverview(model, metrics) {
+  const summary = metrics?.summary || {};
+  const byStatus = Array.isArray(metrics?.byStatus) ? metrics.byStatus : [];
+  const byOwner = Array.isArray(metrics?.byOwner) ? metrics.byOwner : [];
+  const recentRuns = Array.isArray(metrics?.recentRuns) ? metrics.recentRuns.slice(0, 5) : [];
+  const timeline = Array.isArray(metrics?.timeline) ? metrics.timeline.slice(0, 7) : [];
+  const totalRuns = Number(summary.total_runs || 0);
+  const successfulRuns = Number(summary.successful_runs || 0);
+  const avgDuration = formatDuration(summary.avg_duration_ms);
+  const totalArtifacts = Number(summary.total_artifacts || 0);
+  const successRate = formatPercent(successfulRuns, totalRuns);
+  const boardHealth = model.summary.blockedCount
+    ? `${model.summary.blockedCount} blocked card(s)`
+    : 'No blocked cards right now';
+  const topOwner = byOwner[0];
+
   return shell({
     title: 'Overview',
     currentPath: '/',
     body: `
       <section class="hero">
         <div>
-          <h1>Local read-only surface is live</h1>
-          <p>Board, decisions, and updates are rendered directly from markdown in this repo.</p>
+          <h1>Program overview</h1>
+          <p>Repo-backed board state plus first-party metrics from the SQLite run log.</p>
         </div>
         <div class="muted">Generated ${escapeHtml(model.generatedAt)}</div>
       </section>
       <section class="grid stats">
-        <article class="card"><div class="muted">Cards</div><div class="kpi">${model.summary.cardCount}</div></article>
-        <article class="card"><div class="muted">In Progress</div><div class="kpi">${model.summary.activeCount}</div></article>
-        <article class="card"><div class="muted">Decisions</div><div class="kpi">${model.summary.decisionCount}</div></article>
-        <article class="card"><div class="muted">Updates</div><div class="kpi">${model.summary.updateCount}</div></article>
+        <article class="card"><div class="muted">Open cards</div><div class="kpi">${model.summary.cardCount}</div><div class="tiny muted">${model.summary.activeCount} in progress · ${model.summary.doneCount} done</div></article>
+        <article class="card"><div class="muted">Total runs</div><div class="kpi">${totalRuns}</div><div class="tiny muted">${successfulRuns} successful · ${successRate} success rate</div></article>
+        <article class="card"><div class="muted">Average run time</div><div class="kpi">${escapeHtml(avgDuration)}</div><div class="tiny muted">${totalArtifacts} artifacts recorded</div></article>
+        <article class="card"><div class="muted">Decisions / updates</div><div class="kpi">${model.summary.decisionCount} / ${model.summary.updateCount}</div><div class="tiny muted">${escapeHtml(boardHealth)}</div></article>
       </section>
       <section class="grid list">
         <article class="panel">
-          <h2>Routes</h2>
-          <div class="stack">
-            <div><a href="/board">/board</a><div class="muted">Kanban-style board grouped by status.</div></div>
-            <div><a href="/decisions">/decisions</a><div class="muted">Decision record list plus detail pages.</div></div>
-            <div><a href="/updates">/updates</a><div class="muted">Reverse chronological program updates.</div></div>
-            <div><a href="/api/summary">/api/summary</a><div class="muted">JSON summary for quick local inspection.</div></div>
+          <h2>Board snapshot</h2>
+          <div class="grid stats">
+            <article class="card"><div class="muted tiny">Ready</div><div class="kpi">${model.summary.readyCount}</div></article>
+            <article class="card"><div class="muted tiny">In progress</div><div class="kpi">${model.summary.activeCount}</div></article>
+            <article class="card"><div class="muted tiny">Blocked</div><div class="kpi">${model.summary.blockedCount}</div></article>
+            <article class="card"><div class="muted tiny">Done</div><div class="kpi">${model.summary.doneCount}</div></article>
+          </div>
+          <div class="stack" style="margin-top: 16px;">
+            ${model.board.map((column) => `<div class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;"><strong>${escapeHtml(column.status)}</strong><span class="muted">${column.cards.length}</span></div><div class="tiny muted">${column.cards.slice(0, 2).map((card) => escapeHtml(card.id)).join(' · ') || 'No cards'}</div></div>`).join('')}
           </div>
         </article>
         <article class="panel">
-          <h2>Current watch-outs</h2>
-          ${model.summary.unknownStatuses.length ? `<p>${escapeHtml(model.summary.unknownStatuses.join(', '))}</p>` : '<p>No unknown card statuses detected.</p>'}
-          <p class="muted">This is intentionally read-only. Safe writes can come later.</p>
+          <h2>Run status mix</h2>
+          <div class="stack">
+            ${byStatus.length ? byStatus.map((row) => `<div class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;"><strong>${escapeHtml(row.status)}</strong><span>${row.runs}</span></div><div class="tiny muted">${formatPercent(row.runs, totalRuns)} of recorded runs</div></div>`).join('') : '<p class="muted">No metrics runs found for this project.</p>'}
+          </div>
+        </article>
+      </section>
+      <section class="grid list">
+        <article class="panel">
+          <h2>Owner throughput</h2>
+          ${topOwner ? `<p class="muted">Top owner: ${escapeHtml(topOwner.owner)} with ${topOwner.runs} run(s) averaging ${escapeHtml(formatDuration(topOwner.avg_duration_ms))}.</p>` : '<p class="muted">No owner data yet.</p>'}
+          <div class="stack">
+            ${byOwner.length ? byOwner.map((row) => `<div class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;"><strong>${escapeHtml(row.owner)}</strong><span>${row.runs} run(s)</span></div><div class="tiny muted">avg ${escapeHtml(formatDuration(row.avg_duration_ms))} · ${row.artifacts_count} artifact(s)</div></div>`).join('') : '<p class="muted">No owner metrics found.</p>'}
+          </div>
+        </article>
+        <article class="panel">
+          <h2>Recent runs</h2>
+          <div class="stack">
+            ${recentRuns.length ? recentRuns.map((run) => `<div class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;"><strong>${escapeHtml(run.task_id || run.label || run.run_id)}</strong><span class="chip">${escapeHtml(run.status || 'unknown')}</span></div><div class="tiny muted">${escapeHtml(run.metadata?.owner || run.role || 'unknown')} · ${escapeHtml(formatDuration(run.duration_ms))} · ${run.artifacts_count || 0} artifact(s)</div><div class="tiny muted">${escapeHtml(run.started_at || '')}</div></div>`).join('') : '<p class="muted">No recent runs found.</p>'}
+          </div>
+        </article>
+      </section>
+      <section class="grid list">
+        <article class="panel">
+          <h2>Timeline</h2>
+          <div class="stack">
+            ${timeline.length ? timeline.map((row) => `<div class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;"><strong>${escapeHtml(row.day)}</strong><span>${row.runs} run(s)</span></div><div class="tiny muted">${row.successful_runs} successful · avg ${escapeHtml(formatDuration(row.avg_duration_ms))} · ${row.total_tokens || 0} tokens</div></div>`).join('') : '<p class="muted">No timeline buckets found.</p>'}
+          </div>
+        </article>
+        <article class="panel">
+          <h2>Routes</h2>
+          <div class="stack">
+            <div><a href="/board">/board</a><div class="muted">Kanban board with filtering and safe create/write actions.</div></div>
+            <div><a href="/decisions">/decisions</a><div class="muted">Decision records with in-page inspection and dedicated routes.</div></div>
+            <div><a href="/updates">/updates</a><div class="muted">Reverse chronological updates from repo markdown.</div></div>
+            <div><a href="/api/metrics/summary">/api/metrics/summary</a><div class="muted">Overview metrics JSON for quick inspection.</div></div>
+          </div>
+          ${model.summary.unknownStatuses.length ? `<p class="muted" style="margin-top: 16px;">Unknown board statuses: ${escapeHtml(model.summary.unknownStatuses.join(', '))}</p>` : '<p class="muted" style="margin-top: 16px;">No unknown card statuses detected.</p>'}
         </article>
       </section>`
   });
@@ -1355,7 +1426,18 @@ http.createServer(async (req, res) => {
   }
 
   if (url.pathname === '/') {
-    sendHtml(res, 200, renderOverview(model));
+    try {
+      const metrics = loadMetricsSnapshot({ limit: metricsLimit });
+      sendHtml(res, 200, renderOverview(model, metrics));
+    } catch (error) {
+      sendHtml(res, 200, renderOverview(model, {
+        summary: {},
+        byStatus: [],
+        byOwner: [],
+        recentRuns: [],
+        timeline: []
+      }));
+    }
     return;
   }
 

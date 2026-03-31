@@ -18,6 +18,7 @@
     "proof:mb-032": "node scripts/prove-mb-032.mjs",
     "proof:mb-033": "node scripts/prove-mb-033.mjs",
     "proof:mb-041": "node scripts/prove-mb-041.mjs",
+    "proof:mb-042": "node scripts/prove-mb-042.mjs",
     "proof:mb-052": "node scripts/prove-mb-052.mjs",
     "updates:timeline": "node scripts/read-updates-timeline.mjs",
     "metrics:backfill": "python3 scripts/mb_metrics_backfill.py"
