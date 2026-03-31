@@ -159,12 +159,17 @@
   {
     "id": "MB-033",
     "title": "Updates timeline screen",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-3",
     "depends_on": [
       "MB-021"
     ],
-    "artifacts": []
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-033.mjs",
+      "PROOF_MB_033.md",
+      "README.md"
+    ]
   },
   {
     "id": "MB-040",

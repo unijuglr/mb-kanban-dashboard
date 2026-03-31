@@ -10,12 +10,12 @@ A first-party local app for:
 - metrics/dashboard views
 
 ## Current status
-MB-030 and MB-031 are now live on top of the existing shell/API:
+MB-030 through MB-033 are now live on top of the existing shell/API:
 - minimal app shell route structure
 - API-backed board screen with summary strip, live search, and owner/priority/status filters
 - API-backed card detail screen with metadata summary, source-file visibility, and status-action controls
-- decision list/detail route
-- updates timeline route
+- API-backed decision list/detail route with in-page inspection
+- API-backed updates timeline route with search, author/section filters, and detail inspection
 - read-only JSON API for board, cards, decisions, and updates
 
 MB-050 adds the first safe write path:
@@ -46,6 +46,7 @@ MB-052 adds repo-backed card creation:
 - `/api/decisions` — all decisions JSON
 - `/api/decisions/:id` — decision detail JSON
 - `/api/updates` — updates timeline JSON
+- `/api/updates/:id` — update detail JSON
 - `/api/metrics/summary` — aggregate metrics snapshot from first-party SQLite metrics storage
 - `/api/metrics/runs` — recent MB task/run records with metadata
 - `/api/metrics/timeline` — daily timeline buckets for dashboard charts

@@ -824,23 +824,237 @@ function renderDecisionDetail(model, slug) {
 }
 
 function renderUpdates(model) {
+  const authorOptions = [...new Set(model.updates.map((update) => update.author).filter(Boolean))].sort();
+  const initialSelected = model.updates[0]?.slug ?? '';
+
+  const initialData = JSON.stringify({
+    generatedAt: model.generatedAt,
+    count: model.updates.length,
+    items: model.updates.map(updateApiShape)
+  }).replace(/</g, '\u003c');
+
   return shell({
     title: 'Updates',
     currentPath: '/updates',
     body: `
-      <section class="hero"><div><h1>Updates timeline</h1><p>Reverse chronological activity from docs/updates.</p></div></section>
-      <section class="stack">
-        ${model.updates.map((update) => `
-          <article class="panel">
-            <div><span class="chip">${escapeHtml(update.date)}</span><span class="chip">${escapeHtml(update.author)}</span></div>
-            <h2>${escapeHtml(update.title)}</h2>
-            ${paragraphize(update.summary)}
-            <h3>Findings</h3>
-            <pre>${escapeHtml(update.findings || 'Not available.')}</pre>
-            <h3>Direction</h3>
-            <pre>${escapeHtml(update.direction || 'Not available.')}</pre>
-          </article>`).join('')}
-      </section>`
+      <section class="hero">
+        <div>
+          <h1>Updates timeline</h1>
+          <p>API-backed reverse chronological activity from <code>docs/updates</code>.</p>
+        </div>
+        <div class="muted" id="updates-generated-at">Generated ${escapeHtml(model.generatedAt)}</div>
+      </section>
+      <section class="grid stats" id="updates-summary">
+        <article class="card"><div class="muted">Visible updates</div><div class="kpi" data-summary="visible">${model.updates.length}</div></article>
+        <article class="card"><div class="muted">Authors</div><div class="kpi" data-summary="authors">${authorOptions.length}</div></article>
+        <article class="card"><div class="muted">With findings</div><div class="kpi" data-summary="findings">${model.updates.filter((update) => update.findings).length}</div></article>
+        <article class="card"><div class="muted">Latest date</div><div class="kpi" style="font-size: 1.1rem;" data-summary="latest">${escapeHtml(model.updates[0]?.date || 'Unknown')}</div></article>
+      </section>
+      <section class="panel">
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
+          <label class="stack">
+            <span class="muted">Search</span>
+            <input id="updates-search" type="search" placeholder="Title, summary, findings, direction" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;" />
+          </label>
+          <label class="stack">
+            <span class="muted">Author</span>
+            <select id="updates-author" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;">
+              <option value="">All authors</option>
+              ${authorOptions.map((author) => `<option value="${escapeHtml(author)}">${escapeHtml(author)}</option>`).join('')}
+            </select>
+          </label>
+          <label class="stack">
+            <span class="muted">Section</span>
+            <select id="updates-section" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;">
+              <option value="">All section types</option>
+              <option value="findings">Has findings</option>
+              <option value="direction">Has direction</option>
+              <option value="summary">Has summary</option>
+            </select>
+          </label>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap;">
+          <button id="updates-clear" type="button" style="padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #16203a; color: #e8ecf3; cursor: pointer;">Clear filters</button>
+          <div class="muted" id="updates-filter-state">Showing all updates.</div>
+        </div>
+      </section>
+      <section class="grid" style="grid-template-columns: minmax(320px, 440px) minmax(0, 1fr); align-items: start;">
+        <article class="panel">
+          <h2>Timeline entries</h2>
+          <div class="stack" id="updates-list"></div>
+        </article>
+        <article class="panel" id="update-detail-panel">
+          <h2>Update detail</h2>
+          <div class="muted">Select an update to inspect its full record.</div>
+        </article>
+      </section>
+      <script id="updates-data" type="application/json">${initialData}</script>
+      <script>
+        (() => {
+          const embedded = document.getElementById('updates-data');
+          const initial = embedded ? JSON.parse(embedded.textContent) : null;
+          const listEl = document.getElementById('updates-list');
+          const detailEl = document.getElementById('update-detail-panel');
+          const searchEl = document.getElementById('updates-search');
+          const authorEl = document.getElementById('updates-author');
+          const sectionEl = document.getElementById('updates-section');
+          const clearEl = document.getElementById('updates-clear');
+          const stateEl = document.getElementById('updates-filter-state');
+          const generatedEl = document.getElementById('updates-generated-at');
+          const summaryEls = {
+            visible: document.querySelector('[data-summary="visible"]'),
+            authors: document.querySelector('[data-summary="authors"]'),
+            findings: document.querySelector('[data-summary="findings"]'),
+            latest: document.querySelector('[data-summary="latest"]')
+          };
+          let payload = initial;
+          let selectedSlug = new URL(window.location.href).searchParams.get('selected') || ${JSON.stringify(initialSelected)};
+
+          const normalized = (value) => String(value || '').toLowerCase();
+
+          function esc(value) {
+            return String(value || '')
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+          }
+
+          function paragraphizeClient(text, fallback = 'Not available.') {
+            const value = String(text || '').trim();
+            if (!value) return '<p class="muted">' + esc(fallback) + '</p>';
+            return value
+              .split(/\n\s*\n/)
+              .map((block) => '<p>' + esc(block).replace(/\n/g, '<br />') + '</p>')
+              .join('');
+          }
+
+          function hasRequestedSection(update) {
+            if (!sectionEl.value) return true;
+            if (sectionEl.value === 'findings') return Boolean(String(update.findings || '').trim());
+            if (sectionEl.value === 'direction') return Boolean(String(update.direction || '').trim());
+            if (sectionEl.value === 'summary') return Boolean(String(update.summary || '').trim());
+            return true;
+          }
+
+          function matches(update) {
+            const search = normalized(searchEl.value).trim();
+            const author = authorEl.value;
+            const haystack = [update.id, update.title, update.summary, update.findings, update.direction, update.author]
+              .map(normalized)
+              .join(' ');
+            return (!search || haystack.includes(search))
+              && (!author || update.author === author)
+              && hasRequestedSection(update);
+          }
+
+          function listMarkup(update, active) {
+            const activeStyle = active ? 'background: #16203a; border-radius: 10px; padding: 12px;' : '';
+            const sectionCount = Array.isArray(update.sections) ? update.sections.length : 0;
+            return '<article class="card-item" data-slug="' + esc(update.slug) + '" style="cursor: pointer; border-top: 1px solid #26304a; padding-top: 12px; ' + activeStyle + '">'
+              + '<div><span class="chip">' + esc(update.date || 'Unknown') + '</span><span class="chip">' + esc(update.author || 'Unknown') + '</span></div>'
+              + '<h3 style="margin-top: 10px;">' + esc(update.title) + '</h3>'
+              + '<div class="muted">' + sectionCount + ' section(s) · ' + esc(update.id) + '</div>'
+              + '<p>' + esc(String(update.summary || update.findings || update.direction || 'No summary available.').replace(/\s+/g, ' ').trim().slice(0, 180)) + '</p>'
+              + '<div style="display: flex; gap: 10px; flex-wrap: wrap;">'
+              + '<a href="/updates?selected=' + encodeURIComponent(update.slug) + '">Permalink</a>'
+              + '<button type="button" data-select="' + esc(update.slug) + '" style="padding: 8px 10px; border-radius: 8px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3; cursor: pointer;">Inspect here</button>'
+              + '</div>'
+              + '</article>';
+          }
+
+          function sectionMarkup(section) {
+            const bulletItems = Array.isArray(section.bulletItems) ? section.bulletItems : [];
+            return '<section class="panel">'
+              + '<h3>' + esc(section.heading) + '</h3>'
+              + (bulletItems.length
+                  ? '<ul>' + bulletItems.map((item) => '<li>' + esc(item) + '</li>').join('') + '</ul>'
+                  : paragraphizeClient(section.body, 'Not available.'))
+              + '</section>';
+          }
+
+          function detailMarkup(update) {
+            if (!update) {
+              return '<h2>Update detail</h2><div class="muted">No updates match the current filters.</div>';
+            }
+            const sections = Array.isArray(update.sections) ? update.sections : [];
+            const metadata = update.metadata && Object.keys(update.metadata).length
+              ? '<pre>' + esc(JSON.stringify(update.metadata, null, 2)) + '</pre>'
+              : '<p class="muted">No extra metadata.</p>';
+            return '<div style="display: flex; justify-content: space-between; gap: 12px; align-items: start; flex-wrap: wrap;">'
+              + '<div><h2>' + esc(update.title) + '</h2><div class="muted">' + esc(update.date || 'Unknown date') + ' · ' + esc(update.author || 'Unknown author') + ' · ' + esc(update.id) + '</div></div>'
+              + '<div style="display: flex; gap: 10px; flex-wrap: wrap;">'
+              + '<a href="/api/updates/' + encodeURIComponent(update.slug) + '">Open JSON</a>'
+              + '<a href="file://' + encodeURI(update.filePath || '') + '">Open source markdown</a>'
+              + '</div>'
+              + '</div>'
+              + '<div class="grid list" style="margin-top: 16px;">'
+              + '<section class="panel"><h3>Summary</h3>' + paragraphizeClient(update.summary, 'No summary available.') + '</section>'
+              + sections.map(sectionMarkup).join('')
+              + '<section class="panel"><h3>Metadata</h3>' + metadata + '</section>'
+              + '<section class="panel"><h3>Source file</h3><pre>' + esc(update.filePath || 'Not available.') + '</pre></section>'
+              + '</div>';
+          }
+
+          function render() {
+            const filtered = (payload?.items || []).filter(matches);
+            const selected = filtered.find((update) => update.slug === selectedSlug) || filtered[0] || null;
+            if (selected) selectedSlug = selected.slug;
+            listEl.innerHTML = filtered.length
+              ? filtered.map((update) => listMarkup(update, update.slug === selectedSlug)).join('')
+              : '<p class="muted">No updates match the current filters.</p>';
+            detailEl.innerHTML = detailMarkup(selected);
+            summaryEls.visible.textContent = String(filtered.length);
+            summaryEls.authors.textContent = String(new Set(filtered.map((update) => update.author).filter(Boolean)).size);
+            summaryEls.findings.textContent = String(filtered.filter((update) => String(update.findings || '').trim()).length);
+            summaryEls.latest.textContent = filtered[0]?.date || 'Unknown';
+            const activeFilters = [searchEl.value && 'search', authorEl.value && 'author', sectionEl.value && 'section'].filter(Boolean);
+            stateEl.textContent = activeFilters.length
+              ? 'Showing ' + filtered.length + ' filtered update(s).'
+              : 'Showing all updates.';
+            const nextUrl = new URL(window.location.href);
+            if (selectedSlug) nextUrl.searchParams.set('selected', selectedSlug);
+            else nextUrl.searchParams.delete('selected');
+            window.history.replaceState({}, '', nextUrl);
+          }
+
+          async function loadUpdates() {
+            try {
+              const response = await fetch('/api/updates');
+              if (!response.ok) throw new Error('updates api failed');
+              return await response.json();
+            } catch {
+              return initial;
+            }
+          }
+
+          function wire() {
+            [searchEl, authorEl, sectionEl].forEach((el) => el.addEventListener('input', render));
+            clearEl.addEventListener('click', () => {
+              searchEl.value = '';
+              authorEl.value = '';
+              sectionEl.value = '';
+              render();
+            });
+            listEl.addEventListener('click', (event) => {
+              const button = event.target.closest('[data-select]');
+              const article = event.target.closest('[data-slug]');
+              const slug = button?.getAttribute('data-select') || article?.getAttribute('data-slug');
+              if (!slug) return;
+              selectedSlug = slug;
+              render();
+            });
+            generatedEl.textContent = 'Generated ' + (payload?.generatedAt || 'unknown');
+            render();
+          }
+
+          loadUpdates().then((nextPayload) => {
+            payload = nextPayload || initial;
+            wire();
+          });
+        })();
+      </script>`
   });
 }
 
@@ -932,6 +1146,8 @@ function updateApiShape(update) {
     date: update.date,
     author: update.author,
     summary: update.summary,
+    metadata: update.metadata,
+    sections: update.sections,
     findings: update.findings,
     direction: update.direction,
     filePath: update.filePath
@@ -998,6 +1214,7 @@ http.createServer(async (req, res) => {
         '/api/decisions',
         '/api/decisions/:id',
         '/api/updates',
+        '/api/updates/:id',
         '/api/metrics/summary',
         '/api/metrics/runs',
         '/api/metrics/timeline'
@@ -1122,6 +1339,18 @@ http.createServer(async (req, res) => {
       count: model.updates.length,
       items: model.updates.map(updateApiShape)
     });
+    return;
+  }
+
+  if (url.pathname.startsWith('/api/updates/')) {
+    const update = findBySlug(model.updates, decodeURIComponent(url.pathname.slice('/api/updates/'.length)));
+
+    if (!update) {
+      json(res, 404, { ok: false, error: 'Update not found' });
+      return;
+    }
+
+    json(res, 200, updateApiShape(update));
     return;
   }
 

@@ -16,6 +16,7 @@
     "proof:mb-030": "node scripts/prove-mb-030.mjs",
     "proof:mb-031": "node scripts/prove-mb-031.mjs",
     "proof:mb-032": "node scripts/prove-mb-032.mjs",
+    "proof:mb-033": "node scripts/prove-mb-033.mjs",
     "proof:mb-041": "node scripts/prove-mb-041.mjs",
     "proof:mb-052": "node scripts/prove-mb-052.mjs",
     "updates:timeline": "node scripts/read-updates-timeline.mjs",
