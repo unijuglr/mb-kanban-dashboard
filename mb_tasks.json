@@ -271,12 +271,17 @@
   {
     "id": "MB-053",
     "title": "Create new decision from template",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-5",
     "depends_on": [
       "MB-021"
     ],
-    "artifacts": []
+    "artifacts": [
+      "src/decision-writes.mjs",
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-053.mjs",
+      "PROOF_MB_053.md"
+    ]
   },
   {
     "id": "MB-060",

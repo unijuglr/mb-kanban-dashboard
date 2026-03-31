@@ -38,6 +38,12 @@ MB-052 adds repo-backed card creation:
 - creates a new markdown card from a fixed template
 - duplicate card IDs are rejected before write
 
+MB-053 adds repo-backed decision creation:
+- `POST /api/decisions`
+- decisions-side create-decision form in `/decisions`
+- creates a new markdown decision record from a fixed template
+- duplicate decision IDs are rejected before write
+
 ## Routes
 - `/` — overview shell
 - `/board` — status-grouped card board
@@ -52,6 +58,7 @@ MB-052 adds repo-backed card creation:
 - `/api/cards/:id` — card detail JSON
 - `POST /api/cards/:id/status` — guarded status transition write path
 - `/api/decisions` — all decisions JSON
+- `POST /api/decisions` — create a new decision from template
 - `/api/decisions/:id` — decision detail JSON
 - `/api/updates` — updates timeline JSON
 - `/api/updates/:id` — update detail JSON
@@ -103,7 +110,21 @@ curl -X POST http://127.0.0.1:4187/api/cards \
   }'
 ```
 
+Example create-decision request:
+
+```bash
+curl -X POST http://127.0.0.1:4187/api/decisions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "id":"DEC-004",
+    "title":"Create new decision from template",
+    "owner":"Coder-5",
+    "context":"The app needs a safe decision-creation path.",
+    "decision":"Create decisions through a fixed template-backed write path."
+  }'
+```
+
 ## Notes
 - This build reads markdown directly from `docs/cards`, `docs/decisions`, and `docs/updates`.
-- Safe writes are intentionally narrow: MB-050 covers status transitions and MB-052 covers creating new cards from a fixed template.
+- Safe writes are intentionally narrow: MB-050 covers status transitions, MB-052 covers creating new cards from a fixed template, and MB-053 covers creating new decisions from a fixed template.
 - Arbitrary markdown editing is still out of scope; the file-backed source of truth remains intact.

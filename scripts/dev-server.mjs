@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findBySlug, loadDashboardModel } from '../src/app-data.mjs';
 import { allowedNextStatuses, createCardFromTemplate, transitionCardStatus } from '../src/card-writes.mjs';
+import { createDecisionFromTemplate } from '../src/decision-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
 
 function json(res, statusCode, payload) {
@@ -710,13 +711,42 @@ function renderDecisions(model) {
       </section>
       <section class="grid" style="grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); align-items: start;">
         <article class="panel">
-          <h2>Decision list</h2>
-          <div class="stack" id="decisions-list"></div>
+          <h2>Create new decision</h2>
+          <p class="muted">Creates a new markdown decision record in <code>docs/decisions</code> from the app shell.</p>
+          <form id="create-decision-form" class="stack">
+            <label class="stack"><span class="muted">Decision ID</span><input name="id" type="text" placeholder="DEC-004" required /></label>
+            <label class="stack"><span class="muted">Title</span><input name="title" type="text" placeholder="Create new decision from template" required /></label>
+            <label class="stack"><span class="muted">Owner</span><input name="owner" type="text" placeholder="Coder-5" required /></label>
+            <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+              <label class="stack"><span class="muted">Status</span><input name="status" type="text" value="Proposed" /></label>
+              <label class="stack"><span class="muted">Date</span><input name="date" type="date" value="${escapeHtml(new Date().toISOString().slice(0, 10))}" /></label>
+            </div>
+            <label class="stack"><span class="muted">Context</span><textarea name="context" placeholder="Describe the problem, constraints, or trigger for this decision." required></textarea></label>
+            <label class="stack"><span class="muted">Options considered</span><textarea name="optionsConsidered">### Option A
+Keep the current approach.
+
+### Option B
+Adopt the proposed change.</textarea></label>
+            <label class="stack"><span class="muted">Decision</span><textarea name="decision" placeholder="State the decision clearly." required></textarea></label>
+            <label class="stack"><span class="muted">Why</span><textarea name="why">Document why this decision is the right call right now.</textarea></label>
+            <label class="stack"><span class="muted">Consequences</span><textarea name="consequences">- capture expected consequences here</textarea></label>
+            <label class="stack"><span class="muted">Follow-up tasks</span><textarea name="followUpTasks">- [ ] document follow-up work</textarea></label>
+            <div class="button-row">
+              <button class="button" id="create-decision-submit" type="submit">Create decision</button>
+            </div>
+            <p class="muted tiny" id="create-decision-result">Template defaults are editable before save.</p>
+          </form>
         </article>
-        <article class="panel" id="decision-detail-panel">
-          <h2>Decision detail</h2>
-          <div class="muted">Select a decision to inspect its full record.</div>
-        </article>
+        <div class="stack">
+          <article class="panel">
+            <h2>Decision list</h2>
+            <div class="stack" id="decisions-list"></div>
+          </article>
+          <article class="panel" id="decision-detail-panel">
+            <h2>Decision detail</h2>
+            <div class="muted">Select a decision to inspect its full record.</div>
+          </article>
+        </div>
       </section>
       <script id="decisions-data" type="application/json">${initialData}</script>
       <script>
@@ -731,6 +761,9 @@ function renderDecisions(model) {
           const clearEl = document.getElementById('decisions-clear');
           const stateEl = document.getElementById('decisions-filter-state');
           const generatedEl = document.getElementById('decisions-generated-at');
+          const createFormEl = document.getElementById('create-decision-form');
+          const createSubmitEl = document.getElementById('create-decision-submit');
+          const createResultEl = document.getElementById('create-decision-result');
           const summaryEls = {
             visible: document.querySelector('[data-summary="visible"]'),
             proposed: document.querySelector('[data-summary="proposed"]'),
@@ -812,6 +845,45 @@ function renderDecisions(model) {
               + '</div>';
           }
 
+          function setCreateBusy(isBusy) {
+            if (createSubmitEl) createSubmitEl.disabled = isBusy;
+          }
+
+          function collectFormData() {
+            const formData = new FormData(createFormEl);
+            return Object.fromEntries(Array.from(formData.entries()).map(([key, value]) => [key, String(value)]));
+          }
+
+          async function submitCreateDecision(event) {
+            event.preventDefault();
+            setCreateBusy(true);
+            createResultEl.textContent = 'Creating decision…';
+            try {
+              const response = await fetch('/api/decisions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(collectFormData())
+              });
+              const result = await response.json();
+              if (!response.ok || !result.ok) throw new Error(result.error || 'Decision creation failed');
+              const refreshed = await loadDecisions();
+              if (!refreshed) throw new Error('Decision refresh failed after create');
+              payload = refreshed;
+              selectedSlug = result.slug;
+              render();
+              createFormEl.reset();
+              const statusField = createFormEl.querySelector('[name="status"]');
+              const dateField = createFormEl.querySelector('[name="date"]');
+              if (statusField) statusField.value = 'Proposed';
+              if (dateField) dateField.value = '2026-03-31';
+              createResultEl.innerHTML = 'Created <a href="/decisions/' + encodeURIComponent(result.slug) + '">' + result.decisionId + '</a> at ' + result.filePath + '.';
+            } catch (error) {
+              createResultEl.textContent = error.message;
+            } finally {
+              setCreateBusy(false);
+            }
+          }
+
           function render() {
             const filtered = (payload?.items || []).filter(matches);
             const selected = filtered.find((decision) => decision.slug === selectedSlug) || filtered[0] || null;
@@ -846,6 +918,7 @@ function renderDecisions(model) {
 
           function wire() {
             [searchEl, statusEl, ownerEl].forEach((el) => el.addEventListener('input', render));
+            if (createFormEl) createFormEl.addEventListener('submit', submitCreateDecision);
             clearEl.addEventListener('click', () => {
               searchEl.value = '';
               statusEl.value = '';
@@ -1247,6 +1320,23 @@ http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && url.pathname === '/api/decisions') {
+    try {
+      const body = await readJsonBody(req);
+      const result = createDecisionFromTemplate({ rootDir: root, ...body });
+      if (result.ok) {
+        const refreshedModel = loadDashboardModel(root);
+        const createdDecision = findBySlug(refreshedModel.decisions, result.slug);
+        json(res, result.statusCode || 201, { ...result, decision: createdDecision ? decisionApiShape(createdDecision) : null });
+      } else {
+        json(res, result.statusCode || 400, result);
+      }
+    } catch (error) {
+      json(res, 400, { ok: false, error: error.message });
+    }
+    return;
+  }
+
   if (req.method === 'POST' && url.pathname.startsWith('/api/cards/') && url.pathname.endsWith('/status')) {
     const slug = decodeURIComponent(url.pathname.slice('/api/cards/'.length, -'/status'.length));
 
@@ -1283,6 +1373,7 @@ http.createServer(async (req, res) => {
         '/api/cards/:id',
         'POST /api/cards/:id/status',
         '/api/decisions',
+        'POST /api/decisions',
         '/api/decisions/:id',
         '/api/updates',
         '/api/updates/:id',
