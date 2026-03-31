@@ -26,6 +26,12 @@ MB-042 upgrades `/` into a real dashboard overview on top of the metrics API:
 - recent runs panel
 - daily metrics timeline panel
 
+MB-043 adds a dedicated metrics timeline/comparison screen:
+- `/metrics` route in the app shell
+- owner comparison view for run volume, success rate, duration, and artifacts
+- timeline window control with bucket-over-bucket deltas
+- API hydration from `/api/metrics/summary`, `/api/metrics/timeline`, and `/api/metrics/comparison`
+
 MB-050 adds the first safe write path:
 - `POST /api/cards/:id/status`
 - guarded status transitions only
@@ -47,6 +53,7 @@ MB-053 adds repo-backed decision creation:
 ## Routes
 - `/` — overview shell
 - `/board` — status-grouped card board
+- `/metrics` — metrics timeline + comparison screen
 - `/cards/:id` — card detail view
 - `/decisions` — decision list
 - `/decisions/:id` — decision detail view
@@ -64,6 +71,7 @@ MB-053 adds repo-backed decision creation:
 - `/api/updates/:id` — update detail JSON
 - `/api/metrics/summary` — aggregate metrics snapshot from first-party SQLite metrics storage
 - `/api/metrics/runs` — recent MB task/run records with metadata
+- `/api/metrics/comparison` — owner comparison rows for leaderboard/side-by-side review
 - `/api/metrics/timeline` — daily timeline buckets for dashboard charts
 - `/health` — health probe
 

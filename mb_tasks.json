@@ -219,12 +219,18 @@
   {
     "id": "MB-043",
     "title": "Metrics timeline/comparison screen",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-4",
     "depends_on": [
       "MB-041"
     ],
-    "artifacts": []
+    "artifacts": [
+      "src/metrics-api.mjs",
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-043.mjs",
+      "PROOF_MB_043.md",
+      "README.md"
+    ]
   },
   {
     "id": "MB-050",

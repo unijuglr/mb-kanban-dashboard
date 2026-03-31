@@ -60,6 +60,26 @@ owner_rows = conn.execute(
     (PROJECT_ID,)
 ).fetchall()
 
+comparison_rows = conn.execute(
+    """
+    SELECT
+      COALESCE(json_extract(metadata_json, '$.owner'), '(unknown)') AS owner,
+      COUNT(*) AS runs,
+      SUM(CASE WHEN status IN ('done','verified','completed') THEN 1 ELSE 0 END) AS successful_runs,
+      COALESCE(AVG(duration_ms), 0) AS avg_duration_ms,
+      COALESCE(SUM(duration_ms), 0) AS total_duration_ms,
+      COALESCE(SUM(artifacts_count), 0) AS artifacts_count,
+      COALESCE(AVG(artifacts_count), 0) AS avg_artifacts_per_run,
+      MIN(started_at) AS first_started_at,
+      MAX(COALESCE(ended_at, started_at)) AS last_activity_at
+    FROM agent_runs
+    WHERE project_id = ?
+    GROUP BY COALESCE(json_extract(metadata_json, '$.owner'), '(unknown)')
+    ORDER BY runs DESC, owner ASC
+    """,
+    (PROJECT_ID,)
+).fetchall()
+
 recent_rows = conn.execute(
     """
     SELECT
@@ -99,6 +119,7 @@ payload = {
     'summary': dict(summary_row) if summary_row else {},
     'by_status': [dict(row) for row in status_rows],
     'by_owner': [dict(row) for row in owner_rows],
+    'comparison': [dict(row) for row in comparison_rows],
     'recent_runs': [dict(row) for row in recent_rows],
     'timeline': [dict(row) for row in timeline_rows],
 }
@@ -141,6 +162,7 @@ export function loadMetricsSnapshot({ dbPath = DEFAULT_DB_PATH, projectId = DEFA
     summary: payload.summary,
     byStatus: payload.by_status,
     byOwner: payload.by_owner,
+    comparison: payload.comparison,
     recentRuns: payload.recent_runs.map(normalizeRun),
     timeline: payload.timeline,
   };

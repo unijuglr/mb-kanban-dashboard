@@ -37,6 +37,7 @@ function paragraphize(text) {
 function shell({ title, currentPath, body }) {
   const navItems = [
     ['/', 'Overview'],
+    ['/metrics', 'Metrics'],
     ['/board', 'Board'],
     ['/decisions', 'Decisions'],
     ['/updates', 'Updates']
@@ -126,6 +127,12 @@ function formatPercent(numerator, denominator) {
   return `${Math.round((top / bottom) * 100)}%`;
 }
 
+function formatDecimal(value, digits = 1) {
+  const number = Number(value || 0);
+  if (!Number.isFinite(number)) return '0';
+  return number.toFixed(digits);
+}
+
 function renderOverview(model, metrics) {
   const summary = metrics?.summary || {};
   const byStatus = Array.isArray(metrics?.byStatus) ? metrics.byStatus : [];
@@ -212,6 +219,277 @@ function renderOverview(model, metrics) {
           ${model.summary.unknownStatuses.length ? `<p class="muted" style="margin-top: 16px;">Unknown board statuses: ${escapeHtml(model.summary.unknownStatuses.join(', '))}</p>` : '<p class="muted" style="margin-top: 16px;">No unknown card statuses detected.</p>'}
         </article>
       </section>`
+  });
+}
+
+function renderMetricsScreen(model, metrics) {
+  const comparison = Array.isArray(metrics?.comparison) ? metrics.comparison : [];
+  const timeline = Array.isArray(metrics?.timeline) ? metrics.timeline : [];
+  const initialData = JSON.stringify({
+    generatedAt: model.generatedAt,
+    projectId: metrics?.projectId || 'mb-kanban-dashboard',
+    summary: metrics?.summary || {},
+    comparison,
+    timeline
+  }).replace(/</g, '\\u003c');
+
+  return shell({
+    title: 'Metrics',
+    currentPath: '/metrics',
+    body: `
+      <section class="hero">
+        <div>
+          <h1>Metrics timeline & comparison</h1>
+          <p>Dedicated metrics screen over the existing SQLite-backed MB run log.</p>
+        </div>
+        <div class="muted" id="metrics-generated-at">Generated ${escapeHtml(model.generatedAt)}</div>
+      </section>
+      <section class="grid stats" id="metrics-summary">
+        <article class="card"><div class="muted">Timeline days</div><div class="kpi" data-summary="days">${timeline.length}</div><div class="tiny muted">Daily buckets from /api/metrics/timeline</div></article>
+        <article class="card"><div class="muted">Compared owners</div><div class="kpi" data-summary="owners">${comparison.length}</div><div class="tiny muted">Grouped from /api/metrics/comparison</div></article>
+        <article class="card"><div class="muted">Total runs</div><div class="kpi" data-summary="runs">${Number(metrics?.summary?.total_runs || 0)}</div><div class="tiny muted">${formatPercent(metrics?.summary?.successful_runs, metrics?.summary?.total_runs)} success rate</div></article>
+        <article class="card"><div class="muted">Avg run time</div><div class="kpi" data-summary="duration">${escapeHtml(formatDuration(metrics?.summary?.avg_duration_ms))}</div><div class="tiny muted">${Number(metrics?.summary?.total_artifacts || 0)} artifacts captured</div></article>
+      </section>
+      <section class="panel">
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
+          <label class="stack">
+            <span class="muted">Owner filter</span>
+            <select id="metrics-owner-filter">
+              <option value="">All owners</option>
+              ${comparison.map((row) => `<option value="${escapeHtml(row.owner)}">${escapeHtml(row.owner)}</option>`).join('')}
+            </select>
+          </label>
+          <label class="stack">
+            <span class="muted">Sort owners by</span>
+            <select id="metrics-sort">
+              <option value="runs">Runs</option>
+              <option value="successRate">Success rate</option>
+              <option value="avgDuration">Average duration</option>
+              <option value="artifacts">Artifacts</option>
+            </select>
+          </label>
+          <label class="stack">
+            <span class="muted">Timeline window</span>
+            <select id="metrics-window">
+              <option value="7">Last 7 buckets</option>
+              <option value="14">Last 14 buckets</option>
+              <option value="30">Last 30 buckets</option>
+              <option value="all">All buckets</option>
+            </select>
+          </label>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap;">
+          <button id="metrics-clear" type="button" class="button">Reset view</button>
+          <div class="muted" id="metrics-filter-state">Showing full metrics comparison.</div>
+        </div>
+      </section>
+      <section class="grid list">
+        <article class="panel">
+          <h2>Owner comparison</h2>
+          <div class="muted">Compare run volume, success rate, duration, and artifacts by owner.</div>
+          <div class="stack" id="metrics-owner-comparison" style="margin-top: 16px;"></div>
+        </article>
+        <article class="panel">
+          <h2>Timeline</h2>
+          <div class="muted">Daily run buckets with day-over-day deltas for volume and average duration.</div>
+          <div class="stack" id="metrics-timeline" style="margin-top: 16px;"></div>
+        </article>
+      </section>
+      <section class="grid list">
+        <article class="panel">
+          <h2>What this screen is for</h2>
+          <div class="stack">
+            <div class="card-item"><strong>Timeline</strong><div class="tiny muted">See how run volume and average duration move over time.</div></div>
+            <div class="card-item"><strong>Comparison</strong><div class="tiny muted">Spot which owner/workstream is carrying the most runs or producing the most artifacts.</div></div>
+            <div class="card-item"><strong>API-backed</strong><div class="tiny muted">Hydrates from <code>/api/metrics/timeline</code> and <code>/api/metrics/comparison</code>.</div></div>
+          </div>
+        </article>
+        <article class="panel">
+          <h2>JSON routes</h2>
+          <div class="stack">
+            <div><a href="/api/metrics/summary">/api/metrics/summary</a><div class="muted">Top-level totals and grouped status/owner breakdowns.</div></div>
+            <div><a href="/api/metrics/timeline">/api/metrics/timeline</a><div class="muted">Daily buckets for charts or sparkline-style UI.</div></div>
+            <div><a href="/api/metrics/comparison">/api/metrics/comparison</a><div class="muted">Owner comparison rows for leaderboards and side-by-side review.</div></div>
+          </div>
+        </article>
+      </section>
+      <script id="metrics-data" type="application/json">${initialData}</script>
+      <script>
+        (() => {
+          const embedded = document.getElementById('metrics-data');
+          const initial = embedded ? JSON.parse(embedded.textContent) : null;
+          const ownerFilterEl = document.getElementById('metrics-owner-filter');
+          const sortEl = document.getElementById('metrics-sort');
+          const windowEl = document.getElementById('metrics-window');
+          const clearEl = document.getElementById('metrics-clear');
+          const stateEl = document.getElementById('metrics-filter-state');
+          const generatedEl = document.getElementById('metrics-generated-at');
+          const ownerListEl = document.getElementById('metrics-owner-comparison');
+          const timelineEl = document.getElementById('metrics-timeline');
+          const summaryEls = {
+            days: document.querySelector('[data-summary="days"]'),
+            owners: document.querySelector('[data-summary="owners"]'),
+            runs: document.querySelector('[data-summary="runs"]'),
+            duration: document.querySelector('[data-summary="duration"]')
+          };
+
+          function esc(value) {
+            return String(value || '')
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+          }
+
+          function formatDurationClient(ms) {
+            const value = Number(ms || 0);
+            if (!Number.isFinite(value) || value <= 0) return '0m';
+            const totalSeconds = Math.round(value / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            if (hours) return hours + 'h ' + minutes + 'm';
+            if (minutes) return minutes + 'm ' + seconds + 's';
+            return seconds + 's';
+          }
+
+          function percent(numerator, denominator) {
+            const top = Number(numerator || 0);
+            const bottom = Number(denominator || 0);
+            if (!bottom) return '0%';
+            return Math.round((top / bottom) * 100) + '%';
+          }
+
+          function decimal(value, digits = 1) {
+            const number = Number(value || 0);
+            if (!Number.isFinite(number)) return '0';
+            return number.toFixed(digits);
+          }
+
+          function toOwnerRows(rows) {
+            return (rows || []).map((row) => ({
+              ...row,
+              successRate: Number(row.runs || 0) ? Number(row.successful_runs || 0) / Number(row.runs || 0) : 0,
+              avgDuration: Number(row.avg_duration_ms || 0),
+              artifacts: Number(row.artifacts_count || 0)
+            }));
+          }
+
+          function ownerMarkup(row, topRuns) {
+            const width = topRuns > 0 ? Math.max(8, Math.round((Number(row.runs || 0) / topRuns) * 100)) : 8;
+            return '<article class="card-item">'
+              + '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;"><strong>' + esc(row.owner) + '</strong><span class="chip">' + esc(String(row.runs || 0)) + ' run(s)</span></div>'
+              + '<div style="margin-top:10px;height:10px;border-radius:999px;background:#0d1322;border:1px solid #26304a;overflow:hidden;"><div style="height:100%;width:' + width + '%;background:linear-gradient(90deg,#4f8cff,#6dd3ff);"></div></div>'
+              + '<div class="grid stats" style="margin-top:12px;grid-template-columns: repeat(4, minmax(0, 1fr));">'
+              + '<div><div class="tiny muted">Success</div><div>' + esc(percent(row.successful_runs, row.runs)) + '</div></div>'
+              + '<div><div class="tiny muted">Avg duration</div><div>' + esc(formatDurationClient(row.avg_duration_ms)) + '</div></div>'
+              + '<div><div class="tiny muted">Artifacts</div><div>' + esc(String(row.artifacts_count || 0)) + '</div></div>'
+              + '<div><div class="tiny muted">Avg/run</div><div>' + esc(decimal(row.avg_artifacts_per_run || 0, 1)) + '</div></div>'
+              + '</div>'
+              + '<div class="tiny muted" style="margin-top:10px;">First seen ' + esc(row.first_started_at || 'n/a') + ' · Last activity ' + esc(row.last_activity_at || 'n/a') + '</div>'
+              + '</article>';
+          }
+
+          function timelineMarkup(row, previous) {
+            const runDelta = previous ? Number(row.runs || 0) - Number(previous.runs || 0) : null;
+            const durationDelta = previous ? Number(row.avg_duration_ms || 0) - Number(previous.avg_duration_ms || 0) : null;
+            const runDeltaText = runDelta === null ? 'baseline bucket' : (runDelta >= 0 ? '+' : '') + runDelta + ' vs previous';
+            const durationDeltaText = durationDelta === null ? 'baseline bucket' : ((durationDelta >= 0 ? '+' : '') + formatDurationClient(Math.abs(durationDelta)) + ' avg duration shift');
+            return '<article class="card-item">'
+              + '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;"><strong>' + esc(row.day) + '</strong><span class="chip">' + esc(String(row.runs || 0)) + ' run(s)</span></div>'
+              + '<div class="grid stats" style="margin-top:12px;grid-template-columns: repeat(4, minmax(0, 1fr));">'
+              + '<div><div class="tiny muted">Successful</div><div>' + esc(String(row.successful_runs || 0)) + '</div></div>'
+              + '<div><div class="tiny muted">Success rate</div><div>' + esc(percent(row.successful_runs, row.runs)) + '</div></div>'
+              + '<div><div class="tiny muted">Avg duration</div><div>' + esc(formatDurationClient(row.avg_duration_ms)) + '</div></div>'
+              + '<div><div class="tiny muted">Tokens</div><div>' + esc(String(row.total_tokens || 0)) + '</div></div>'
+              + '</div>'
+              + '<div class="tiny muted" style="margin-top:10px;">' + esc(runDeltaText) + ' · ' + esc(durationDeltaText) + '</div>'
+              + '</article>';
+          }
+
+          function applySummary(owners, timeline) {
+            summaryEls.days.textContent = String(timeline.length);
+            summaryEls.owners.textContent = String(owners.length);
+            summaryEls.runs.textContent = String((owners || []).reduce((sum, row) => sum + Number(row.runs || 0), 0));
+            const avg = owners.length ? owners.reduce((sum, row) => sum + Number(row.avg_duration_ms || 0), 0) / owners.length : 0;
+            summaryEls.duration.textContent = formatDurationClient(avg);
+          }
+
+          function render(payload) {
+            const allOwners = toOwnerRows(payload.comparison || []);
+            const ownerFilter = ownerFilterEl.value;
+            const sortKey = sortEl.value;
+            const windowValue = windowEl.value;
+            const owners = allOwners
+              .filter((row) => !ownerFilter || row.owner === ownerFilter)
+              .sort((left, right) => {
+                const valueFor = (row) => {
+                  if (sortKey === 'successRate') return row.successRate;
+                  if (sortKey === 'avgDuration') return row.avgDuration;
+                  if (sortKey === 'artifacts') return row.artifacts;
+                  return Number(row.runs || 0);
+                };
+                return valueFor(right) - valueFor(left) || String(left.owner).localeCompare(String(right.owner));
+              });
+            const allTimeline = payload.timeline || [];
+            const windowSize = windowValue === 'all' ? allTimeline.length : Number(windowValue || 7);
+            const timeline = allTimeline.slice(0, windowSize);
+            const topRuns = owners.reduce((max, row) => Math.max(max, Number(row.runs || 0)), 0);
+
+            ownerListEl.innerHTML = owners.length
+              ? owners.map((row) => ownerMarkup(row, topRuns)).join('')
+              : '<p class="muted">No owner rows match the current comparison filters.</p>';
+            timelineEl.innerHTML = timeline.length
+              ? timeline.map((row, index) => timelineMarkup(row, timeline[index + 1] || null)).join('')
+              : '<p class="muted">No timeline buckets available.</p>';
+            applySummary(owners, timeline);
+            generatedEl.textContent = 'Generated ' + (payload.generatedAt || new Date().toISOString());
+            const active = [ownerFilter && 'owner', sortKey !== 'runs' && 'sort', windowValue !== '7' && 'window'].filter(Boolean);
+            stateEl.textContent = active.length
+              ? 'Filtered metrics view: ' + active.join(', ') + '.'
+              : 'Showing full metrics comparison.';
+          }
+
+          async function loadPayload() {
+            try {
+              const [comparisonRes, timelineRes, summaryRes] = await Promise.all([
+                fetch('/api/metrics/comparison'),
+                fetch('/api/metrics/timeline'),
+                fetch('/api/metrics/summary')
+              ]);
+              if (!comparisonRes.ok || !timelineRes.ok || !summaryRes.ok) throw new Error('metrics api failed');
+              const [comparison, timeline, summary] = await Promise.all([
+                comparisonRes.json(),
+                timelineRes.json(),
+                summaryRes.json()
+              ]);
+              return {
+                generatedAt: new Date().toISOString(),
+                projectId: summary.projectId,
+                summary: summary.summary,
+                comparison: comparison.items || [],
+                timeline: timeline.items || []
+              };
+            } catch {
+              return initial;
+            }
+          }
+
+          function wire(payload) {
+            [ownerFilterEl, sortEl, windowEl].forEach((el) => el.addEventListener('input', () => render(payload)));
+            clearEl.addEventListener('click', () => {
+              ownerFilterEl.value = '';
+              sortEl.value = 'runs';
+              windowEl.value = '7';
+              render(payload);
+            });
+            render(payload);
+          }
+
+          loadPayload().then((payload) => payload && wire(payload));
+        })();
+      </script>`
   });
 }
 
@@ -1361,6 +1639,7 @@ http.createServer(async (req, res) => {
       app: 'mb-kanban-dashboard',
       routes: [
         '/',
+        '/metrics',
         '/board',
         '/cards/:id',
         '/decisions',
@@ -1379,6 +1658,7 @@ http.createServer(async (req, res) => {
         '/api/updates/:id',
         '/api/metrics/summary',
         '/api/metrics/runs',
+        '/api/metrics/comparison',
         '/api/metrics/timeline'
       ]
     });
@@ -1411,6 +1691,22 @@ http.createServer(async (req, res) => {
         projectId: metrics.projectId,
         count: metrics.recentRuns.length,
         items: metrics.recentRuns
+      });
+    } catch (error) {
+      json(res, 500, { ok: false, error: error.message });
+    }
+    return;
+  }
+
+  if (url.pathname === '/api/metrics/comparison') {
+    try {
+      const metrics = loadMetricsSnapshot({ limit: metricsLimit });
+      json(res, 200, {
+        generatedAt: new Date().toISOString(),
+        dbPath: metrics.dbPath,
+        projectId: metrics.projectId,
+        count: metrics.comparison.length,
+        items: metrics.comparison
       });
     } catch (error) {
       json(res, 500, { ok: false, error: error.message });
@@ -1527,6 +1823,20 @@ http.createServer(async (req, res) => {
         byOwner: [],
         recentRuns: [],
         timeline: []
+      }));
+    }
+    return;
+  }
+
+  if (url.pathname === '/metrics') {
+    try {
+      const metrics = loadMetricsSnapshot({ limit: metricsLimit });
+      sendHtml(res, 200, renderMetricsScreen(model, metrics));
+    } catch (error) {
+      sendHtml(res, 200, shell({
+        title: 'Metrics',
+        currentPath: '/metrics',
+        body: `<section class="hero"><div><h1>Metrics timeline & comparison</h1><p>Metrics screen could not load the SQLite metrics snapshot.</p></div></section><article class="panel"><h2>Metrics unavailable</h2><p class="muted">${escapeHtml(error.message)}</p></article>`
       }));
     }
     return;
