@@ -7,8 +7,18 @@
     "dev": "node scripts/dev-server.mjs",
     "start": "node scripts/dev-server.mjs",
     "check": "node -e \"console.log('ok')\"",
+    "proof:mb-020": "node scripts/prove-mb-020.mjs",
     "proof:mb-011": "node scripts/prove-mb-011.mjs",
     "proof:mb-012": "node scripts/prove-mb-012.mjs",
-    "updates:timeline": "node scripts/read-updates-timeline.mjs"
+    "proof:mb-013": "node scripts/prove-mb-013.mjs",
+    "proof:mb-021": "node scripts/prove-mb-021.mjs",
+    "proof:mb-050": "node scripts/prove-mb-050.mjs",
+    "proof:mb-030": "node scripts/prove-mb-030.mjs",
+    "proof:mb-031": "node scripts/prove-mb-031.mjs",
+    "proof:mb-032": "node scripts/prove-mb-032.mjs",
+    "proof:mb-041": "node scripts/prove-mb-041.mjs",
+    "proof:mb-052": "node scripts/prove-mb-052.mjs",
+    "updates:timeline": "node scripts/read-updates-timeline.mjs",
+    "metrics:backfill": "python3 scripts/mb_metrics_backfill.py"
   }
 }

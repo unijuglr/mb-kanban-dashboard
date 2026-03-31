@@ -1,0 +1,217 @@
+{
+  "generated_at": "2026-03-31T22:21:26.550343+00:00",
+  "project_id": "mb-kanban-dashboard",
+  "db_path": "/Users/adamgoldband/.openclaw/workspace/data/metrics/metrics.db",
+  "imported_runs": 10,
+  "skipped_runs": 1,
+  "tasks": [
+    {
+      "task_id": "MB-001",
+      "title": "Create standalone MB Kanban repo scaffold",
+      "owner": "Coder-1",
+      "status": "done",
+      "started_at": "2026-03-31T16:11:57+00:00",
+      "ended_at": "2026-03-31T19:25:47+00:00",
+      "duration_ms": 11630000,
+      "artifacts": [
+        "README.md",
+        "PROOF_MB_001.md"
+      ],
+      "proof_path": "PROOF_MB_001.md",
+      "latest_commit": {
+        "commit": "770b6ca618d67d2ffe283c579111af85d8b20277",
+        "committed_at": "2026-03-31T12:25:47-07:00",
+        "subject": "feat: add parser, updates timeline, and app shell"
+      }
+    },
+    {
+      "task_id": "MB-003",
+      "title": "Create MB metrics wiring baseline",
+      "owner": "Coder-4",
+      "status": "done",
+      "started_at": "2026-03-31T16:12:21+00:00",
+      "ended_at": "2026-03-31T16:12:21+00:00",
+      "duration_ms": 0,
+      "artifacts": [
+        "docs/metrics-baseline.md",
+        "PROOF_MB_003.md"
+      ],
+      "proof_path": "PROOF_MB_003.md",
+      "latest_commit": {
+        "commit": "2a05924e7e66bc72f32556ccf0a98891c1063c66",
+        "committed_at": "2026-03-31T09:12:21-07:00",
+        "subject": "docs: add metrics baseline and push plan"
+      }
+    },
+    {
+      "task_id": "MB-011",
+      "title": "Markdown parser for decisions",
+      "owner": "Coder-2",
+      "status": "done",
+      "started_at": "2026-03-31T19:25:47+00:00",
+      "ended_at": "2026-03-31T19:25:47+00:00",
+      "duration_ms": 0,
+      "artifacts": [
+        "src/decision-parser.mjs",
+        "scripts/prove-mb-011.mjs",
+        "PROOF_MB_011.md"
+      ],
+      "proof_path": "PROOF_MB_011.md",
+      "latest_commit": {
+        "commit": "770b6ca618d67d2ffe283c579111af85d8b20277",
+        "committed_at": "2026-03-31T12:25:47-07:00",
+        "subject": "feat: add parser, updates timeline, and app shell"
+      }
+    },
+    {
+      "task_id": "MB-012",
+      "title": "Updates timeline reader",
+      "owner": "Coder-3",
+      "status": "done",
+      "started_at": "2026-03-31T19:25:47+00:00",
+      "ended_at": "2026-03-31T19:25:47+00:00",
+      "duration_ms": 0,
+      "artifacts": [
+        "src/updatesTimeline.js",
+        "scripts/read-updates-timeline.mjs",
+        "scripts/prove-mb-012.mjs",
+        "PROOF_MB_012.md"
+      ],
+      "proof_path": "PROOF_MB_012.md",
+      "latest_commit": {
+        "commit": "770b6ca618d67d2ffe283c579111af85d8b20277",
+        "committed_at": "2026-03-31T12:25:47-07:00",
+        "subject": "feat: add parser, updates timeline, and app shell"
+      }
+    },
+    {
+      "task_id": "MB-013",
+      "title": "Board read model aggregator",
+      "owner": "Coder-2",
+      "status": "done",
+      "started_at": "2026-03-31T16:11:57+00:00",
+      "ended_at": "2026-03-31T19:25:47+00:00",
+      "duration_ms": 11630000,
+      "artifacts": [
+        "src/board-read-model.mjs",
+        "src/app-data.mjs",
+        "src/index.ts",
+        "scripts/prove-mb-013.mjs",
+        "PROOF_MB_013.md"
+      ],
+      "proof_path": "PROOF_MB_013.md",
+      "latest_commit": {
+        "commit": "770b6ca618d67d2ffe283c579111af85d8b20277",
+        "committed_at": "2026-03-31T12:25:47-07:00",
+        "subject": "feat: add parser, updates timeline, and app shell"
+      }
+    },
+    {
+      "task_id": "MB-020",
+      "title": "Minimal app shell + local server",
+      "owner": "Coder-1",
+      "status": "done",
+      "started_at": "2026-03-31T16:11:57+00:00",
+      "ended_at": "2026-03-31T19:25:47+00:00",
+      "duration_ms": 11630000,
+      "artifacts": [
+        "scripts/dev-server.mjs",
+        "scripts/start-mb-dev.sh",
+        "scripts/check-mb-dev.sh",
+        "scripts/prove-mb-020.mjs",
+        "PROOF_MB_020.md"
+      ],
+      "proof_path": "PROOF_MB_020.md",
+      "latest_commit": {
+        "commit": "770b6ca618d67d2ffe283c579111af85d8b20277",
+        "committed_at": "2026-03-31T12:25:47-07:00",
+        "subject": "feat: add parser, updates timeline, and app shell"
+      }
+    },
+    {
+      "task_id": "MB-021",
+      "title": "Read-only board API",
+      "owner": "Coder-1",
+      "status": "done",
+      "started_at": "2026-03-31T16:11:57+00:00",
+      "ended_at": "2026-03-31T19:25:47+00:00",
+      "duration_ms": 11630000,
+      "artifacts": [
+        "scripts/dev-server.mjs",
+        "scripts/prove-mb-021.mjs",
+        "PROOF_MB_021.md"
+      ],
+      "proof_path": "PROOF_MB_021.md",
+      "latest_commit": {
+        "commit": "770b6ca618d67d2ffe283c579111af85d8b20277",
+        "committed_at": "2026-03-31T12:25:47-07:00",
+        "subject": "feat: add parser, updates timeline, and app shell"
+      }
+    },
+    {
+      "task_id": "MB-030",
+      "title": "Board screen",
+      "owner": "Coder-3",
+      "status": "done",
+      "started_at": "2026-03-31T16:11:57+00:00",
+      "ended_at": "2026-03-31T19:25:47+00:00",
+      "duration_ms": 11630000,
+      "artifacts": [
+        "scripts/dev-server.mjs",
+        "scripts/prove-mb-030.mjs",
+        "PROOF_MB_030.md",
+        "README.md"
+      ],
+      "proof_path": "PROOF_MB_030.md",
+      "latest_commit": {
+        "commit": "770b6ca618d67d2ffe283c579111af85d8b20277",
+        "committed_at": "2026-03-31T12:25:47-07:00",
+        "subject": "feat: add parser, updates timeline, and app shell"
+      }
+    },
+    {
+      "task_id": "MB-040",
+      "title": "Metrics backfill/import for MB work",
+      "owner": "Coder-4",
+      "status": "done",
+      "started_at": "2026-03-31T22:20:47.938984+00:00",
+      "ended_at": "2026-03-31T22:21:11.797140+00:00",
+      "duration_ms": 23858,
+      "artifacts": [
+        "scripts/mb_metrics_backfill.py",
+        "data/mb_metrics_backfill_report.json",
+        "PROOF_MB_040.md"
+      ],
+      "proof_path": "PROOF_MB_040.md",
+      "latest_commit": null
+    },
+    {
+      "task_id": "MB-050",
+      "title": "Status transition write path",
+      "owner": "Coder-5",
+      "status": "done",
+      "started_at": "2026-03-31T16:11:57+00:00",
+      "ended_at": "2026-03-31T19:25:47+00:00",
+      "duration_ms": 11630000,
+      "artifacts": [
+        "src/card-writes.mjs",
+        "scripts/dev-server.mjs",
+        "scripts/prove-mb-050.mjs",
+        "PROOF_MB_050.md"
+      ],
+      "proof_path": "PROOF_MB_050.md",
+      "latest_commit": {
+        "commit": "770b6ca618d67d2ffe283c579111af85d8b20277",
+        "committed_at": "2026-03-31T12:25:47-07:00",
+        "subject": "feat: add parser, updates timeline, and app shell"
+      }
+    }
+  ],
+  "skipped": [
+    {
+      "task_id": "MB-010",
+      "title": "Markdown parser for cards",
+      "reason": "no existing artifacts or proof file to import"
+    }
+  ]
+}

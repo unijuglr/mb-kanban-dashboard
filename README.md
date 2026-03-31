@@ -10,12 +10,19 @@ A first-party local app for:
 - metrics/dashboard views
 
 ## Current status
-MB-020 is now beyond scaffold:
+MB-030 and MB-031 are now live on top of the existing shell/API:
 - minimal app shell route structure
-- local read-only board surface
+- API-backed board screen with summary strip, live search, and owner/priority/status filters
+- API-backed card detail screen with metadata summary, source-file visibility, and status-action controls
 - decision list/detail route
 - updates timeline route
-- JSON summary endpoint for quick inspection
+- read-only JSON API for board, cards, decisions, and updates
+
+MB-050 adds the first safe write path:
+- `POST /api/cards/:id/status`
+- guarded status transitions only
+- `expectedCurrentStatus` required to prevent stale writes
+- card markdown remains the source of truth
 
 ## Routes
 - `/` — overview shell
@@ -25,6 +32,16 @@ MB-020 is now beyond scaffold:
 - `/decisions/:id` — decision detail view
 - `/updates` — updates timeline
 - `/api/summary` — read-only JSON counts/status summary
+- `/api/board` — status-grouped board JSON
+- `/api/cards` — all cards JSON
+- `/api/cards/:id` — card detail JSON
+- `POST /api/cards/:id/status` — guarded status transition write path
+- `/api/decisions` — all decisions JSON
+- `/api/decisions/:id` — decision detail JSON
+- `/api/updates` — updates timeline JSON
+- `/api/metrics/summary` — aggregate metrics snapshot from first-party SQLite metrics storage
+- `/api/metrics/runs` — recent MB task/run records with metadata
+- `/api/metrics/timeline` — daily timeline buckets for dashboard charts
 - `/health` — health probe
 
 ## Local structure
@@ -42,7 +59,22 @@ Then open:
 - `http://127.0.0.1:4187/`
 - `http://127.0.0.1:4187/board`
 
+Or inspect the API directly:
+- `http://127.0.0.1:4187/api/board`
+- `http://127.0.0.1:4187/api/cards`
+- `http://127.0.0.1:4187/api/cards/mb-018`
+- `http://127.0.0.1:4187/api/decisions`
+- `http://127.0.0.1:4187/api/updates`
+
+Example status transition request:
+
+```bash
+curl -X POST http://127.0.0.1:4187/api/cards/mb-001/status \
+  -H 'Content-Type: application/json' \
+  -d '{"expectedCurrentStatus":"Ready","status":"In Progress"}'
+```
+
 ## Notes
 - This build reads markdown directly from `docs/cards`, `docs/decisions`, and `docs/updates`.
-- It is intentionally read-only for now.
-- Safe write operations can layer on later without replacing the file-backed source of truth.
+- Safe writes are intentionally narrow: MB-050 only covers status transitions.
+- Arbitrary markdown editing is still out of scope; the file-backed source of truth remains intact.

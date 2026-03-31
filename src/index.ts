@@ -1,1 +1,1 @@
-export { loadCards, loadDashboardModel, loadDecisions, loadUpdates } from './app-data.mjs';
+export { findBySlug, loadBoardReadModel, loadBoardReadModel as loadDashboardModel, loadCards, loadDecisions, loadUpdates } from './board-read-model.mjs';

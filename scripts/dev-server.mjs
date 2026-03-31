@@ -2,9 +2,18 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findBySlug, loadDashboardModel } from '../src/app-data.mjs';
+import { allowedNextStatuses, createCardFromTemplate, transitionCardStatus } from '../src/card-writes.mjs';
+import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
+
+function json(res, statusCode, payload) {
+  res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.end(JSON.stringify(payload, null, 2));
+}
 
 const port = Number(process.env.PORT || 4187);
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const root = process.env.MB_ROOT
+  ? path.resolve(process.env.MB_ROOT)
+  : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 function escapeHtml(value) {
   return String(value)
@@ -63,13 +72,23 @@ function shell({ title, currentPath, body }) {
       .stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
       .board { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items: start; }
       .list { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+      .detail-layout { grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); align-items: start; }
       .card, .panel { background: #121a2b; border: 1px solid #26304a; border-radius: 14px; padding: 16px; }
       .kpi { font-size: 1.75rem; font-weight: 700; }
       .muted { color: #98a3bb; }
+      .tiny { font-size: 0.85rem; }
       .chip { display: inline-flex; border: 1px solid #334466; border-radius: 999px; padding: 3px 8px; font-size: 0.8rem; color: #c2d7ff; margin-right: 8px; }
       .stack { display: grid; gap: 12px; }
       .card-item { padding-top: 12px; border-top: 1px solid #26304a; }
       .card-item:first-child { border-top: 0; padding-top: 0; }
+      .button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+      .button { padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #16203a; color: #e8ecf3; cursor: pointer; }
+      .button[disabled] { opacity: 0.55; cursor: default; }
+      input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3; }
+      textarea { min-height: 110px; resize: vertical; }
+      .section-copy p { margin: 0 0 10px; }
+      .section-copy p:last-child { margin-bottom: 0; }
+      .meta-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
       pre { white-space: pre-wrap; background: #0d1322; border: 1px solid #26304a; border-radius: 12px; padding: 12px; color: #d6deed; overflow-x: auto; }
       @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } .sidebar { border-right: 0; border-bottom: 1px solid #26304a; } }
     </style>
@@ -125,70 +144,661 @@ function renderOverview(model) {
 }
 
 function renderBoard(model) {
-  const columns = model.board.map((column) => `
-    <section class="panel">
-      <h2>${escapeHtml(column.status)}</h2>
-      <div class="muted">${column.cards.length} card(s)</div>
-      <div class="stack" style="margin-top: 12px;">
-        ${column.cards.length ? column.cards.map((card) => `
-          <article class="card-item">
-            <div><span class="chip">${escapeHtml(card.id)}</span><span class="chip">${escapeHtml(card.priority)}</span></div>
-            <h3><a href="/cards/${card.slug}">${escapeHtml(card.title)}</a></h3>
-            <div class="muted">${escapeHtml(card.owner)} · updated ${escapeHtml(card.updatedAt)}</div>
-            <p>${escapeHtml(card.summary)}</p>
-          </article>`).join('') : '<p class="muted">No cards here.</p>'}
-      </div>
-    </section>`).join('');
+  const ownerOptions = [...new Set(model.cards.map((card) => card.owner).filter(Boolean))].sort();
+  const priorityOptions = [...new Set(model.cards.map((card) => card.priority).filter(Boolean))].sort();
+
+  const initialData = JSON.stringify({
+    generatedAt: model.generatedAt,
+    statusOrder: model.statusOrder,
+    summary: model.summary,
+    board: model.board.map((column) => ({
+      status: column.status,
+      count: column.cards.length,
+      cards: column.cards.map(cardApiShape)
+    })),
+    filters: {
+      owners: ownerOptions,
+      priorities: priorityOptions
+    }
+  }).replace(/</g, '\\u003c');
 
   return shell({
     title: 'Board',
     currentPath: '/board',
-    body: `<section class="hero"><div><h1>Board</h1><p>Six-column route structure, minimal but useful.</p></div></section><section class="grid board">${columns}</section>`
+    body: `
+      <section class="hero">
+        <div>
+          <h1>Board</h1>
+          <p>API-backed board screen with local filtering over real repo cards.</p>
+        </div>
+        <div class="muted" id="board-generated-at">Generated ${escapeHtml(model.generatedAt)}</div>
+      </section>
+      <section class="grid stats" id="board-summary">
+        <article class="card"><div class="muted">Visible cards</div><div class="kpi" data-summary="visible">${model.summary.cardCount}</div></article>
+        <article class="card"><div class="muted">In Progress</div><div class="kpi" data-summary="active">${model.summary.activeCount}</div></article>
+        <article class="card"><div class="muted">Blocked</div><div class="kpi" data-summary="blocked">${model.summary.blockedCount}</div></article>
+        <article class="card"><div class="muted">Done</div><div class="kpi" data-summary="done">${model.summary.doneCount}</div></article>
+      </section>
+      <section class="panel">
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
+          <label class="stack">
+            <span class="muted">Search</span>
+            <input id="board-search" type="search" placeholder="ID, title, summary" />
+          </label>
+          <label class="stack">
+            <span class="muted">Owner</span>
+            <select id="board-owner">
+              <option value="">All owners</option>
+              ${ownerOptions.map((owner) => `<option value="${escapeHtml(owner)}">${escapeHtml(owner)}</option>`).join('')}
+            </select>
+          </label>
+          <label class="stack">
+            <span class="muted">Priority</span>
+            <select id="board-priority">
+              <option value="">All priorities</option>
+              ${priorityOptions.map((priority) => `<option value="${escapeHtml(priority)}">${escapeHtml(priority)}</option>`).join('')}
+            </select>
+          </label>
+          <label class="stack">
+            <span class="muted">Status</span>
+            <select id="board-status">
+              <option value="">All statuses</option>
+              ${model.statusOrder.map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap;">
+          <button id="board-clear" type="button" style="padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #16203a; color: #e8ecf3; cursor: pointer;">Clear filters</button>
+          <div class="muted" id="board-filter-state">Showing all cards.</div>
+        </div>
+      </section>
+      <section class="grid" style="grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); align-items: start;">
+        <article class="panel">
+          <h2>Create new card</h2>
+          <p class="muted">Creates a new markdown card in <code>docs/cards</code> from the app shell.</p>
+          <form id="create-card-form" class="stack">
+            <label class="stack"><span class="muted">Card ID</span><input name="id" type="text" placeholder="MB-052" required /></label>
+            <label class="stack"><span class="muted">Title</span><input name="title" type="text" placeholder="Create new card from template" required /></label>
+            <label class="stack"><span class="muted">Owner</span><input name="owner" type="text" placeholder="Coder-5" required /></label>
+            <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+              <label class="stack"><span class="muted">Priority</span><input name="priority" type="text" value="P2 normal" /></label>
+              <label class="stack"><span class="muted">Initial status</span><select name="status">${model.statusOrder.map((status) => `<option value="${escapeHtml(status)}"${status === 'Backlog' ? ' selected' : ''}>${escapeHtml(status)}</option>`).join('')}</select></label>
+            </div>
+            <label class="stack"><span class="muted">Objective</span><textarea name="objective" placeholder="Describe the concrete objective." required></textarea></label>
+            <label class="stack"><span class="muted">Why it matters</span><textarea name="whyItMatters">Document why this work matters.</textarea></label>
+            <label class="stack"><span class="muted">Scope</span><textarea name="scope">- [ ] define scope</textarea></label>
+            <label class="stack"><span class="muted">Out of scope</span><textarea name="outOfScope">- [ ] list explicit non-goals</textarea></label>
+            <label class="stack"><span class="muted">Steps</span><textarea name="steps">- [ ] draft implementation plan</textarea></label>
+            <label class="stack"><span class="muted">Blockers</span><textarea name="blockers">- None currently.</textarea></label>
+            <label class="stack"><span class="muted">Artifacts</span><textarea name="artifacts">- None yet.</textarea></label>
+            <div class="button-row">
+              <button class="button" id="create-card-submit" type="submit">Create card</button>
+            </div>
+            <p class="muted tiny" id="create-card-result">Template defaults are editable before save.</p>
+          </form>
+        </article>
+        <section class="grid board" id="board-columns"></section>
+      </section>
+      <script id="board-data" type="application/json">${initialData}</script>
+      <script>
+        (() => {
+          const embedded = document.getElementById('board-data');
+          const initial = embedded ? JSON.parse(embedded.textContent) : null;
+          const columnsEl = document.getElementById('board-columns');
+          const searchEl = document.getElementById('board-search');
+          const ownerEl = document.getElementById('board-owner');
+          const priorityEl = document.getElementById('board-priority');
+          const statusEl = document.getElementById('board-status');
+          const clearEl = document.getElementById('board-clear');
+          const stateEl = document.getElementById('board-filter-state');
+          const generatedEl = document.getElementById('board-generated-at');
+          const createFormEl = document.getElementById('create-card-form');
+          const createResultEl = document.getElementById('create-card-result');
+          const createSubmitEl = document.getElementById('create-card-submit');
+          const summaryEls = {
+            visible: document.querySelector('[data-summary="visible"]'),
+            active: document.querySelector('[data-summary="active"]'),
+            blocked: document.querySelector('[data-summary="blocked"]'),
+            done: document.querySelector('[data-summary="done"]')
+          };
+
+          const normalized = (value) => String(value || '').toLowerCase();
+
+          function matches(card) {
+            const search = normalized(searchEl.value).trim();
+            const owner = ownerEl.value;
+            const priority = priorityEl.value;
+            const status = statusEl.value;
+            const haystack = [card.id, card.title, card.summary, card.owner, card.priority].map(normalized).join(' ');
+            return (!search || haystack.includes(search))
+              && (!owner || card.owner === owner)
+              && (!priority || card.priority === priority)
+              && (!status || card.status === status);
+          }
+
+          function esc(value) {
+            return String(value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+          }
+
+          function columnMarkup(status, cards) {
+            return '<section class="panel">'
+              + '<h2>' + esc(status) + '</h2>'
+              + '<div class="muted">' + cards.length + ' card(s)</div>'
+              + '<div class="stack" style="margin-top: 12px;">'
+              + (cards.length ? cards.map((card) => {
+                  return '<article class="card-item">'
+                    + '<div><span class="chip">' + esc(card.id) + '</span><span class="chip">' + esc(card.priority) + '</span></div>'
+                    + '<h3><a href="/cards/' + encodeURIComponent(card.slug) + '">' + esc(card.title) + '</a></h3>'
+                    + '<div class="muted">' + esc(card.owner) + ' · updated ' + esc(card.updatedAt) + '</div>'
+                    + '<p>' + esc(card.summary) + '</p>'
+                    + '</article>';
+                }).join('') : '<p class="muted">No cards here.</p>')
+              + '</div>'
+              + '</section>';
+          }
+
+          function render(payload) {
+            const board = payload.board.map((column) => ({
+              status: column.status,
+              cards: column.cards.filter(matches)
+            }));
+            const cards = board.flatMap((column) => column.cards);
+            columnsEl.innerHTML = board.map((column) => columnMarkup(column.status, column.cards)).join('');
+            summaryEls.visible.textContent = String(cards.length);
+            summaryEls.active.textContent = String(cards.filter((card) => card.status === 'In Progress').length);
+            summaryEls.blocked.textContent = String(cards.filter((card) => card.status === 'Blocked').length);
+            summaryEls.done.textContent = String(cards.filter((card) => card.status === 'Done').length);
+            const activeFilters = [searchEl.value && 'search', ownerEl.value && 'owner', priorityEl.value && 'priority', statusEl.value && 'status'].filter(Boolean);
+            stateEl.textContent = activeFilters.length
+              ? 'Showing ' + cards.length + ' filtered card(s) across ' + board.filter((column) => column.cards.length).length + ' visible column(s).'
+              : 'Showing all cards.';
+            generatedEl.textContent = 'Generated ' + payload.generatedAt;
+          }
+
+          function setCreateBusy(isBusy) {
+            if (createSubmitEl) createSubmitEl.disabled = isBusy;
+          }
+
+          function collectFormData() {
+            const formData = new FormData(createFormEl);
+            return Object.fromEntries(Array.from(formData.entries()).map(([key, value]) => [key, String(value)]));
+          }
+
+          async function submitCreateCard(event, payload) {
+            event.preventDefault();
+            setCreateBusy(true);
+            createResultEl.textContent = 'Creating card…';
+            try {
+              const response = await fetch('/api/cards', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(collectFormData())
+              });
+              const result = await response.json();
+              if (!response.ok || !result.ok) throw new Error(result.error || 'Card creation failed');
+              const refreshed = await loadBoard();
+              if (!refreshed) throw new Error('Board refresh failed after create');
+              payload.generatedAt = refreshed.generatedAt;
+              payload.summary = refreshed.summary;
+              payload.board = refreshed.board;
+              if (result.card && result.card.owner && !payload.filters.owners.includes(result.card.owner)) {
+                payload.filters.owners.push(result.card.owner);
+                payload.filters.owners.sort();
+              }
+              if (result.card && result.card.priority && !payload.filters.priorities.includes(result.card.priority)) {
+                payload.filters.priorities.push(result.card.priority);
+                payload.filters.priorities.sort();
+              }
+              render(payload);
+              createFormEl.reset();
+              const statusField = createFormEl.querySelector('[name="status"]');
+              const priorityField = createFormEl.querySelector('[name="priority"]');
+              if (statusField) statusField.value = 'Backlog';
+              if (priorityField) priorityField.value = 'P2 normal';
+              createResultEl.innerHTML = 'Created <a href="/cards/' + encodeURIComponent(result.slug) + '">' + result.cardId + '</a> at ' + result.filePath + '.';
+            } catch (error) {
+              createResultEl.textContent = error.message;
+            } finally {
+              setCreateBusy(false);
+            }
+          }
+
+          async function loadBoard() {
+            try {
+              const response = await fetch('/api/board');
+              if (!response.ok) throw new Error('board api failed');
+              return await response.json();
+            } catch {
+              return initial;
+            }
+          }
+
+          function wire(payload) {
+            [searchEl, ownerEl, priorityEl, statusEl].forEach((el) => el.addEventListener('input', () => render(payload)));
+            if (createFormEl) createFormEl.addEventListener('submit', (event) => submitCreateCard(event, payload));
+            clearEl.addEventListener('click', () => {
+              searchEl.value = '';
+              ownerEl.value = '';
+              priorityEl.value = '';
+              statusEl.value = '';
+              render(payload);
+            });
+            render(payload);
+          }
+
+          loadBoard().then((payload) => payload && wire(payload));
+        })();
+      </script>`
   });
 }
 
 function renderCardDetail(model, slug) {
   const card = findBySlug(model.cards, slug);
   if (!card) return notFound('/board', 'Card not found');
+
+  const initialData = JSON.stringify({
+    generatedAt: model.generatedAt,
+    card: cardApiShape(card)
+  }).replace(/</g, '\\u003c');
+
   return shell({
     title: card.id,
     currentPath: '/board',
     body: `
       <section class="hero">
         <div>
-          <h1>${escapeHtml(card.id)} — ${escapeHtml(card.title)}</h1>
-          <p>${escapeHtml(card.status)} · ${escapeHtml(card.priority)} · ${escapeHtml(card.owner)}</p>
+          <h1 id="card-title">${escapeHtml(card.id)} — ${escapeHtml(card.title)}</h1>
+          <p id="card-subtitle">Card detail screen over the repo-backed card API.</p>
         </div>
-        <a href="/board">← Back to board</a>
+        <div class="button-row">
+          <a class="button" href="/board">← Back to board</a>
+          <a class="button" id="card-api-link" href="/api/cards/${encodeURIComponent(card.slug)}">Open JSON</a>
+        </div>
       </section>
-      <section class="grid list">
-        <article class="panel"><h2>Objective</h2>${paragraphize(card.objective)}</article>
-        <article class="panel"><h2>Why it matters</h2>${paragraphize(card.whyItMatters)}</article>
-        <article class="panel"><h2>Scope</h2><pre>${escapeHtml(card.scope || 'Not available.')}</pre></article>
-        <article class="panel"><h2>Out of scope</h2><pre>${escapeHtml(card.outOfScope || 'Not available.')}</pre></article>
-        <article class="panel"><h2>Steps</h2><pre>${escapeHtml(card.steps || 'Not available.')}</pre></article>
-        <article class="panel"><h2>Blockers</h2><pre>${escapeHtml(card.blockers || 'None listed.')}</pre></article>
-        <article class="panel"><h2>Artifacts</h2><pre>${escapeHtml(card.artifacts || 'None listed.')}</pre></article>
-        <article class="panel"><h2>Update log</h2><pre>${escapeHtml(card.updateLog || 'No updates yet.')}</pre></article>
-      </section>`
+      <section class="grid stats meta-grid" id="card-meta-grid">
+        <article class="card"><div class="muted tiny">Status</div><div class="kpi" id="card-status">${escapeHtml(card.status)}</div></article>
+        <article class="card"><div class="muted tiny">Priority</div><div class="kpi" id="card-priority">${escapeHtml(card.priority)}</div></article>
+        <article class="card"><div class="muted tiny">Owner</div><div class="kpi" style="font-size: 1.1rem;" id="card-owner">${escapeHtml(card.owner)}</div></article>
+        <article class="card"><div class="muted tiny">Last updated</div><div class="kpi" style="font-size: 1.1rem;" id="card-updated-at">${escapeHtml(card.updatedAt)}</div></article>
+      </section>
+      <section class="grid detail-layout">
+        <div class="stack">
+          <article class="panel section-copy"><h2>Objective</h2><div id="card-objective">${paragraphize(card.objective)}</div></article>
+          <article class="panel section-copy"><h2>Why it matters</h2><div id="card-why">${paragraphize(card.whyItMatters)}</div></article>
+          <article class="panel"><h2>Scope</h2><pre id="card-scope">${escapeHtml(card.scope || 'Not available.')}</pre></article>
+          <article class="panel"><h2>Out of scope</h2><pre id="card-out-of-scope">${escapeHtml(card.outOfScope || 'Not available.')}</pre></article>
+          <article class="panel"><h2>Steps</h2><pre id="card-steps">${escapeHtml(card.steps || 'Not available.')}</pre></article>
+        </div>
+        <div class="stack">
+          <article class="panel">
+            <h2>Actions</h2>
+            <p class="muted">Safe status controls ride the existing API write path.</p>
+            <div class="button-row" id="card-status-actions"></div>
+            <p class="muted tiny" id="card-status-help">Allowed next statuses are loaded from the API.</p>
+            <p class="muted tiny" id="card-status-result"></p>
+          </article>
+          <article class="panel"><h2>Summary</h2><p id="card-summary">${escapeHtml(card.summary || 'No summary yet.')}</p></article>
+          <article class="panel"><h2>Blockers</h2><pre id="card-blockers">${escapeHtml(card.blockers || 'None listed.')}</pre></article>
+          <article class="panel"><h2>Artifacts</h2><pre id="card-artifacts">${escapeHtml(card.artifacts || 'None listed.')}</pre></article>
+          <article class="panel"><h2>Update log</h2><pre id="card-update-log">${escapeHtml(card.updateLog || 'No updates yet.')}</pre></article>
+          <article class="panel"><h2>Source file</h2><pre id="card-file-path">${escapeHtml(card.filePath || 'Not available.')}</pre></article>
+        </div>
+      </section>
+      <script id="card-detail-data" type="application/json">${initialData}</script>
+      <script>
+        (() => {
+          const embedded = document.getElementById('card-detail-data');
+          const initial = embedded ? JSON.parse(embedded.textContent) : null;
+          const slug = ${JSON.stringify(card.slug)};
+          const apiPath = '/api/cards/' + encodeURIComponent(slug);
+          const titleEl = document.getElementById('card-title');
+          const subtitleEl = document.getElementById('card-subtitle');
+          const summaryEl = document.getElementById('card-summary');
+          const statusEl = document.getElementById('card-status');
+          const priorityEl = document.getElementById('card-priority');
+          const ownerEl = document.getElementById('card-owner');
+          const updatedEl = document.getElementById('card-updated-at');
+          const objectiveEl = document.getElementById('card-objective');
+          const whyEl = document.getElementById('card-why');
+          const scopeEl = document.getElementById('card-scope');
+          const outOfScopeEl = document.getElementById('card-out-of-scope');
+          const stepsEl = document.getElementById('card-steps');
+          const blockersEl = document.getElementById('card-blockers');
+          const artifactsEl = document.getElementById('card-artifacts');
+          const updateLogEl = document.getElementById('card-update-log');
+          const filePathEl = document.getElementById('card-file-path');
+          const statusActionsEl = document.getElementById('card-status-actions');
+          const statusHelpEl = document.getElementById('card-status-help');
+          const statusResultEl = document.getElementById('card-status-result');
+          const apiLinkEl = document.getElementById('card-api-link');
+
+          function esc(value) {
+            return String(value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+          }
+
+          function prose(value, fallback) {
+            const text = String(value || '').trim();
+            if (!text) return '<p class="muted">' + esc(fallback) + '</p>';
+            return text
+              .split(/\n\s*\n/)
+              .map((block) => '<p>' + esc(block).replace(/\n/g, '<br />') + '</p>')
+              .join('');
+          }
+
+          function block(value, fallback) {
+            const text = String(value || '').trim();
+            return text || fallback;
+          }
+
+          function setBusy(isBusy) {
+            Array.from(statusActionsEl.querySelectorAll('button')).forEach((button) => {
+              button.disabled = isBusy;
+            });
+          }
+
+          function renderActions(cardData) {
+            const allowed = Array.isArray(cardData.allowedNextStatuses) ? cardData.allowedNextStatuses : [];
+            statusActionsEl.innerHTML = allowed.length
+              ? allowed.map((status) => '<button class="button" type="button" data-next-status="' + esc(status) + '">' + esc(status) + '</button>').join('')
+              : '<span class="muted">No safe transitions available.</span>';
+            statusHelpEl.textContent = allowed.length
+              ? 'Allowed next statuses: ' + allowed.join(', ')
+              : 'No safe status transitions available from the current state.';
+            Array.from(statusActionsEl.querySelectorAll('button')).forEach((button) => {
+              button.addEventListener('click', async () => {
+                const nextStatus = button.getAttribute('data-next-status');
+                if (!nextStatus) return;
+                setBusy(true);
+                statusResultEl.textContent = 'Updating status…';
+                try {
+                  const response = await fetch('/api/cards/' + encodeURIComponent(slug) + '/status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      expectedCurrentStatus: cardData.status,
+                      status: nextStatus
+                    })
+                  });
+                  const result = await response.json();
+                  if (!response.ok || !result.ok) throw new Error(result.error || 'Status update failed');
+                  const refreshed = await loadCard();
+                  if (!refreshed) throw new Error('Card refresh failed after status update');
+                  applyCard(refreshed, 'Status updated to ' + refreshed.status + '.');
+                } catch (error) {
+                  statusResultEl.textContent = error.message;
+                } finally {
+                  setBusy(false);
+                }
+              });
+            });
+          }
+
+          function applyCard(cardData, flashMessage) {
+            titleEl.textContent = cardData.id + ' — ' + cardData.title;
+            subtitleEl.textContent = 'Card detail screen over the repo-backed card API.';
+            summaryEl.textContent = cardData.summary || 'No summary yet.';
+            statusEl.textContent = cardData.status || 'Unknown';
+            priorityEl.textContent = cardData.priority || 'Unknown';
+            ownerEl.textContent = cardData.owner || 'Unknown';
+            updatedEl.textContent = cardData.updatedAt || 'Unknown';
+            objectiveEl.innerHTML = prose(cardData.objective, 'Not available.');
+            whyEl.innerHTML = prose(cardData.whyItMatters, 'Not available.');
+            scopeEl.textContent = block(cardData.scope, 'Not available.');
+            outOfScopeEl.textContent = block(cardData.outOfScope, 'Not available.');
+            stepsEl.textContent = block(cardData.steps, 'Not available.');
+            blockersEl.textContent = block(cardData.blockers, 'None listed.');
+            artifactsEl.textContent = block(cardData.artifacts, 'None listed.');
+            updateLogEl.textContent = block(cardData.updateLog, 'No updates yet.');
+            filePathEl.textContent = block(cardData.filePath, 'Not available.');
+            apiLinkEl.setAttribute('href', apiPath);
+            renderActions(cardData);
+            statusResultEl.textContent = flashMessage || '';
+          }
+
+          async function loadCard() {
+            try {
+              const response = await fetch(apiPath);
+              if (!response.ok) throw new Error('card api failed');
+              return await response.json();
+            } catch {
+              return initial ? initial.card : null;
+            }
+          }
+
+          loadCard().then((cardData) => {
+            if (cardData) applyCard(cardData);
+          });
+        })();
+      </script>`
   });
 }
 
 function renderDecisions(model) {
+  const statusOptions = [...new Set(model.decisions.map((decision) => decision.status).filter(Boolean))].sort();
+  const ownerOptions = [...new Set(model.decisions.map((decision) => decision.owner).filter(Boolean))].sort();
+  const initialSelected = model.decisions[0]?.slug ?? '';
+
+  const initialData = JSON.stringify({
+    generatedAt: model.generatedAt,
+    count: model.decisions.length,
+    items: model.decisions.map(decisionApiShape)
+  }).replace(/</g, '\u003c');
+
   return shell({
     title: 'Decisions',
     currentPath: '/decisions',
     body: `
-      <section class="hero"><div><h1>Decisions</h1><p>Read-only list view over decision markdown.</p></div></section>
-      <section class="grid list">
-        ${model.decisions.map((decision) => `
-          <article class="panel">
-            <div><span class="chip">${escapeHtml(decision.id)}</span><span class="chip">${escapeHtml(decision.status)}</span></div>
-            <h2><a href="/decisions/${decision.slug}">${escapeHtml(decision.title)}</a></h2>
-            <p class="muted">${escapeHtml(decision.date)} · ${escapeHtml(decision.owner)}</p>
-            ${paragraphize(decision.context)}
-          </article>`).join('')}
-      </section>`
+      <section class="hero">
+        <div>
+          <h1>Decisions</h1>
+          <p>API-backed decisions screen with local filtering and in-page detail inspection.</p>
+        </div>
+        <div class="muted" id="decisions-generated-at">Generated ${escapeHtml(model.generatedAt)}</div>
+      </section>
+      <section class="grid stats" id="decisions-summary">
+        <article class="card"><div class="muted">Visible decisions</div><div class="kpi" data-summary="visible">${model.decisions.length}</div></article>
+        <article class="card"><div class="muted">Proposed</div><div class="kpi" data-summary="proposed">${model.decisions.filter((decision) => decision.status === 'Proposed').length}</div></article>
+        <article class="card"><div class="muted">Owners</div><div class="kpi" data-summary="owners">${ownerOptions.length}</div></article>
+        <article class="card"><div class="muted">Follow-ups</div><div class="kpi" data-summary="followups">${model.decisions.reduce((sum, decision) => sum + String(decision.followUpTasks || '').split('\n').filter(Boolean).length, 0)}</div></article>
+      </section>
+      <section class="panel">
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
+          <label class="stack">
+            <span class="muted">Search</span>
+            <input id="decisions-search" type="search" placeholder="ID, title, context, decision" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;" />
+          </label>
+          <label class="stack">
+            <span class="muted">Status</span>
+            <select id="decisions-status" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;">
+              <option value="">All statuses</option>
+              ${statusOptions.map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join('')}
+            </select>
+          </label>
+          <label class="stack">
+            <span class="muted">Owner</span>
+            <select id="decisions-owner" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;">
+              <option value="">All owners</option>
+              ${ownerOptions.map((owner) => `<option value="${escapeHtml(owner)}">${escapeHtml(owner)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap;">
+          <button id="decisions-clear" type="button" style="padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #16203a; color: #e8ecf3; cursor: pointer;">Clear filters</button>
+          <div class="muted" id="decisions-filter-state">Showing all decisions.</div>
+        </div>
+      </section>
+      <section class="grid" style="grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); align-items: start;">
+        <article class="panel">
+          <h2>Decision list</h2>
+          <div class="stack" id="decisions-list"></div>
+        </article>
+        <article class="panel" id="decision-detail-panel">
+          <h2>Decision detail</h2>
+          <div class="muted">Select a decision to inspect its full record.</div>
+        </article>
+      </section>
+      <script id="decisions-data" type="application/json">${initialData}</script>
+      <script>
+        (() => {
+          const embedded = document.getElementById('decisions-data');
+          const initial = embedded ? JSON.parse(embedded.textContent) : null;
+          const listEl = document.getElementById('decisions-list');
+          const detailEl = document.getElementById('decision-detail-panel');
+          const searchEl = document.getElementById('decisions-search');
+          const statusEl = document.getElementById('decisions-status');
+          const ownerEl = document.getElementById('decisions-owner');
+          const clearEl = document.getElementById('decisions-clear');
+          const stateEl = document.getElementById('decisions-filter-state');
+          const generatedEl = document.getElementById('decisions-generated-at');
+          const summaryEls = {
+            visible: document.querySelector('[data-summary="visible"]'),
+            proposed: document.querySelector('[data-summary="proposed"]'),
+            owners: document.querySelector('[data-summary="owners"]'),
+            followups: document.querySelector('[data-summary="followups"]')
+          };
+          let payload = initial;
+          let selectedSlug = new URL(window.location.href).searchParams.get('selected') || ${JSON.stringify(initialSelected)};
+
+          const normalized = (value) => String(value || '').toLowerCase();
+
+          function esc(value) {
+            return String(value || '')
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+          }
+
+          function paragraphizeClient(text, fallback = 'Not available.') {
+            const value = String(text || '').trim();
+            if (!value) return '<p class="muted">' + esc(fallback) + '</p>';
+            return value
+              .split(/
+\s*
+/)
+              .map((block) => '<p>' + esc(block).replace(/
+/g, '<br />') + '</p>')
+              .join('');
+          }
+
+          function lines(text) {
+            return String(text || '').split('\n').map((line) => line.trim()).filter(Boolean);
+          }
+
+          function followUpCount(decision) {
+            return lines(decision.followUpTasks).length;
+          }
+
+          function matches(decision) {
+            const search = normalized(searchEl.value).trim();
+            const status = statusEl.value;
+            const owner = ownerEl.value;
+            const haystack = [decision.id, decision.title, decision.context, decision.decision, decision.consequences, decision.owner].map(normalized).join(' ');
+            return (!search || haystack.includes(search))
+              && (!status || decision.status === status)
+              && (!owner || decision.owner === owner);
+          }
+
+          function listMarkup(decision, active) {
+            const activeStyle = active ? 'background: #16203a; border-radius: 10px; padding: 12px;' : '';
+            return '<article class="card-item" data-slug="' + esc(decision.slug) + '" style="cursor: pointer; border-top: 1px solid #26304a; padding-top: 12px; ' + activeStyle + '">'
+              + '<div><span class="chip">' + esc(decision.id) + '</span><span class="chip">' + esc(decision.status) + '</span></div>'
+              + '<h3 style="margin-top: 10px;">' + esc(decision.title) + '</h3>'
+              + '<div class="muted">' + esc(decision.date) + ' · ' + esc(decision.owner) + ' · ' + followUpCount(decision) + ' follow-up(s)</div>'
+              + '<p>' + esc(String(decision.context || '').replace(/\s+/g, ' ').trim().slice(0, 180) || 'No context available.') + '</p>'
+              + '<div style="display: flex; gap: 10px; flex-wrap: wrap;">'
+              + '<a href="/decisions/' + encodeURIComponent(decision.slug) + '">Open detail route</a>'
+              + '<button type="button" data-select="' + esc(decision.slug) + '" style="padding: 8px 10px; border-radius: 8px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3; cursor: pointer;">Inspect here</button>'
+              + '</div>'
+              + '</article>';
+          }
+
+          function detailMarkup(decision) {
+            if (!decision) {
+              return '<h2>Decision detail</h2><div class="muted">No decisions match the current filters.</div>';
+            }
+            return '<div style="display: flex; justify-content: space-between; gap: 12px; align-items: start; flex-wrap: wrap;">'
+              + '<div><h2>' + esc(decision.id) + ' — ' + esc(decision.title) + '</h2><div class="muted">' + esc(decision.status) + ' · ' + esc(decision.date) + ' · ' + esc(decision.owner) + '</div></div>'
+              + '<a href="/decisions/' + encodeURIComponent(decision.slug) + '">Open dedicated route</a>'
+              + '</div>'
+              + '<div class="grid list" style="margin-top: 16px;">'
+              + '<section class="panel"><h3>Context</h3>' + paragraphizeClient(decision.context) + '</section>'
+              + '<section class="panel"><h3>Decision</h3>' + paragraphizeClient(decision.decision) + '</section>'
+              + '<section class="panel"><h3>Options considered</h3><pre>' + esc(decision.options || 'Not available.') + '</pre></section>'
+              + '<section class="panel"><h3>Consequences</h3><pre>' + esc(decision.consequences || 'Not available.') + '</pre></section>'
+              + '<section class="panel"><h3>Follow-up tasks</h3><pre>' + esc(decision.followUpTasks || 'None listed.') + '</pre></section>'
+              + '</div>';
+          }
+
+          function render() {
+            const filtered = (payload?.items || []).filter(matches);
+            const selected = filtered.find((decision) => decision.slug === selectedSlug) || filtered[0] || null;
+            if (selected) selectedSlug = selected.slug;
+            listEl.innerHTML = filtered.length
+              ? filtered.map((decision) => listMarkup(decision, decision.slug === selectedSlug)).join('')
+              : '<p class="muted">No decisions match the current filters.</p>';
+            detailEl.innerHTML = detailMarkup(selected);
+            summaryEls.visible.textContent = String(filtered.length);
+            summaryEls.proposed.textContent = String(filtered.filter((decision) => decision.status === 'Proposed').length);
+            summaryEls.owners.textContent = String(new Set(filtered.map((decision) => decision.owner).filter(Boolean)).size);
+            summaryEls.followups.textContent = String(filtered.reduce((sum, decision) => sum + followUpCount(decision), 0));
+            const activeFilters = [searchEl.value && 'search', statusEl.value && 'status', ownerEl.value && 'owner'].filter(Boolean);
+            stateEl.textContent = activeFilters.length
+              ? 'Showing ' + filtered.length + ' filtered decision(s).'
+              : 'Showing all decisions.';
+            const nextUrl = new URL(window.location.href);
+            if (selectedSlug) nextUrl.searchParams.set('selected', selectedSlug);
+            else nextUrl.searchParams.delete('selected');
+            window.history.replaceState({}, '', nextUrl);
+          }
+
+          async function loadDecisions() {
+            try {
+              const response = await fetch('/api/decisions');
+              if (!response.ok) throw new Error('decisions api failed');
+              return await response.json();
+            } catch {
+              return initial;
+            }
+          }
+
+          function wire() {
+            [searchEl, statusEl, ownerEl].forEach((el) => el.addEventListener('input', render));
+            clearEl.addEventListener('click', () => {
+              searchEl.value = '';
+              statusEl.value = '';
+              ownerEl.value = '';
+              render();
+            });
+            listEl.addEventListener('click', (event) => {
+              const button = event.target.closest('[data-select]');
+              const article = event.target.closest('[data-slug]');
+              const slug = button?.getAttribute('data-select') || article?.getAttribute('data-slug');
+              if (!slug) return;
+              selectedSlug = slug;
+              render();
+            });
+            generatedEl.textContent = 'Generated ' + (payload?.generatedAt || 'unknown');
+            render();
+          }
+
+          loadDecisions().then((nextPayload) => {
+            payload = nextPayload || initial;
+            wire();
+          });
+        })();
+      </script>`
   });
 }
 
@@ -247,19 +857,271 @@ function sendHtml(res, statusCode, html) {
   res.end(html);
 }
 
-http.createServer((req, res) => {
+function sendJson(res, statusCode, body) {
+  res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.end(JSON.stringify(body, null, 2));
+}
+
+function readJsonBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => {
+      const raw = Buffer.concat(chunks).toString('utf8').trim();
+      if (!raw) {
+        resolve({});
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(raw));
+      } catch (error) {
+        reject(new Error('Request body must be valid JSON.'));
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+function cardApiShape(card) {
+  return {
+    id: card.id,
+    slug: card.slug,
+    title: card.title,
+    status: card.status,
+    priority: card.priority,
+    owner: card.owner,
+    updatedAt: card.updatedAt,
+    summary: card.summary,
+    objective: card.objective,
+    whyItMatters: card.whyItMatters,
+    scope: card.scope,
+    outOfScope: card.outOfScope,
+    steps: card.steps,
+    blockers: card.blockers,
+    artifacts: card.artifacts,
+    updateLog: card.updateLog,
+    filePath: card.filePath,
+    allowedNextStatuses: allowedNextStatuses(card.status)
+  };
+}
+
+function decisionApiShape(decision) {
+  return {
+    id: decision.id,
+    slug: decision.slug,
+    title: decision.title,
+    status: decision.status,
+    date: decision.date,
+    owner: decision.owner,
+    context: decision.context,
+    options: decision.options,
+    decision: decision.decision,
+    consequences: decision.consequences,
+    followUpTasks: decision.followUpTasks,
+    filePath: decision.filePath
+  };
+}
+
+function updateApiShape(update) {
+  return {
+    id: update.id,
+    slug: update.slug,
+    title: update.title,
+    date: update.date,
+    author: update.author,
+    summary: update.summary,
+    findings: update.findings,
+    direction: update.direction,
+    filePath: update.filePath
+  };
+}
+
+http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
   const model = loadDashboardModel(root);
+  const metricsLimit = Math.max(1, Math.min(200, Number(url.searchParams.get('limit') || 50)));
+
+  if (req.method === 'POST' && url.pathname === '/api/cards') {
+    try {
+      const body = await readJsonBody(req);
+      const result = createCardFromTemplate({ rootDir: root, ...body });
+      if (result.ok) {
+        const refreshedModel = loadDashboardModel(root);
+        const createdCard = findBySlug(refreshedModel.cards, result.slug);
+        json(res, result.statusCode || 201, { ...result, card: createdCard ? cardApiShape(createdCard) : null });
+      } else {
+        json(res, result.statusCode || 400, result);
+      }
+    } catch (error) {
+      json(res, 400, { ok: false, error: error.message });
+    }
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname.startsWith('/api/cards/') && url.pathname.endsWith('/status')) {
+    const slug = decodeURIComponent(url.pathname.slice('/api/cards/'.length, -'/status'.length));
+
+    try {
+      const body = await readJsonBody(req);
+      const result = transitionCardStatus({
+        rootDir: root,
+        slug,
+        nextStatus: body.status,
+        expectedCurrentStatus: body.expectedCurrentStatus
+      });
+      json(res, result.statusCode || 200, result);
+    } catch (error) {
+      json(res, 400, { ok: false, error: error.message });
+    }
+    return;
+  }
 
   if (url.pathname === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true, app: 'mb-kanban-dashboard', routes: ['/', '/board', '/decisions', '/updates', '/api/summary'] }));
+    json(res, 200, {
+      ok: true,
+      app: 'mb-kanban-dashboard',
+      routes: [
+        '/',
+        '/board',
+        '/cards/:id',
+        '/decisions',
+        '/decisions/:id',
+        '/updates',
+        '/api/summary',
+        '/api/board',
+        '/api/cards',
+        'POST /api/cards',
+        '/api/cards/:id',
+        'POST /api/cards/:id/status',
+        '/api/decisions',
+        '/api/decisions/:id',
+        '/api/updates',
+        '/api/metrics/summary',
+        '/api/metrics/runs',
+        '/api/metrics/timeline'
+      ]
+    });
+    return;
+  }
+
+  if (url.pathname === '/api/metrics/summary') {
+    try {
+      const metrics = loadMetricsSnapshot({ limit: metricsLimit });
+      json(res, 200, {
+        generatedAt: new Date().toISOString(),
+        dbPath: metrics.dbPath,
+        projectId: metrics.projectId,
+        summary: metrics.summary,
+        byStatus: metrics.byStatus,
+        byOwner: metrics.byOwner
+      });
+    } catch (error) {
+      json(res, 500, { ok: false, error: error.message });
+    }
+    return;
+  }
+
+  if (url.pathname === '/api/metrics/runs') {
+    try {
+      const metrics = loadMetricsSnapshot({ limit: metricsLimit });
+      json(res, 200, {
+        generatedAt: new Date().toISOString(),
+        dbPath: metrics.dbPath,
+        projectId: metrics.projectId,
+        count: metrics.recentRuns.length,
+        items: metrics.recentRuns
+      });
+    } catch (error) {
+      json(res, 500, { ok: false, error: error.message });
+    }
+    return;
+  }
+
+  if (url.pathname === '/api/metrics/timeline') {
+    try {
+      const metrics = loadMetricsSnapshot({ limit: metricsLimit });
+      json(res, 200, {
+        generatedAt: new Date().toISOString(),
+        dbPath: metrics.dbPath,
+        projectId: metrics.projectId,
+        count: metrics.timeline.length,
+        items: metrics.timeline
+      });
+    } catch (error) {
+      json(res, 500, { ok: false, error: error.message });
+    }
     return;
   }
 
   if (url.pathname === '/api/summary') {
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(model.summary, null, 2));
+    json(res, 200, model.summary);
+    return;
+  }
+
+  if (url.pathname === '/api/board') {
+    json(res, 200, {
+      generatedAt: model.generatedAt,
+      statusOrder: model.statusOrder,
+      summary: model.summary,
+      board: model.board.map((column) => ({
+        status: column.status,
+        count: column.cards.length,
+        cards: column.cards.map(cardApiShape)
+      }))
+    });
+    return;
+  }
+
+  if (url.pathname === '/api/cards') {
+    json(res, 200, {
+      generatedAt: model.generatedAt,
+      count: model.cards.length,
+      items: model.cards.map(cardApiShape)
+    });
+    return;
+  }
+
+  if (url.pathname.startsWith('/api/cards/')) {
+    const card = findBySlug(model.cards, decodeURIComponent(url.pathname.slice('/api/cards/'.length)));
+
+    if (!card) {
+      json(res, 404, { ok: false, error: 'Card not found' });
+      return;
+    }
+
+    json(res, 200, cardApiShape(card));
+    return;
+  }
+
+  if (url.pathname === '/api/decisions') {
+    json(res, 200, {
+      generatedAt: model.generatedAt,
+      count: model.decisions.length,
+      items: model.decisions.map(decisionApiShape)
+    });
+    return;
+  }
+
+  if (url.pathname.startsWith('/api/decisions/')) {
+    const decision = findBySlug(model.decisions, decodeURIComponent(url.pathname.slice('/api/decisions/'.length)));
+
+    if (!decision) {
+      json(res, 404, { ok: false, error: 'Decision not found' });
+      return;
+    }
+
+    json(res, 200, decisionApiShape(decision));
+    return;
+  }
+
+  if (url.pathname === '/api/updates') {
+    json(res, 200, {
+      generatedAt: model.generatedAt,
+      count: model.updates.length,
+      items: model.updates.map(updateApiShape)
+    });
     return;
   }
 

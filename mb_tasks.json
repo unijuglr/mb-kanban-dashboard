@@ -36,12 +36,16 @@
   {
     "id": "MB-011",
     "title": "Markdown parser for decisions",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-2",
     "depends_on": [
       "MB-001"
     ],
-    "artifacts": []
+    "artifacts": [
+      "src/decision-parser.mjs",
+      "scripts/prove-mb-011.mjs",
+      "PROOF_MB_011.md"
+    ]
   },
   {
     "id": "MB-012",
@@ -59,9 +63,27 @@
     ]
   },
   {
+    "id": "MB-013",
+    "title": "Board read model aggregator",
+    "state": "done",
+    "owner": "Coder-2",
+    "depends_on": [
+      "MB-010",
+      "MB-011",
+      "MB-012"
+    ],
+    "artifacts": [
+      "src/board-read-model.mjs",
+      "src/app-data.mjs",
+      "src/index.ts",
+      "scripts/prove-mb-013.mjs",
+      "PROOF_MB_013.md"
+    ]
+  },
+  {
     "id": "MB-020",
     "title": "Minimal app shell + local server",
-    "state": "in_progress",
+    "state": "done",
     "owner": "Coder-1",
     "depends_on": [
       "MB-001"
@@ -69,19 +91,212 @@
     "artifacts": [
       "scripts/dev-server.mjs",
       "scripts/start-mb-dev.sh",
-      "scripts/check-mb-dev.sh"
+      "scripts/check-mb-dev.sh",
+      "scripts/prove-mb-020.mjs",
+      "PROOF_MB_020.md"
     ]
   },
   {
     "id": "MB-021",
     "title": "Read-only board API",
+    "state": "done",
+    "owner": "Coder-1",
+    "depends_on": [
+      "MB-013",
+      "MB-020"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-021.mjs",
+      "PROOF_MB_021.md"
+    ]
+  },
+  {
+    "id": "MB-030",
+    "title": "Board screen",
+    "state": "done",
+    "owner": "Coder-3",
+    "depends_on": [
+      "MB-021"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-030.mjs",
+      "PROOF_MB_030.md",
+      "README.md"
+    ]
+  },
+  {
+    "id": "MB-031",
+    "title": "Card detail screen",
+    "state": "done",
+    "owner": "Coder-3",
+    "depends_on": [
+      "MB-021",
+      "MB-030"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-031.mjs",
+      "PROOF_MB_031.md",
+      "README.md"
+    ]
+  },
+  {
+    "id": "MB-032",
+    "title": "Decisions screen",
+    "state": "done",
+    "owner": "Coder-3",
+    "depends_on": [
+      "MB-021"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-032.mjs",
+      "PROOF_MB_032.md"
+    ]
+  },
+  {
+    "id": "MB-033",
+    "title": "Updates timeline screen",
+    "state": "ready",
+    "owner": "Coder-3",
+    "depends_on": [
+      "MB-021"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-040",
+    "title": "Metrics backfill/import for MB work",
+    "state": "done",
+    "owner": "Coder-4",
+    "depends_on": [
+      "MB-003"
+    ],
+    "artifacts": [
+      "scripts/mb_metrics_backfill.py",
+      "data/mb_metrics_backfill_report.json",
+      "PROOF_MB_040.md"
+    ]
+  },
+  {
+    "id": "MB-041",
+    "title": "Metrics API endpoints",
+    "state": "done",
+    "owner": "Coder-4",
+    "depends_on": [
+      "MB-040",
+      "MB-020"
+    ],
+    "artifacts": [
+      "src/metrics-api.mjs",
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-041.mjs",
+      "PROOF_MB_041.md"
+    ]
+  },
+  {
+    "id": "MB-042",
+    "title": "Dashboard overview screen",
+    "state": "ready",
+    "owner": "Coder-4",
+    "depends_on": [
+      "MB-041"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-043",
+    "title": "Metrics timeline/comparison screen",
+    "state": "ready",
+    "owner": "Coder-4",
+    "depends_on": [
+      "MB-041"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-050",
+    "title": "Status transition write path",
+    "state": "done",
+    "owner": "Coder-5",
+    "depends_on": [
+      "MB-021",
+      "MB-030"
+    ],
+    "artifacts": [
+      "src/card-writes.mjs",
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-050.mjs",
+      "PROOF_MB_050.md"
+    ]
+  },
+  {
+    "id": "MB-051",
+    "title": "Append update-log entry",
+    "state": "ready",
+    "owner": "Coder-5",
+    "depends_on": [
+      "MB-021",
+      "MB-031"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-052",
+    "title": "Create new card from template",
+    "state": "ready",
+    "owner": "Coder-5",
+    "depends_on": [
+      "MB-021"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-053",
+    "title": "Create new decision from template",
+    "state": "ready",
+    "owner": "Coder-5",
+    "depends_on": [
+      "MB-021"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-060",
+    "title": "End-to-end QA pass",
+    "state": "ready",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-030",
+      "MB-031",
+      "MB-032",
+      "MB-033",
+      "MB-042",
+      "MB-043",
+      "MB-050",
+      "MB-051"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-061",
+    "title": "Repo cleanup for review",
     "state": "ready",
     "owner": "Coder-1",
     "depends_on": [
-      "MB-010",
-      "MB-011",
-      "MB-012",
-      "MB-020"
+      "MB-060"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-062",
+    "title": "GitHub push preparation",
+    "state": "ready",
+    "owner": "Coder-1",
+    "depends_on": [
+      "MB-061"
     ],
     "artifacts": []
   }
