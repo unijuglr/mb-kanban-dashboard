@@ -5,22 +5,32 @@
     "state": "done",
     "owner": "Coder-1",
     "depends_on": [],
-    "artifacts": ["README.md", "PROOF_MB_001.md"]
+    "artifacts": [
+      "README.md",
+      "PROOF_MB_001.md"
+    ]
   },
   {
     "id": "MB-003",
     "title": "Create MB metrics wiring baseline",
     "state": "done",
     "owner": "Coder-4",
-    "depends_on": ["MB-001"],
-    "artifacts": ["docs/metrics-baseline.md", "PROOF_MB_003.md"]
+    "depends_on": [
+      "MB-001"
+    ],
+    "artifacts": [
+      "docs/metrics-baseline.md",
+      "PROOF_MB_003.md"
+    ]
   },
   {
     "id": "MB-010",
     "title": "Markdown parser for cards",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-2",
-    "depends_on": ["MB-001"],
+    "depends_on": [
+      "MB-001"
+    ],
     "artifacts": []
   },
   {
@@ -28,7 +38,9 @@
     "title": "Markdown parser for decisions",
     "state": "ready",
     "owner": "Coder-2",
-    "depends_on": ["MB-001"],
+    "depends_on": [
+      "MB-001"
+    ],
     "artifacts": []
   },
   {
@@ -36,7 +48,9 @@
     "title": "Updates timeline reader",
     "state": "ready",
     "owner": "Coder-2",
-    "depends_on": ["MB-001"],
+    "depends_on": [
+      "MB-001"
+    ],
     "artifacts": []
   },
   {
@@ -44,15 +58,26 @@
     "title": "Minimal app shell + local server",
     "state": "in_progress",
     "owner": "Coder-1",
-    "depends_on": ["MB-001"],
-    "artifacts": ["scripts/dev-server.mjs", "scripts/start-mb-dev.sh", "scripts/check-mb-dev.sh"]
+    "depends_on": [
+      "MB-001"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "scripts/start-mb-dev.sh",
+      "scripts/check-mb-dev.sh"
+    ]
   },
   {
     "id": "MB-021",
     "title": "Read-only board API",
     "state": "ready",
     "owner": "Coder-1",
-    "depends_on": ["MB-010", "MB-011", "MB-012", "MB-020"],
+    "depends_on": [
+      "MB-010",
+      "MB-011",
+      "MB-012",
+      "MB-020"
+    ],
     "artifacts": []
   }
 ]
