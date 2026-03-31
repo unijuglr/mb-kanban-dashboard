@@ -1,17 +1,17 @@
 {
-  "updated_at": "2026-03-31T22:31:00Z",
+  "updated_at": "2026-03-31T22:36:00Z",
   "active_coders": 4,
   "idle_coders_without_next_task": 0,
   "management_failures_since_last_iteration": 0,
   "notes": [
-    "GitHub discipline rule is now enforced: coder completion is followed by commit/push assignment before new implementation work.",
-    "Recent MB-032 and MB-041 completions are local-only and must be pushed next."
+    "Immediately dispatching new work after recent completions.",
+    "Commit/push discipline remains in force before further feature work when code is local-only."
   ],
-  "dispatch_wave": "wave-6",
+  "dispatch_wave": "wave-7",
   "tasks": {
-    "Coder-2": "Commit/push completed local MB work",
-    "Coder-4": "Commit/push completed local MB work",
-    "Coder-3": "MB-033",
-    "Coder-5": "MB-052"
+    "Coder-1": "Commit/push any remaining local MB changes",
+    "Coder-3": "Commit/push any remaining local MB changes",
+    "Coder-4": "MB-042",
+    "Coder-5": "MB-053"
   }
 }
