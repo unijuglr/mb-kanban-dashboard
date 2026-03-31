@@ -24,6 +24,12 @@ MB-050 adds the first safe write path:
 - `expectedCurrentStatus` required to prevent stale writes
 - card markdown remains the source of truth
 
+MB-052 adds repo-backed card creation:
+- `POST /api/cards`
+- board-side create-card form in `/board`
+- creates a new markdown card from a fixed template
+- duplicate card IDs are rejected before write
+
 ## Routes
 - `/` — overview shell
 - `/board` — status-grouped card board
@@ -34,6 +40,7 @@ MB-050 adds the first safe write path:
 - `/api/summary` — read-only JSON counts/status summary
 - `/api/board` — status-grouped board JSON
 - `/api/cards` — all cards JSON
+- `POST /api/cards` — create a new card from template
 - `/api/cards/:id` — card detail JSON
 - `POST /api/cards/:id/status` — guarded status transition write path
 - `/api/decisions` — all decisions JSON
@@ -74,7 +81,20 @@ curl -X POST http://127.0.0.1:4187/api/cards/mb-001/status \
   -d '{"expectedCurrentStatus":"Ready","status":"In Progress"}'
 ```
 
+Example create-card request:
+
+```bash
+curl -X POST http://127.0.0.1:4187/api/cards \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "id":"MB-052",
+    "title":"Create new card from template",
+    "owner":"Coder-5",
+    "objective":"Create a repo-backed markdown card from the local app shell."
+  }'
+```
+
 ## Notes
 - This build reads markdown directly from `docs/cards`, `docs/decisions`, and `docs/updates`.
-- Safe writes are intentionally narrow: MB-050 only covers status transitions.
+- Safe writes are intentionally narrow: MB-050 covers status transitions and MB-052 covers creating new cards from a fixed template.
 - Arbitrary markdown editing is still out of scope; the file-backed source of truth remains intact.

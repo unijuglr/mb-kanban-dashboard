@@ -246,12 +246,17 @@
   {
     "id": "MB-052",
     "title": "Create new card from template",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-5",
     "depends_on": [
       "MB-021"
     ],
-    "artifacts": []
+    "artifacts": [
+      "src/card-writes.mjs",
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-052.mjs",
+      "PROOF_MB_052.md"
+    ]
   },
   {
     "id": "MB-053",
