@@ -297,7 +297,7 @@
   {
     "id": "MB-060",
     "title": "End-to-end QA pass",
-    "state": "ready",
+    "state": "done",
     "owner": "MB-Sam",
     "depends_on": [
       "MB-030",
@@ -309,7 +309,9 @@
       "MB-050",
       "MB-051"
     ],
-    "artifacts": []
+    "artifacts": [
+      "PROOF_MB_060.md"
+    ]
   },
   {
     "id": "MB-061",
