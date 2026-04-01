@@ -1,17 +1,17 @@
 {
-  "updated_at": "2026-03-31T22:36:00Z",
+  "updated_at": "2026-03-31T22:41:00Z",
   "active_coders": 4,
   "idle_coders_without_next_task": 0,
   "management_failures_since_last_iteration": 0,
   "notes": [
-    "Immediately dispatching new work after recent completions.",
-    "Commit/push discipline remains in force before further feature work when code is local-only."
+    "Continuing immediate reassignment after completions.",
+    "One leftover local file (src/decision-writes.mjs) remains to be resolved under GitHub discipline."
   ],
-  "dispatch_wave": "wave-7",
+  "dispatch_wave": "wave-8",
   "tasks": {
-    "Coder-1": "Commit/push any remaining local MB changes",
-    "Coder-3": "Commit/push any remaining local MB changes",
-    "Coder-4": "MB-042",
-    "Coder-5": "MB-053"
+    "Coder-4": "Commit/push or resolve remaining local file",
+    "Coder-5": "MB-053",
+    "Coder-1": "MB-061 prep / review cleanup planning",
+    "Coder-2": "MB-043"
   }
 }

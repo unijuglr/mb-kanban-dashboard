@@ -55,6 +55,7 @@ function cardTemplate({
   status,
   priority,
   owner,
+  project,
   created,
   lastUpdated,
   objective,
@@ -71,6 +72,7 @@ function cardTemplate({
 Status: ${status}
 Priority: ${priority}
 Owner: ${owner}
+Project: ${project}
 Created: ${created}
 Last Updated: ${lastUpdated}
 
@@ -215,6 +217,7 @@ export function createCardFromTemplate({
   id,
   title,
   owner,
+  project = 'Motherbrain',
   priority = 'P2 normal',
   status = 'Backlog',
   objective,
@@ -232,7 +235,8 @@ export function createCardFromTemplate({
     requireNonEmptyString(normalizedId, 'id'),
     requireNonEmptyString(title, 'title'),
     requireNonEmptyString(owner, 'owner'),
-    requireNonEmptyString(objective, 'objective')
+    requireNonEmptyString(objective, 'objective'),
+    requireNonEmptyString(project, 'project')
   ].filter(Boolean);
 
   if (!/^MB-\d+$/.test(normalizedId)) {
@@ -283,6 +287,7 @@ export function createCardFromTemplate({
     status,
     priority: String(priority).trim() || 'P2 normal',
     owner: String(owner).trim(),
+    project: String(project).trim() || 'Motherbrain',
     created: today,
     lastUpdated: today,
     objective: String(objective).trim(),

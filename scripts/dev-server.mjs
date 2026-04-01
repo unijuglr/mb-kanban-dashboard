@@ -497,6 +497,7 @@ function renderMetricsScreen(model, metrics) {
 function renderBoard(model) {
   const ownerOptions = [...new Set(model.cards.map((card) => card.owner).filter(Boolean))].sort();
   const priorityOptions = [...new Set(model.cards.map((card) => card.priority).filter(Boolean))].sort();
+  const projectOptions = [...new Set(model.cards.map((card) => card.project).filter(Boolean))].sort();
 
   const initialData = JSON.stringify({
     generatedAt: model.generatedAt,
@@ -509,7 +510,8 @@ function renderBoard(model) {
     })),
     filters: {
       owners: ownerOptions,
-      priorities: priorityOptions
+      priorities: priorityOptions,
+      projects: projectOptions
     }
   }).replace(/</g, '\\u003c');
 
@@ -517,24 +519,119 @@ function renderBoard(model) {
     title: 'Board',
     currentPath: '/board',
     body: `
+      <style>
+        .drawer {
+          position: fixed;
+          top: 0;
+          right: -420px;
+          width: 420px;
+          height: 100vh;
+          background: #0e1427;
+          border-left: 1px solid #26304a;
+          transition: right 0.3s ease;
+          z-index: 1000;
+          padding: 24px;
+          overflow-y: auto;
+          box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .drawer.open { right: 0; }
+        .drawer-handle {
+          position: fixed;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          background: #4f8cff;
+          color: white;
+          padding: 20px 8px;
+          border-radius: 8px 0 0 8px;
+          cursor: pointer;
+          writing-mode: vertical-rl;
+          text-orientation: mixed;
+          font-weight: bold;
+          z-index: 1001;
+          user-select: none;
+        }
+        .swimlane { margin-bottom: 32px; }
+        .swimlane-header {
+          background: #121a2b;
+          padding: 12px 16px;
+          border-radius: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+          border: 1px solid #26304a;
+        }
+        .swimlane-title { font-size: 1.25rem; font-weight: 700; }
+        .board-row {
+          display: grid;
+          grid-auto-flow: column;
+          grid-auto-columns: minmax(280px, 1fr);
+          gap: 16px;
+          overflow-x: auto;
+          padding-bottom: 12px;
+        }
+        .board-col { display: flex; flex-direction: column; gap: 12px; min-height: 100px; }
+        .status-badge {
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #98a3bb;
+          margin-bottom: 8px;
+          padding-left: 4px;
+        }
+      </style>
+
       <section class="hero">
         <div>
           <h1>Board</h1>
-          <p>API-backed board screen with local filtering over real repo cards.</p>
+          <p>Swimlane view grouped by project with project drill-in.</p>
         </div>
         <div class="muted" id="board-generated-at">Generated ${escapeHtml(model.generatedAt)}</div>
       </section>
+
+      <div class="drawer-handle" id="drawer-toggle">CREATE NEW CARD</div>
+      <aside class="drawer" id="create-card-drawer">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2>Create new card</h2>
+          <button class="button" id="drawer-close" style="padding: 4px 10px;">✕</button>
+        </div>
+        <form id="create-card-form" class="stack">
+          <label class="stack"><span class="muted">Project</span><input name="project" type="text" placeholder="Motherbrain" value="Motherbrain" required /></label>
+          <label class="stack"><span class="muted">Card ID</span><input name="id" type="text" placeholder="MB-052" required /></label>
+          <label class="stack"><span class="muted">Title</span><input name="title" type="text" placeholder="Task title" required /></label>
+          <label class="stack"><span class="muted">Owner</span><input name="owner" type="text" placeholder="Coder-5" required /></label>
+          <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+            <label class="stack"><span class="muted">Priority</span><input name="priority" type="text" value="P2 normal" /></label>
+            <label class="stack"><span class="muted">Status</span><select name="status">${model.statusOrder.map((status) => `<option value="${escapeHtml(status)}"${status === 'Backlog' ? ' selected' : ''}>${escapeHtml(status)}</option>`).join('')}</select></label>
+          </div>
+          <label class="stack"><span class="muted">Objective</span><textarea name="objective" placeholder="Describe the concrete objective." required></textarea></label>
+          <div class="button-row">
+            <button class="button" id="create-card-submit" type="submit">Create card</button>
+          </div>
+          <p class="muted tiny" id="create-card-result"></p>
+        </form>
+      </aside>
+
       <section class="grid stats" id="board-summary">
         <article class="card"><div class="muted">Visible cards</div><div class="kpi" data-summary="visible">${model.summary.cardCount}</div></article>
         <article class="card"><div class="muted">In Progress</div><div class="kpi" data-summary="active">${model.summary.activeCount}</div></article>
         <article class="card"><div class="muted">Blocked</div><div class="kpi" data-summary="blocked">${model.summary.blockedCount}</div></article>
         <article class="card"><div class="muted">Done</div><div class="kpi" data-summary="done">${model.summary.doneCount}</div></article>
       </section>
+
       <section class="panel">
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
           <label class="stack">
             <span class="muted">Search</span>
             <input id="board-search" type="search" placeholder="ID, title, summary" />
+          </label>
+          <label class="stack">
+            <span class="muted">Project</span>
+            <select id="board-project-filter">
+              <option value="">All projects</option>
+              ${projectOptions.map((p) => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('')}
+            </select>
           </label>
           <label class="stack">
             <span class="muted">Owner</span>
@@ -550,62 +647,35 @@ function renderBoard(model) {
               ${priorityOptions.map((priority) => `<option value="${escapeHtml(priority)}">${escapeHtml(priority)}</option>`).join('')}
             </select>
           </label>
-          <label class="stack">
-            <span class="muted">Status</span>
-            <select id="board-status">
-              <option value="">All statuses</option>
-              ${model.statusOrder.map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join('')}
-            </select>
-          </label>
         </div>
         <div style="display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap;">
-          <button id="board-clear" type="button" style="padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #16203a; color: #e8ecf3; cursor: pointer;">Clear filters</button>
+          <button id="board-clear" type="button" class="button">Clear filters</button>
           <div class="muted" id="board-filter-state">Showing all cards.</div>
         </div>
       </section>
-      <section class="grid" style="grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); align-items: start;">
-        <article class="panel">
-          <h2>Create new card</h2>
-          <p class="muted">Creates a new markdown card in <code>docs/cards</code> from the app shell.</p>
-          <form id="create-card-form" class="stack">
-            <label class="stack"><span class="muted">Card ID</span><input name="id" type="text" placeholder="MB-052" required /></label>
-            <label class="stack"><span class="muted">Title</span><input name="title" type="text" placeholder="Create new card from template" required /></label>
-            <label class="stack"><span class="muted">Owner</span><input name="owner" type="text" placeholder="Coder-5" required /></label>
-            <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
-              <label class="stack"><span class="muted">Priority</span><input name="priority" type="text" value="P2 normal" /></label>
-              <label class="stack"><span class="muted">Initial status</span><select name="status">${model.statusOrder.map((status) => `<option value="${escapeHtml(status)}"${status === 'Backlog' ? ' selected' : ''}>${escapeHtml(status)}</option>`).join('')}</select></label>
-            </div>
-            <label class="stack"><span class="muted">Objective</span><textarea name="objective" placeholder="Describe the concrete objective." required></textarea></label>
-            <label class="stack"><span class="muted">Why it matters</span><textarea name="whyItMatters">Document why this work matters.</textarea></label>
-            <label class="stack"><span class="muted">Scope</span><textarea name="scope">- [ ] define scope</textarea></label>
-            <label class="stack"><span class="muted">Out of scope</span><textarea name="outOfScope">- [ ] list explicit non-goals</textarea></label>
-            <label class="stack"><span class="muted">Steps</span><textarea name="steps">- [ ] draft implementation plan</textarea></label>
-            <label class="stack"><span class="muted">Blockers</span><textarea name="blockers">- None currently.</textarea></label>
-            <label class="stack"><span class="muted">Artifacts</span><textarea name="artifacts">- None yet.</textarea></label>
-            <div class="button-row">
-              <button class="button" id="create-card-submit" type="submit">Create card</button>
-            </div>
-            <p class="muted tiny" id="create-card-result">Template defaults are editable before save.</p>
-          </form>
-        </article>
-        <section class="grid board" id="board-columns"></section>
-      </section>
+
+      <div id="board-swimlanes"></div>
+
       <script id="board-data" type="application/json">${initialData}</script>
       <script>
         (() => {
           const embedded = document.getElementById('board-data');
           const initial = embedded ? JSON.parse(embedded.textContent) : null;
-          const columnsEl = document.getElementById('board-columns');
+          const swimlanesEl = document.getElementById('board-swimlanes');
           const searchEl = document.getElementById('board-search');
           const ownerEl = document.getElementById('board-owner');
           const priorityEl = document.getElementById('board-priority');
-          const statusEl = document.getElementById('board-status');
+          const projectFilterEl = document.getElementById('board-project-filter');
           const clearEl = document.getElementById('board-clear');
           const stateEl = document.getElementById('board-filter-state');
           const generatedEl = document.getElementById('board-generated-at');
           const createFormEl = document.getElementById('create-card-form');
           const createResultEl = document.getElementById('create-card-result');
           const createSubmitEl = document.getElementById('create-card-submit');
+          const drawerEl = document.getElementById('create-card-drawer');
+          const drawerToggleEl = document.getElementById('drawer-toggle');
+          const drawerCloseEl = document.getElementById('drawer-close');
+
           const summaryEls = {
             visible: document.querySelector('[data-summary="visible"]'),
             active: document.querySelector('[data-summary="active"]'),
@@ -619,130 +689,117 @@ function renderBoard(model) {
             const search = normalized(searchEl.value).trim();
             const owner = ownerEl.value;
             const priority = priorityEl.value;
-            const status = statusEl.value;
-            const haystack = [card.id, card.title, card.summary, card.owner, card.priority].map(normalized).join(' ');
+            const project = projectFilterEl.value;
+            const haystack = [card.id, card.title, card.summary, card.owner, card.priority, card.project].map(normalized).join(' ');
             return (!search || haystack.includes(search))
               && (!owner || card.owner === owner)
               && (!priority || card.priority === priority)
-              && (!status || card.status === status);
+              && (!project || card.project === project);
           }
 
           function esc(value) {
-            return String(value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;')
-              .replace(/'/g, '&#39;');
+            return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
           }
 
-          function columnMarkup(status, cards) {
-            return '<section class="panel">'
-              + '<h2>' + esc(status) + '</h2>'
-              + '<div class="muted">' + cards.length + ' card(s)</div>'
-              + '<div class="stack" style="margin-top: 12px;">'
-              + (cards.length ? cards.map((card) => {
-                  return '<article class="card-item">'
-                    + '<div><span class="chip">' + esc(card.id) + '</span><span class="chip">' + esc(card.priority) + '</span></div>'
-                    + '<h3><a href="/cards/' + encodeURIComponent(card.slug) + '">' + esc(card.title) + '</a></h3>'
-                    + '<div class="muted">' + esc(card.owner) + ' · updated ' + esc(card.updatedAt) + '</div>'
-                    + '<p>' + esc(card.summary) + '</p>'
-                    + '</article>';
-                }).join('') : '<p class="muted">No cards here.</p>')
+          function swimlaneMarkup(projectName, cardsByStatus, statusOrder) {
+            const projectCards = Object.values(cardsByStatus).flat();
+            if (projectCards.length === 0) return '';
+
+            return '<div class="swimlane">'
+              + '<div class="swimlane-header">'
+              + '<span class="swimlane-title">' + esc(projectName) + '</span>'
+              + '<a href="/projects/' + encodeURIComponent(projectName) + '" class="button">View Project</a>'
               + '</div>'
-              + '</section>';
+              + '<div class="board-row">'
+              + statusOrder.map(status => {
+                  const cards = cardsByStatus[status] || [];
+                  return '<div class="board-col">'
+                    + '<div class="status-badge">' + esc(status) + ' (' + cards.length + ')</div>'
+                    + cards.map(card => {
+                        return '<article class="card" style="padding: 12px; margin-bottom: 0; flex: 0 0 auto;">'
+                          + '<div style="display:flex; justify-content:space-between; margin-bottom: 8px;">'
+                          + '<span class="chip" style="margin-right:4px; font-size:0.7rem;">' + esc(card.id) + '</span>'
+                          + '<span class="chip" style="margin-right:0; font-size:0.7rem;">' + esc(card.priority) + '</span>'
+                          + '</div>'
+                          + '<h3 style="font-size: 0.95rem; margin: 0 0 8px;"><a href="/cards/' + encodeURIComponent(card.slug) + '">' + esc(card.title) + '</a></h3>'
+                          + '<div class="tiny muted">' + esc(card.owner) + '</div>'
+                          + '</article>';
+                      }).join('')
+                    + '</div>';
+                }).join('')
+              + '</div>'
+              + '</div>';
           }
 
           function render(payload) {
-            const board = payload.board.map((column) => ({
-              status: column.status,
-              cards: column.cards.filter(matches)
-            }));
-            const cards = board.flatMap((column) => column.cards);
-            columnsEl.innerHTML = board.map((column) => columnMarkup(column.status, column.cards)).join('');
-            summaryEls.visible.textContent = String(cards.length);
-            summaryEls.active.textContent = String(cards.filter((card) => card.status === 'In Progress').length);
-            summaryEls.blocked.textContent = String(cards.filter((card) => card.status === 'Blocked').length);
-            summaryEls.done.textContent = String(cards.filter((card) => card.status === 'Done').length);
-            const activeFilters = [searchEl.value && 'search', ownerEl.value && 'owner', priorityEl.value && 'priority', statusEl.value && 'status'].filter(Boolean);
-            stateEl.textContent = activeFilters.length
-              ? 'Showing ' + cards.length + ' filtered card(s) across ' + board.filter((column) => column.cards.length).length + ' visible column(s).'
-              : 'Showing all cards.';
-            generatedEl.textContent = 'Generated ' + payload.generatedAt;
+            const allCards = payload.board.flatMap(col => col.cards).filter(matches);
+            const projects = [...new Set(allCards.map(c => c.project))].sort();
+            const statusOrder = payload.statusOrder;
+
+            let html = '';
+            projects.forEach(proj => {
+              const projCards = allCards.filter(c => c.project === proj);
+              const grouped = {};
+              statusOrder.forEach(s => {
+                grouped[s] = projCards.filter(c => c.status === s);
+              });
+              html += swimlaneMarkup(proj, grouped, statusOrder);
+            });
+
+            swimlanesEl.innerHTML = html || '<p class="muted">No cards match the current filters.</p>';
+
+            summaryEls.visible.textContent = String(allCards.length);
+            summaryEls.active.textContent = String(allCards.filter((card) => card.status === 'In Progress').length);
+            summaryEls.blocked.textContent = String(allCards.filter((card) => card.status === 'Blocked').length);
+            summaryEls.done.textContent = String(allCards.filter((card) => card.status === 'Done').length);
+
+            const activeFilters = [searchEl.value && 'search', ownerEl.value && 'owner', priorityEl.value && 'priority', projectFilterEl.value && 'project'].filter(Boolean);
+            stateEl.textContent = activeFilters.length ? 'Showing ' + allCards.length + ' filtered card(s).' : 'Showing all cards.';
           }
 
-          function setCreateBusy(isBusy) {
-            if (createSubmitEl) createSubmitEl.disabled = isBusy;
-          }
-
-          function collectFormData() {
-            const formData = new FormData(createFormEl);
-            return Object.fromEntries(Array.from(formData.entries()).map(([key, value]) => [key, String(value)]));
-          }
+          drawerToggleEl.addEventListener('click', () => drawerEl.classList.toggle('open'));
+          drawerCloseEl.addEventListener('click', () => drawerEl.classList.remove('open'));
 
           async function submitCreateCard(event, payload) {
             event.preventDefault();
-            setCreateBusy(true);
+            createSubmitEl.disabled = true;
             createResultEl.textContent = 'Creating card…';
+            const formData = new FormData(createFormEl);
+            const data = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
+
             try {
               const response = await fetch('/api/cards', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(collectFormData())
+                body: JSON.stringify(data)
               });
               const result = await response.json();
-              if (!response.ok || !result.ok) throw new Error(result.error || 'Card creation failed');
-              const refreshed = await loadBoard();
-              if (!refreshed) throw new Error('Board refresh failed after create');
-              payload.generatedAt = refreshed.generatedAt;
-              payload.summary = refreshed.summary;
+              if (!response.ok) throw new Error(result.error || 'Failed');
+
+              const refreshed = await (await fetch('/api/board')).json();
               payload.board = refreshed.board;
-              if (result.card && result.card.owner && !payload.filters.owners.includes(result.card.owner)) {
-                payload.filters.owners.push(result.card.owner);
-                payload.filters.owners.sort();
-              }
-              if (result.card && result.card.priority && !payload.filters.priorities.includes(result.card.priority)) {
-                payload.filters.priorities.push(result.card.priority);
-                payload.filters.priorities.sort();
-              }
               render(payload);
               createFormEl.reset();
-              const statusField = createFormEl.querySelector('[name="status"]');
-              const priorityField = createFormEl.querySelector('[name="priority"]');
-              if (statusField) statusField.value = 'Backlog';
-              if (priorityField) priorityField.value = 'P2 normal';
-              createResultEl.innerHTML = 'Created <a href="/cards/' + encodeURIComponent(result.slug) + '">' + result.cardId + '</a> at ' + result.filePath + '.';
-            } catch (error) {
-              createResultEl.textContent = error.message;
+              createResultEl.innerHTML = 'Created <a href="/cards/' + encodeURIComponent(result.slug) + '">' + result.cardId + '</a>';
+              setTimeout(() => drawerEl.classList.remove('open'), 1500);
+            } catch (err) {
+              createResultEl.textContent = err.message;
             } finally {
-              setCreateBusy(false);
-            }
-          }
-
-          async function loadBoard() {
-            try {
-              const response = await fetch('/api/board');
-              if (!response.ok) throw new Error('board api failed');
-              return await response.json();
-            } catch {
-              return initial;
+              createSubmitEl.disabled = false;
             }
           }
 
           function wire(payload) {
-            [searchEl, ownerEl, priorityEl, statusEl].forEach((el) => el.addEventListener('input', () => render(payload)));
-            if (createFormEl) createFormEl.addEventListener('submit', (event) => submitCreateCard(event, payload));
+            [searchEl, ownerEl, priorityEl, projectFilterEl].forEach(el => el.addEventListener('input', () => render(payload)));
+            createFormEl.addEventListener('submit', (e) => submitCreateCard(e, payload));
             clearEl.addEventListener('click', () => {
-              searchEl.value = '';
-              ownerEl.value = '';
-              priorityEl.value = '';
-              statusEl.value = '';
+              searchEl.value = ''; ownerEl.value = ''; priorityEl.value = ''; projectFilterEl.value = '';
               render(payload);
             });
             render(payload);
           }
 
-          loadBoard().then((payload) => payload && wire(payload));
+          wire(initial);
         })();
       </script>`
   });
@@ -1479,6 +1536,77 @@ function renderUpdates(model) {
   });
 }
 
+function renderProjectView(model, projectName) {
+  const projectCards = model.cards.filter(c => c.project === projectName);
+  const initialData = JSON.stringify({
+    projectName,
+    statusOrder: model.statusOrder,
+    cards: projectCards.map(cardApiShape)
+  }).replace(/</g, '\\u003c');
+
+  return shell({
+    title: `Project: ${projectName}`,
+    currentPath: '/board',
+    body: `
+      <section class="hero">
+        <div>
+          <h1>Project: ${escapeHtml(projectName)}</h1>
+          <p>Dedicated project view showing swimlane for ${projectCards.length} card(s).</p>
+        </div>
+        <a href="/board" class="button">← Back to Board</a>
+      </section>
+
+      <style>
+        .board-row {
+          display: grid;
+          grid-auto-flow: column;
+          grid-auto-columns: minmax(280px, 1fr);
+          gap: 16px;
+          overflow-x: auto;
+          padding-bottom: 12px;
+        }
+        .board-col { display: flex; flex-direction: column; gap: 12px; min-height: 100px; }
+        .status-badge {
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #98a3bb;
+          margin-bottom: 8px;
+          padding-left: 4px;
+        }
+      </style>
+
+      <div class="board-row" id="project-board"></div>
+
+      <script id="project-data" type="application/json">${initialData}</script>
+      <script>
+        (() => {
+          const initial = JSON.parse(document.getElementById('project-data').textContent);
+          const boardEl = document.getElementById('project-board');
+
+          function esc(v) { return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+          boardEl.innerHTML = initial.statusOrder.map(status => {
+            const cards = initial.cards.filter(c => c.status === status);
+            return '<div class="board-col">'
+              + '<div class="status-badge">' + esc(status) + ' (' + cards.length + ')</div>'
+              + cards.map(card => {
+                  return '<article class="card" style="padding: 12px; margin-bottom: 0;">'
+                    + '<div style="display:flex; justify-content:space-between; margin-bottom: 8px;">'
+                    + '<span class="chip" style="font-size:0.7rem;">' + esc(card.id) + '</span>'
+                    + '<span class="chip" style="font-size:0.7rem;">' + esc(card.priority) + '</span>'
+                    + '</div>'
+                    + '<h3 style="font-size: 0.95rem; margin: 0 0 8px;"><a href="/cards/' + encodeURIComponent(card.slug) + '">' + esc(card.title) + '</a></h3>'
+                    + '<div class="tiny muted">' + esc(card.owner) + '</div>'
+                    + '</article>';
+                }).join('')
+              + '</div>';
+          }).join('');
+        })();
+      </script>`
+  });
+}
+
 function notFound(backHref, label) {
   return shell({
     title: 'Not found',
@@ -1527,6 +1655,7 @@ function cardApiShape(card) {
     status: card.status,
     priority: card.priority,
     owner: card.owner,
+    project: card.project,
     updatedAt: card.updatedAt,
     summary: card.summary,
     objective: card.objective,
@@ -1854,6 +1983,11 @@ http.createServer(async (req, res) => {
 
   if (url.pathname === '/board') {
     sendHtml(res, 200, renderBoard(model));
+    return;
+  }
+
+  if (url.pathname.startsWith('/projects/')) {
+    sendHtml(res, 200, renderProjectView(model, decodeURIComponent(url.pathname.slice('/projects/'.length))));
     return;
   }
 

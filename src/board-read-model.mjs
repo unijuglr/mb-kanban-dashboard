@@ -55,6 +55,7 @@ export function loadCards(rootDir) {
     const markdown = readText(filePath);
     const titleInfo = parseTitle(markdown);
     const objective = parseSection(markdown, 'Objective');
+    const project = parseField(markdown, 'Project');
     return {
       id: titleInfo.id,
       slug: slugForId(titleInfo.id),
@@ -62,6 +63,7 @@ export function loadCards(rootDir) {
       status: parseField(markdown, 'Status'),
       priority: parseField(markdown, 'Priority'),
       owner: parseField(markdown, 'Owner'),
+      project: project !== 'Unknown' ? project : 'Motherbrain',
       updatedAt: parseField(markdown, 'Last Updated'),
       summary: summarize(objective || parseSection(markdown, 'Why It Matters') || 'No summary yet.'),
       objective,
