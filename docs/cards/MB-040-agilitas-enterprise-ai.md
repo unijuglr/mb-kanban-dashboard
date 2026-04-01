@@ -1,6 +1,6 @@
-# MB-040 — Agilitas: Engineering: Enterprise AI Platform
+# MB-040 — Agilitas: Engineering: Deterministic Scoring & Business Logic
 
-Status: In Progress
+Status: Ready
 Priority: P1 high
 Project: Agilitas Solutions
 Owner: Adam Goldband
@@ -8,21 +8,23 @@ Created: 2026-04-01
 Last Updated: 2026-04-01
 
 ## Objective
-Design and implement a scalable enterprise AI integration layer for Agilitas core products.
+Implement the "Deterministic Layer" between AI Extraction and the Action Engine to calculate financial KPIs and map business outcomes.
 
 ## Why It Matters
-This is the core technical execution of the Agilitas AI strategy, ensuring robustness and security at scale.
+"Intuition is not a strategy." We must strictly separate semantic AI extraction from financial math (Revenue Loss, Churn Prob, NPS Proxy) to ensure reproducibility and executive trust.
 
 ## Scope
-- Centralized API gateway for AI models (local and cloud).
-- Enterprise-grade prompt management and versioning.
-- RAG (Retrieval-Augmented Generation) infrastructure for internal docs.
+- Deterministic calculation formulas for: Churn Probability, Revenue Loss (LTV * Churn), NPS Proxy, CSAT, Effort.
+- Rule-based mapping of triggers for "Inner Loop" and "Outer Loop" resolutions.
+- Escalation logic based on "Brand Promise" priority multipliers.
+- Porting existing .NET logic for these calculations into the new platform architecture.
 
 ## Steps
-- [ ] Select primary LLM stack for enterprise workloads.
-- [ ] Implement a prototype RAG system for internal documentation.
-- [ ] Define API contracts for cross-department AI services.
+- [ ] Port the .NET `SentimentAnalyzer` and logic to a centralized Business Engine.
+- [ ] Implement the threshold-based mapping for Workflow Triggers.
+- [ ] Connect computed Revenue Loss metrics to the executive reporting dashboard data layer.
+- [ ] Validate deterministic consistency: same signals must yield identical financial outputs every time.
 
 ## Artifacts
-- `src/agilitas/ai-gateway/`
-- `docs/agilitas/architecture-ai-platform.md`
+- `services/agilitas-business-engine/`
+- `docs/agilitas/kpi-formulas.md`
