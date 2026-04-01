@@ -92,6 +92,7 @@ export function loadDecisions(rootDir) {
       date: parsed.date,
       owner: parsed.owner,
       context: parsed.context,
+      project: parsed.project || 'Motherbrain',
       options: parsed.sections['Options Considered'] ?? '',
       decision: parsed.decision,
       consequences: parsed.consequences,

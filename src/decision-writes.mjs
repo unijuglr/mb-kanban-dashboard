@@ -48,6 +48,7 @@ function decisionTemplate({
 Status: ${status}
 Date: ${date}
 Owner: ${owner}
+Project: ${project}
 
 ## Context
 ${context}
@@ -74,6 +75,7 @@ export function createDecisionFromTemplate({
   id,
   title,
   owner,
+  project = 'Motherbrain',
   status = 'Proposed',
   date,
   context,
@@ -141,6 +143,7 @@ export function createDecisionFromTemplate({
     status: String(status || 'Proposed').trim() || 'Proposed',
     date: normalizedDate,
     owner: String(owner).trim(),
+    project: String(project).trim(),
     context: String(context).trim(),
     optionsConsidered: String(optionsConsidered).trim(),
     decision: String(decision).trim(),

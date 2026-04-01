@@ -995,6 +995,7 @@ function renderCardDetail(model, slug) {
 function renderDecisions(model) {
   const statusOptions = [...new Set(model.decisions.map((decision) => decision.status).filter(Boolean))].sort();
   const ownerOptions = [...new Set(model.decisions.map((decision) => decision.owner).filter(Boolean))].sort();
+  const projectOptions = [...new Set(model.decisions.map((decision) => decision.project).filter(Boolean))].sort();
   const initialSelected = model.decisions[0]?.slug ?? '';
 
   const initialData = JSON.stringify({
@@ -1007,13 +1008,84 @@ function renderDecisions(model) {
     title: 'Decisions',
     currentPath: '/decisions',
     body: `
+      <style>
+        .drawer {
+          position: fixed;
+          top: 0;
+          right: -420px;
+          width: 420px;
+          height: 100vh;
+          background: #0e1427;
+          border-left: 1px solid #26304a;
+          transition: right 0.3s ease;
+          z-index: 1000;
+          padding: 24px;
+          overflow-y: auto;
+          box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .drawer.open { right: 0; }
+        .drawer-handle {
+          position: fixed;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          background: #4f8cff;
+          color: white;
+          padding: 20px 8px;
+          border-radius: 8px 0 0 8px;
+          cursor: pointer;
+          writing-mode: vertical-rl;
+          text-orientation: mixed;
+          font-weight: bold;
+          z-index: 1001;
+          user-select: none;
+        }
+        .swimlane { margin-bottom: 32px; }
+        .swimlane-header {
+          background: #121a2b;
+          padding: 12px 16px;
+          border-radius: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+          border: 1px solid #26304a;
+        }
+        .swimlane-title { font-size: 1.25rem; font-weight: 700; }
+      </style>
+
       <section class="hero">
         <div>
           <h1>Decisions</h1>
-          <p>API-backed decisions screen with local filtering and in-page detail inspection.</p>
+          <p>Project-grouped decisions with drawer-based creation and drill-in.</p>
         </div>
         <div class="muted" id="decisions-generated-at">Generated ${escapeHtml(model.generatedAt)}</div>
       </section>
+
+      <div class="drawer-handle" id="drawer-toggle">CREATE NEW DECISION</div>
+      <aside class="drawer" id="create-decision-drawer">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2>Create new decision</h2>
+          <button class="button" id="drawer-close" style="padding: 4px 10px;">✕</button>
+        </div>
+        <form id="create-decision-form" class="stack">
+          <label class="stack"><span class="muted">Decision ID</span><input name="id" type="text" placeholder="DEC-004" required /></label>
+          <label class="stack"><span class="muted">Title</span><input name="title" type="text" placeholder="Decision title" required /></label>
+          <label class="stack"><span class="muted">Project</span><input name="project" type="text" placeholder="Motherbrain" value="Motherbrain" required /></label>
+          <label class="stack"><span class="muted">Owner</span><input name="owner" type="text" placeholder="Coder-5" required /></label>
+          <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+            <label class="stack"><span class="muted">Status</span><input name="status" type="text" value="Proposed" /></label>
+            <label class="stack"><span class="muted">Date</span><input name="date" type="date" value="${escapeHtml(new Date().toISOString().slice(0, 10))}" /></label>
+          </div>
+          <label class="stack"><span class="muted">Context</span><textarea name="context" placeholder="Describe the problem." required></textarea></label>
+          <label class="stack"><span class="muted">Decision</span><textarea name="decision" placeholder="State the decision." required></textarea></label>
+          <div class="button-row">
+            <button class="button" id="create-decision-submit" type="submit">Create decision</button>
+          </div>
+          <p class="muted tiny" id="create-decision-result"></p>
+        </form>
+      </aside>
+
       <section class="grid stats" id="decisions-summary">
         <article class="card"><div class="muted">Visible decisions</div><div class="kpi" data-summary="visible">${model.decisions.length}</div></article>
         <article class="card"><div class="muted">Proposed</div><div class="kpi" data-summary="proposed">${model.decisions.filter((decision) => decision.status === 'Proposed').length}</div></article>
@@ -1024,83 +1096,63 @@ function renderDecisions(model) {
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
           <label class="stack">
             <span class="muted">Search</span>
-            <input id="decisions-search" type="search" placeholder="ID, title, context, decision" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;" />
+            <input id="decisions-search" type="search" placeholder="ID, title, context" />
+          </label>
+          <label class="stack">
+            <span class="muted">Project</span>
+            <select id="decisions-project-filter">
+              <option value="">All projects</option>
+              ${projectOptions.map((p) => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('')}
+            </select>
           </label>
           <label class="stack">
             <span class="muted">Status</span>
-            <select id="decisions-status" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;">
+            <select id="decisions-status">
               <option value="">All statuses</option>
               ${statusOptions.map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join('')}
             </select>
           </label>
           <label class="stack">
             <span class="muted">Owner</span>
-            <select id="decisions-owner" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3;">
+            <select id="decisions-owner">
               <option value="">All owners</option>
               ${ownerOptions.map((owner) => `<option value="${escapeHtml(owner)}">${escapeHtml(owner)}</option>`).join('')}
             </select>
           </label>
         </div>
         <div style="display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap;">
-          <button id="decisions-clear" type="button" style="padding: 10px 12px; border-radius: 10px; border: 1px solid #334466; background: #16203a; color: #e8ecf3; cursor: pointer;">Clear filters</button>
+          <button id="decisions-clear" type="button" class="button">Clear filters</button>
           <div class="muted" id="decisions-filter-state">Showing all decisions.</div>
         </div>
       </section>
-      <section class="grid" style="grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); align-items: start;">
-        <article class="panel">
-          <h2>Create new decision</h2>
-          <p class="muted">Creates a new markdown decision record in <code>docs/decisions</code> from the app shell.</p>
-          <form id="create-decision-form" class="stack">
-            <label class="stack"><span class="muted">Decision ID</span><input name="id" type="text" placeholder="DEC-004" required /></label>
-            <label class="stack"><span class="muted">Title</span><input name="title" type="text" placeholder="Create new decision from template" required /></label>
-            <label class="stack"><span class="muted">Owner</span><input name="owner" type="text" placeholder="Coder-5" required /></label>
-            <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
-              <label class="stack"><span class="muted">Status</span><input name="status" type="text" value="Proposed" /></label>
-              <label class="stack"><span class="muted">Date</span><input name="date" type="date" value="${escapeHtml(new Date().toISOString().slice(0, 10))}" /></label>
-            </div>
-            <label class="stack"><span class="muted">Context</span><textarea name="context" placeholder="Describe the problem, constraints, or trigger for this decision." required></textarea></label>
-            <label class="stack"><span class="muted">Options considered</span><textarea name="optionsConsidered">### Option A
-Keep the current approach.
-
-### Option B
-Adopt the proposed change.</textarea></label>
-            <label class="stack"><span class="muted">Decision</span><textarea name="decision" placeholder="State the decision clearly." required></textarea></label>
-            <label class="stack"><span class="muted">Why</span><textarea name="why">Document why this decision is the right call right now.</textarea></label>
-            <label class="stack"><span class="muted">Consequences</span><textarea name="consequences">- capture expected consequences here</textarea></label>
-            <label class="stack"><span class="muted">Follow-up tasks</span><textarea name="followUpTasks">- [ ] document follow-up work</textarea></label>
-            <div class="button-row">
-              <button class="button" id="create-decision-submit" type="submit">Create decision</button>
-            </div>
-            <p class="muted tiny" id="create-decision-result">Template defaults are editable before save.</p>
-          </form>
+      <section class="grid" style="grid-template-columns: minmax(320px, 480px) minmax(0, 1fr); align-items: start;">
+        <div id="decisions-swimlanes"></div>
+        <article class="panel" id="decision-detail-panel">
+          <h2>Decision detail</h2>
+          <div class="muted">Select a decision to inspect its full record.</div>
         </article>
-        <div class="stack">
-          <article class="panel">
-            <h2>Decision list</h2>
-            <div class="stack" id="decisions-list"></div>
-          </article>
-          <article class="panel" id="decision-detail-panel">
-            <h2>Decision detail</h2>
-            <div class="muted">Select a decision to inspect its full record.</div>
-          </article>
-        </div>
       </section>
       <script id="decisions-data" type="application/json">${initialData}</script>
       <script>
         (() => {
           const embedded = document.getElementById('decisions-data');
           const initial = embedded ? JSON.parse(embedded.textContent) : null;
-          const listEl = document.getElementById('decisions-list');
+          const swimlanesEl = document.getElementById('decisions-swimlanes');
           const detailEl = document.getElementById('decision-detail-panel');
           const searchEl = document.getElementById('decisions-search');
           const statusEl = document.getElementById('decisions-status');
           const ownerEl = document.getElementById('decisions-owner');
+          const projectFilterEl = document.getElementById('decisions-project-filter');
           const clearEl = document.getElementById('decisions-clear');
           const stateEl = document.getElementById('decisions-filter-state');
           const generatedEl = document.getElementById('decisions-generated-at');
           const createFormEl = document.getElementById('create-decision-form');
           const createSubmitEl = document.getElementById('create-decision-submit');
           const createResultEl = document.getElementById('create-decision-result');
+          const drawerEl = document.getElementById('create-decision-drawer');
+          const drawerToggleEl = document.getElementById('drawer-toggle');
+          const drawerCloseEl = document.getElementById('drawer-close');
+
           const summaryEls = {
             visible: document.querySelector('[data-summary="visible"]'),
             proposed: document.querySelector('[data-summary="proposed"]'),
@@ -1113,62 +1165,54 @@ Adopt the proposed change.</textarea></label>
           const normalized = (value) => String(value || '').toLowerCase();
 
           function esc(value) {
-            return String(value || '')
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;')
-              .replace(/'/g, '&#39;');
+            return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
           }
 
           function paragraphizeClient(text, fallback = 'Not available.') {
             const value = String(text || '').trim();
             if (!value) return '<p class="muted">' + esc(fallback) + '</p>';
-            return value
-              .split(/\n\s*\n/)
-              .map((block) => '<p>' + esc(block).replace(/\n/g, '<br />') + '</p>')
-              .join('');
-          }
-
-          function lines(text) {
-            return String(text || '').split('\n').map((line) => line.trim()).filter(Boolean);
-          }
-
-          function followUpCount(decision) {
-            return lines(decision.followUpTasks).length;
+            return value.split(/\\n\\s*\\n/).map((block) => '<p>' + esc(block).replace(/\\n/g, '<br />') + '</p>').join('');
           }
 
           function matches(decision) {
             const search = normalized(searchEl.value).trim();
             const status = statusEl.value;
             const owner = ownerEl.value;
-            const haystack = [decision.id, decision.title, decision.context, decision.decision, decision.consequences, decision.owner].map(normalized).join(' ');
+            const project = projectFilterEl.value;
+            const haystack = [decision.id, decision.title, decision.context, decision.decision, decision.owner, decision.project].map(normalized).join(' ');
             return (!search || haystack.includes(search))
               && (!status || decision.status === status)
-              && (!owner || decision.owner === owner);
+              && (!owner || decision.owner === owner)
+              && (!project || decision.project === project);
           }
 
           function listMarkup(decision, active) {
-            const activeStyle = active ? 'background: #16203a; border-radius: 10px; padding: 12px;' : '';
-            return '<article class="card-item" data-slug="' + esc(decision.slug) + '" style="cursor: pointer; border-top: 1px solid #26304a; padding-top: 12px; ' + activeStyle + '">'
-              + '<div><span class="chip">' + esc(decision.id) + '</span><span class="chip">' + esc(decision.status) + '</span></div>'
-              + '<h3 style="margin-top: 10px;">' + esc(decision.title) + '</h3>'
-              + '<div class="muted">' + esc(decision.date) + ' · ' + esc(decision.owner) + ' · ' + followUpCount(decision) + ' follow-up(s)</div>'
-              + '<p>' + esc(String(decision.context || '').replace(/\s+/g, ' ').trim().slice(0, 180) || 'No context available.') + '</p>'
-              + '<div style="display: flex; gap: 10px; flex-wrap: wrap;">'
-              + '<a href="/decisions/' + encodeURIComponent(decision.slug) + '">Open detail route</a>'
-              + '<button type="button" data-select="' + esc(decision.slug) + '" style="padding: 8px 10px; border-radius: 8px; border: 1px solid #334466; background: #0d1322; color: #e8ecf3; cursor: pointer;">Inspect here</button>'
+            const activeStyle = active ? 'background: #16203a; border: 1px solid #4f8cff;' : '';
+            return '<article class="card" data-slug="' + esc(decision.slug) + '" style="cursor: pointer; margin-bottom: 12px; ' + activeStyle + '">'
+              + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+              + '<span class="chip">' + esc(decision.id) + '</span>'
+              + '<span class="chip" style="margin-right:0;">' + esc(decision.status) + '</span>'
               + '</div>'
+              + '<h3 style="margin-top: 10px; font-size: 1rem;">' + esc(decision.title) + '</h3>'
+              + '<div class="tiny muted">' + esc(decision.date) + ' · ' + esc(decision.owner) + '</div>'
               + '</article>';
           }
 
+          function swimlaneMarkup(projectName, decisions) {
+            return '<div class="swimlane">'
+              + '<div class="swimlane-header">'
+              + '<span class="swimlane-title">' + esc(projectName) + '</span>'
+              + '<a href="/decisions/projects/' + encodeURIComponent(projectName) + '" class="button">View Project</a>'
+              + '</div>'
+              + decisions.map(d => listMarkup(d, d.slug === selectedSlug)).join('')
+              + '</div>';
+          }
+
           function detailMarkup(decision) {
-            if (!decision) {
-              return '<h2>Decision detail</h2><div class="muted">No decisions match the current filters.</div>';
-            }
+            if (!decision) return '<h2>Decision detail</h2><div class="muted">No decision selected.</div>';
             return '<div style="display: flex; justify-content: space-between; gap: 12px; align-items: start; flex-wrap: wrap;">'
-              + '<div><h2>' + esc(decision.id) + ' — ' + esc(decision.title) + '</h2><div class="muted">' + esc(decision.status) + ' · ' + esc(decision.date) + ' · ' + esc(decision.owner) + '</div></div>'
-              + '<a href="/decisions/' + encodeURIComponent(decision.slug) + '">Open dedicated route</a>'
+              + '<div><h2>' + esc(decision.id) + ' — ' + esc(decision.title) + '</h2><div class="muted">' + esc(decision.status) + ' · ' + esc(decision.date) + ' · ' + esc(decision.owner) + ' · Project: ' + esc(decision.project) + '</div></div>'
+              + '<a href="/decisions/' + encodeURIComponent(decision.slug) + '" class="button">Dedicated route</a>'
               + '</div>'
               + '<div class="grid list" style="margin-top: 16px;">'
               + '<section class="panel"><h3>Context</h3>' + paragraphizeClient(decision.context) + '</section>'
@@ -1179,104 +1223,83 @@ Adopt the proposed change.</textarea></label>
               + '</div>';
           }
 
-          function setCreateBusy(isBusy) {
-            if (createSubmitEl) createSubmitEl.disabled = isBusy;
-          }
-
-          function collectFormData() {
-            const formData = new FormData(createFormEl);
-            return Object.fromEntries(Array.from(formData.entries()).map(([key, value]) => [key, String(value)]));
-          }
-
           async function submitCreateDecision(event) {
             event.preventDefault();
-            setCreateBusy(true);
+            createSubmitEl.disabled = true;
             createResultEl.textContent = 'Creating decision…';
+            const formData = new FormData(createFormEl);
+            const data = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
+
             try {
               const response = await fetch('/api/decisions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(collectFormData())
+                body: JSON.stringify(data)
               });
               const result = await response.json();
-              if (!response.ok || !result.ok) throw new Error(result.error || 'Decision creation failed');
-              const refreshed = await loadDecisions();
-              if (!refreshed) throw new Error('Decision refresh failed after create');
+              if (!response.ok || !result.ok) throw new Error(result.error || 'Failed');
+
+              const refreshed = await (await fetch('/api/decisions')).json();
               payload = refreshed;
               selectedSlug = result.slug;
               render();
               createFormEl.reset();
-              const statusField = createFormEl.querySelector('[name="status"]');
-              const dateField = createFormEl.querySelector('[name="date"]');
-              if (statusField) statusField.value = 'Proposed';
-              if (dateField) dateField.value = '2026-03-31';
-              createResultEl.innerHTML = 'Created <a href="/decisions/' + encodeURIComponent(result.slug) + '">' + result.decisionId + '</a> at ' + result.filePath + '.';
-            } catch (error) {
-              createResultEl.textContent = error.message;
+              createResultEl.innerHTML = 'Created <a href="/decisions/' + encodeURIComponent(result.slug) + '">' + result.decisionId + '</a>';
+              setTimeout(() => drawerEl.classList.remove('open'), 1500);
+            } catch (err) {
+              createResultEl.textContent = err.message;
             } finally {
-              setCreateBusy(false);
+              createSubmitEl.disabled = false;
             }
           }
 
           function render() {
             const filtered = (payload?.items || []).filter(matches);
-            const selected = filtered.find((decision) => decision.slug === selectedSlug) || filtered[0] || null;
+            const selected = filtered.find((d) => d.slug === selectedSlug) || filtered[0] || null;
             if (selected) selectedSlug = selected.slug;
-            listEl.innerHTML = filtered.length
-              ? filtered.map((decision) => listMarkup(decision, decision.slug === selectedSlug)).join('')
-              : '<p class="muted">No decisions match the current filters.</p>';
+
+            const projects = [...new Set(filtered.map(d => d.project))].sort();
+            swimlanesEl.innerHTML = projects.length 
+              ? projects.map(p => swimlaneMarkup(p, filtered.filter(d => d.project === p))).join('')
+              : '<p class="muted">No decisions match filters.</p>';
+
             detailEl.innerHTML = detailMarkup(selected);
             summaryEls.visible.textContent = String(filtered.length);
-            summaryEls.proposed.textContent = String(filtered.filter((decision) => decision.status === 'Proposed').length);
-            summaryEls.owners.textContent = String(new Set(filtered.map((decision) => decision.owner).filter(Boolean)).size);
-            summaryEls.followups.textContent = String(filtered.reduce((sum, decision) => sum + followUpCount(decision), 0));
-            const activeFilters = [searchEl.value && 'search', statusEl.value && 'status', ownerEl.value && 'owner'].filter(Boolean);
-            stateEl.textContent = activeFilters.length
-              ? 'Showing ' + filtered.length + ' filtered decision(s).'
-              : 'Showing all decisions.';
+            summaryEls.proposed.textContent = String(filtered.filter((d) => d.status === 'Proposed').length);
+            summaryEls.owners.textContent = String(new Set(filtered.map((d) => d.owner).filter(Boolean)).size);
+            summaryEls.followups.textContent = String(filtered.reduce((sum, d) => sum + String(d.followUpTasks || '').split('\\n').filter(Boolean).length, 0));
+
+            const activeFilters = [searchEl.value && 'search', statusEl.value && 'status', ownerEl.value && 'owner', projectFilterEl.value && 'project'].filter(Boolean);
+            stateEl.textContent = activeFilters.length ? 'Showing ' + filtered.length + ' filtered decision(s).' : 'Showing all decisions.';
+            
             const nextUrl = new URL(window.location.href);
             if (selectedSlug) nextUrl.searchParams.set('selected', selectedSlug);
             else nextUrl.searchParams.delete('selected');
             window.history.replaceState({}, '', nextUrl);
           }
 
-          async function loadDecisions() {
-            try {
-              const response = await fetch('/api/decisions');
-              if (!response.ok) throw new Error('decisions api failed');
-              return await response.json();
-            } catch {
-              return initial;
-            }
-          }
+          drawerToggleEl.addEventListener('click', () => drawerEl.classList.toggle('open'));
+          drawerCloseEl.addEventListener('click', () => drawerEl.classList.remove('open'));
 
           function wire() {
-            [searchEl, statusEl, ownerEl].forEach((el) => el.addEventListener('input', render));
-            if (createFormEl) createFormEl.addEventListener('submit', submitCreateDecision);
+            [searchEl, statusEl, ownerEl, projectFilterEl].forEach((el) => el.addEventListener('input', render));
+            createFormEl.addEventListener('submit', submitCreateDecision);
             clearEl.addEventListener('click', () => {
-              searchEl.value = '';
-              statusEl.value = '';
-              ownerEl.value = '';
+              searchEl.value = ''; statusEl.value = ''; ownerEl.value = ''; projectFilterEl.value = '';
               render();
             });
-            listEl.addEventListener('click', (event) => {
-              const button = event.target.closest('[data-select]');
-              const article = event.target.closest('[data-slug]');
-              const slug = button?.getAttribute('data-select') || article?.getAttribute('data-slug');
-              if (!slug) return;
-              selectedSlug = slug;
-              render();
+            swimlanesEl.addEventListener('click', (e) => {
+              const article = e.target.closest('[data-slug]');
+              if (article) { selectedSlug = article.getAttribute('data-slug'); render(); }
             });
-            generatedEl.textContent = 'Generated ' + (payload?.generatedAt || 'unknown');
             render();
           }
 
-          loadDecisions().then((nextPayload) => {
-            payload = nextPayload || initial;
-            wire();
-          });
+          wire();
         })();
       </script>`
+  });
+}`
   });
 }
 
@@ -1607,6 +1630,50 @@ function renderProjectView(model, projectName) {
   });
 }
 
+function renderProjectDecisionsView(model, projectName) {
+  const projectDecisions = model.decisions.filter(d => d.project === projectName);
+  const initialData = JSON.stringify({
+    projectName,
+    decisions: projectDecisions.map(decisionApiShape)
+  }).replace(/</g, '\\u003c');
+
+  return shell({
+    title: `Project Decisions: ${projectName}`,
+    currentPath: '/decisions',
+    body: `
+      <section class="hero">
+        <div>
+          <h1>Project Decisions: ${escapeHtml(projectName)}</h1>
+          <p>Dedicated view for ${projectDecisions.length} decision(s) in ${escapeHtml(projectName)}.</p>
+        </div>
+        <a href="/decisions" class="button">← Back to Decisions</a>
+      </section>
+
+      <div class="grid list" id="project-decisions-list"></div>
+
+      <script id="project-decisions-data" type="application/json">${initialData}</script>
+      <script>
+        (() => {
+          const initial = JSON.parse(document.getElementById('project-decisions-data').textContent);
+          const listEl = document.getElementById('project-decisions-list');
+
+          function esc(v) { return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+          listEl.innerHTML = initial.decisions.map(d => {
+            return '<article class="panel">'
+              + '<h2>' + esc(d.id) + ' — ' + esc(d.title) + '</h2>'
+              + '<div class="muted" style="margin-bottom: 12px;">' + esc(d.status) + ' · ' + esc(d.date) + ' · ' + esc(d.owner) + '</div>'
+              + '<div class="section-copy">'
+              + '<h3>Decision</h3><p>' + esc(d.decision) + '</p>'
+              + '</div>'
+              + '<div style="margin-top: 12px;"><a href="/decisions/' + encodeURIComponent(d.slug) + '" class="button">View Full Detail</a></div>'
+              + '</article>';
+          }).join('') || '<p class="muted">No decisions found for this project.</p>';
+        })();
+      </script>`
+  });
+}
+
 function notFound(backHref, label) {
   return shell({
     title: 'Not found',
@@ -1679,6 +1746,7 @@ function decisionApiShape(decision) {
     status: decision.status,
     date: decision.date,
     owner: decision.owner,
+    project: decision.project,
     context: decision.context,
     options: decision.options,
     decision: decision.decision,
@@ -1782,6 +1850,7 @@ http.createServer(async (req, res) => {
         '/board',
         '/cards/:id',
         '/decisions',
+        '/decisions/projects/:projectName',
         '/decisions/:id',
         '/updates',
         '/api/summary',
@@ -1998,6 +2067,11 @@ http.createServer(async (req, res) => {
 
   if (url.pathname === '/decisions') {
     sendHtml(res, 200, renderDecisions(model));
+    return;
+  }
+
+  if (url.pathname.startsWith('/decisions/projects/')) {
+    sendHtml(res, 200, renderProjectDecisionsView(model, decodeURIComponent(url.pathname.slice('/decisions/projects/'.length))));
     return;
   }
 

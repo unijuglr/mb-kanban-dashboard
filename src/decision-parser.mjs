@@ -115,6 +115,7 @@ export function parseDecisionMarkdown(markdown, sourcePath = null) {
     status: null,
     date: null,
     owner: null,
+    project: null,
     context: '',
     decision: '',
     why: '',
@@ -146,6 +147,12 @@ export function parseDecisionMarkdown(markdown, sourcePath = null) {
     match = line.match(/^Owner:\s*(.*)$/i);
     if (match) {
       record.owner = trimInlineValue(match[1]);
+      continue;
+    }
+
+    match = line.match(/^Project:\s*(.*)$/i);
+    if (match) {
+      record.project = trimInlineValue(match[1]);
     }
   }
 
