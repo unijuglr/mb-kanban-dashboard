@@ -1299,8 +1299,6 @@ function renderDecisions(model) {
         })();
       </script>`
   });
-}`
-  });
 }
 
 function renderDecisionDetail(model, slug) {
