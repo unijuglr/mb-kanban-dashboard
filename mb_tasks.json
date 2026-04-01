@@ -251,13 +251,18 @@
   {
     "id": "MB-051",
     "title": "Append update-log entry",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-5",
     "depends_on": [
       "MB-021",
       "MB-031"
     ],
-    "artifacts": []
+    "artifacts": [
+      "src/update-writes.mjs",
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-051.mjs",
+      "PROOF_MB_051.md"
+    ]
   },
   {
     "id": "MB-052",

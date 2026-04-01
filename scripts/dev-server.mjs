@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { findBySlug, loadDashboardModel } from '../src/app-data.mjs';
 import { allowedNextStatuses, createCardFromTemplate, transitionCardStatus } from '../src/card-writes.mjs';
 import { createDecisionFromTemplate } from '../src/decision-writes.mjs';
+import { appendUpdate } from '../src/update-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
 
 function json(res, statusCode, payload) {
@@ -895,6 +896,7 @@ function renderCardDetail(model, slug) {
 
           function applyCard(cardData, flashMessage) {
             titleEl.textContent = cardData.id + ' — ' + cardData.title;
+
             subtitleEl.textContent = 'Card detail screen over the repo-backed card API.';
             summaryEl.textContent = cardData.summary || 'No summary yet.';
             statusEl.textContent = cardData.status || 'Unknown';
@@ -1066,11 +1068,8 @@ Adopt the proposed change.</textarea></label>
             const value = String(text || '').trim();
             if (!value) return '<p class="muted">' + esc(fallback) + '</p>';
             return value
-              .split(/
-\s*
-/)
-              .map((block) => '<p>' + esc(block).replace(/
-/g, '<br />') + '</p>')
+              .split(/\n\s*\n/)
+              .map((block) => '<p>' + esc(block).replace(/\n/g, '<br />') + '</p>')
               .join('');
           }
 
@@ -1627,6 +1626,17 @@ http.createServer(async (req, res) => {
         expectedCurrentStatus: body.expectedCurrentStatus
       });
       json(res, result.statusCode || 200, result);
+    } catch (error) {
+      json(res, 400, { ok: false, error: error.message });
+    }
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/updates') {
+    try {
+      const body = await readJsonBody(req);
+      const result = await appendUpdate({ ...body, updatesDir: path.join(root, 'docs/updates') });
+      json(res, 201, { ok: true, ...result });
     } catch (error) {
       json(res, 400, { ok: false, error: error.message });
     }
