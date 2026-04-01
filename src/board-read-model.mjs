@@ -3,7 +3,7 @@ import path from 'node:path';
 import { parseDecisionMarkdown } from './decision-parser.mjs';
 import { readUpdatesTimeline } from './updatesTimeline.js';
 
-export const STATUS_ORDER = ['Backlog', 'Ready', 'In Progress', 'Blocked', 'Review', 'Done'];
+export const STATUS_ORDER = ['Backlog', 'Ready', 'In Progress', 'Blocked', 'Review', 'Done', 'Archive'];
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -64,6 +64,10 @@ export function loadCards(rootDir) {
       priority: parseField(markdown, 'Priority'),
       owner: parseField(markdown, 'Owner'),
       project: project !== 'Unknown' ? project : 'Motherbrain',
+      assignedCoder: parseField(markdown, 'Assigned Coder'),
+      startTime: parseField(markdown, 'Start Time'),
+      estimate: parseField(markdown, 'Estimate'),
+      completionTime: parseField(markdown, 'Completion Time'),
       updatedAt: parseField(markdown, 'Last Updated'),
       summary: summarize(objective || parseSection(markdown, 'Why It Matters') || 'No summary yet.'),
       objective,
@@ -132,7 +136,12 @@ export function loadBoardReadModel(rootDir) {
 
   const board = STATUS_ORDER.map((status) => ({
     status,
-    cards: cards.filter((card) => card.status === status)
+    cards: cards.filter((card) => card.status === status).sort((a, b) => {
+      // Basic priority sort: P0 < P1 < P2 < P3
+      const pA = a.priority || 'P2';
+      const pB = b.priority || 'P2';
+      return pA.localeCompare(pB);
+    })
   }));
 
   const unknownStatuses = cards

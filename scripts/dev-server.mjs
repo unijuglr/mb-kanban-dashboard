@@ -605,6 +605,10 @@ function renderBoard(model) {
             <label class="stack"><span class="muted">Priority</span><input name="priority" type="text" value="P2 normal" /></label>
             <label class="stack"><span class="muted">Status</span><select name="status">${model.statusOrder.map((status) => `<option value="${escapeHtml(status)}"${status === 'Backlog' ? ' selected' : ''}>${escapeHtml(status)}</option>`).join('')}</select></label>
           </div>
+          <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+            <label class="stack"><span class="muted">Assigned Coder</span><input name="assignedCoder" type="text" placeholder="Coder-1" /></label>
+            <label class="stack"><span class="muted">Estimate</span><input name="estimate" type="text" placeholder="2h" /></label>
+          </div>
           <label class="stack"><span class="muted">Objective</span><textarea name="objective" placeholder="Describe the concrete objective." required></textarea></label>
           <div class="button-row">
             <button class="button" id="create-card-submit" type="submit">Create card</button>
@@ -704,14 +708,20 @@ function renderBoard(model) {
           function swimlaneMarkup(projectName, cardsByStatus, statusOrder) {
             const projectCards = Object.values(cardsByStatus).flat();
             if (projectCards.length === 0) return '';
+            
+            // Exclude Archive status from main swimlanes unless we're in a special archive view
+            const effectiveStatusOrder = statusOrder.filter(s => s !== 'Archive');
 
             return '<div class="swimlane">'
               + '<div class="swimlane-header">'
               + '<span class="swimlane-title">' + esc(projectName) + '</span>'
+              + '<div>'
+              + '<button class="button" onclick="alert(\'Archive feature: Move individual cards to Archive status in their detail view.\')">Project Archive</button>'
               + '<a href="/projects/' + encodeURIComponent(projectName) + '" class="button">View Project</a>'
               + '</div>'
+              + '</div>'
               + '<div class="board-row">'
-              + statusOrder.map(status => {
+              + effectiveStatusOrder.map(status => {
                   const cards = cardsByStatus[status] || [];
                   return '<div class="board-col">'
                     + '<div class="status-badge">' + esc(status) + ' (' + cards.length + ')</div>'
@@ -818,6 +828,9 @@ function renderCardDetail(model, slug) {
     title: card.id,
     currentPath: '/board',
     body: `
+      <style>
+        .artifact-link { display: inline-block; padding: 2px 6px; background: #1a2a4a; border-radius: 4px; border: 1px solid #334466; margin-bottom: 4px; font-family: monospace; font-size: 0.85rem; }
+      </style>
       <section class="hero">
         <div>
           <h1 id="card-title">${escapeHtml(card.id)} — ${escapeHtml(card.title)}</h1>
@@ -833,6 +846,12 @@ function renderCardDetail(model, slug) {
         <article class="card"><div class="muted tiny">Priority</div><div class="kpi" id="card-priority">${escapeHtml(card.priority)}</div></article>
         <article class="card"><div class="muted tiny">Owner</div><div class="kpi" style="font-size: 1.1rem;" id="card-owner">${escapeHtml(card.owner)}</div></article>
         <article class="card"><div class="muted tiny">Last updated</div><div class="kpi" style="font-size: 1.1rem;" id="card-updated-at">${escapeHtml(card.updatedAt)}</div></article>
+      </section>
+      <section class="grid stats meta-grid">
+        <article class="card"><div class="muted tiny">Assigned Coder</div><div id="card-assigned-coder" class="kpi" style="font-size: 1rem;">${escapeHtml(card.assignedCoder || 'Unknown')}</div></article>
+        <article class="card"><div class="muted tiny">Start Time</div><div id="card-start-time" class="kpi" style="font-size: 1rem;">${escapeHtml(card.startTime || 'Unknown')}</div></article>
+        <article class="card"><div class="muted tiny">Estimate</div><div id="card-estimate" class="kpi" style="font-size: 1rem;">${escapeHtml(card.estimate || 'Unknown')}</div></article>
+        <article class="card"><div class="muted tiny">Completion Time</div><div id="card-completion-time" class="kpi" style="font-size: 1rem;">${escapeHtml(card.completionTime || 'Unknown')}</div></article>
       </section>
       <section class="grid detail-layout">
         <div class="stack">
@@ -852,7 +871,7 @@ function renderCardDetail(model, slug) {
           </article>
           <article class="panel"><h2>Summary</h2><p id="card-summary">${escapeHtml(card.summary || 'No summary yet.')}</p></article>
           <article class="panel"><h2>Blockers</h2><pre id="card-blockers">${escapeHtml(card.blockers || 'None listed.')}</pre></article>
-          <article class="panel"><h2>Artifacts</h2><pre id="card-artifacts">${escapeHtml(card.artifacts || 'None listed.')}</pre></article>
+          <article class="panel"><h2>Artifacts</h2><div id="card-artifacts-rich">${escapeHtml(card.artifacts || 'None listed.')}</div></article>
           <article class="panel"><h2>Update log</h2><pre id="card-update-log">${escapeHtml(card.updateLog || 'No updates yet.')}</pre></article>
           <article class="panel"><h2>Source file</h2><pre id="card-file-path">${escapeHtml(card.filePath || 'Not available.')}</pre></article>
         </div>
@@ -878,7 +897,12 @@ function renderCardDetail(model, slug) {
           const stepsEl = document.getElementById('card-steps');
           const blockersEl = document.getElementById('card-blockers');
           const artifactsEl = document.getElementById('card-artifacts');
+          const artifactsRichEl = document.getElementById('card-artifacts-rich');
           const updateLogEl = document.getElementById('card-update-log');
+          const assignedCoderEl = document.getElementById('card-assigned-coder');
+          const startTimeEl = document.getElementById('card-start-time');
+          const estimateEl = document.getElementById('card-estimate');
+          const completionTimeEl = document.getElementById('card-completion-time');
           const filePathEl = document.getElementById('card-file-path');
           const statusActionsEl = document.getElementById('card-status-actions');
           const statusHelpEl = document.getElementById('card-status-help');
@@ -951,6 +975,32 @@ function renderCardDetail(model, slug) {
             });
           }
 
+          function renderArtifacts(text) {
+            if (!text || text.trim() === 'None listed.' || text.trim() === 'None yet.') return '<p class="muted">' + esc(text) + '</p>';
+            
+            // This is a naive parser but effective for many markdown artifact lists.
+            // It looks for things that look like paths or filenames.
+            const lines = text.split('\\n');
+            let html = '<ul style="padding-left: 1.5rem; margin: 0;">';
+            lines.forEach(line => {
+              const cleanLine = line.replace(/^[-*]\\s+/, '').trim();
+              if (!cleanLine) return;
+              
+              // If it's a file path in the project
+              if (cleanLine.includes('/') || cleanLine.includes('.')) {
+                // Try to find if it has a git commit associated
+                // In a real app we'd query the server for provenance.
+                // Here we'll generate a dummy link to the repo as proof of concept
+                const repoUrl = 'https://github.com/adamgoldband/mb-kanban-dashboard';
+                html += '<li>' + esc(line) + ' <a href="' + repoUrl + '/search?q=' + encodeURIComponent(cleanLine) + '" class="artifact-link" target="_blank">View History</a></li>';
+              } else {
+                html += '<li>' + esc(line) + '</li>';
+              }
+            });
+            html += '</ul>';
+            return html;
+          }
+
           function applyCard(cardData, flashMessage) {
             titleEl.textContent = cardData.id + ' — ' + cardData.title;
 
@@ -959,6 +1009,10 @@ function renderCardDetail(model, slug) {
             statusEl.textContent = cardData.status || 'Unknown';
             priorityEl.textContent = cardData.priority || 'Unknown';
             ownerEl.textContent = cardData.owner || 'Unknown';
+            assignedCoderEl.textContent = cardData.assignedCoder || 'Unknown';
+            startTimeEl.textContent = cardData.startTime || 'Unknown';
+            estimateEl.textContent = cardData.estimate || 'Unknown';
+            completionTimeEl.textContent = cardData.completionTime || 'Unknown';
             updatedEl.textContent = cardData.updatedAt || 'Unknown';
             objectiveEl.innerHTML = prose(cardData.objective, 'Not available.');
             whyEl.innerHTML = prose(cardData.whyItMatters, 'Not available.');
@@ -966,7 +1020,7 @@ function renderCardDetail(model, slug) {
             outOfScopeEl.textContent = block(cardData.outOfScope, 'Not available.');
             stepsEl.textContent = block(cardData.steps, 'Not available.');
             blockersEl.textContent = block(cardData.blockers, 'None listed.');
-            artifactsEl.textContent = block(cardData.artifacts, 'None listed.');
+            artifactsRichEl.innerHTML = renderArtifacts(cardData.artifacts);
             updateLogEl.textContent = block(cardData.updateLog, 'No updates yet.');
             filePathEl.textContent = block(cardData.filePath, 'Not available.');
             apiLinkEl.setAttribute('href', apiPath);
@@ -1721,6 +1775,10 @@ function cardApiShape(card) {
     priority: card.priority,
     owner: card.owner,
     project: card.project,
+    assignedCoder: card.assignedCoder,
+    startTime: card.startTime,
+    estimate: card.estimate,
+    completionTime: card.completionTime,
     updatedAt: card.updatedAt,
     summary: card.summary,
     objective: card.objective,

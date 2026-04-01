@@ -2,15 +2,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { findBySlug, loadCards } from './app-data.mjs';
 
-export const STATUS_ORDER = ['Backlog', 'Ready', 'In Progress', 'Blocked', 'Review', 'Done'];
+export const STATUS_ORDER = ['Backlog', 'Ready', 'In Progress', 'Blocked', 'Review', 'Done', 'Archive'];
 
 const ALLOWED_TRANSITIONS = {
-  Backlog: ['Ready'],
-  Ready: ['Backlog', 'In Progress'],
-  'In Progress': ['Ready', 'Blocked', 'Review'],
-  Blocked: ['Ready', 'In Progress'],
-  Review: ['In Progress', 'Done'],
-  Done: ['Review']
+  Backlog: ['Ready', 'Archive'],
+  Ready: ['Backlog', 'In Progress', 'Archive'],
+  'In Progress': ['Ready', 'Blocked', 'Review', 'Archive'],
+  Blocked: ['Ready', 'In Progress', 'Archive'],
+  Review: ['In Progress', 'Done', 'Archive'],
+  Done: ['Review', 'Archive'],
+  Archive: ['Backlog']
 };
 
 function isoDateOnly(value = new Date()) {
@@ -73,6 +74,10 @@ Status: ${status}
 Priority: ${priority}
 Owner: ${owner}
 Project: ${project}
+Assigned Coder: ${assignedCoder || 'Unknown'}
+Start Time: ${startTime || 'Unknown'}
+Estimate: ${estimate || 'Unknown'}
+Completion Time: ${completionTime || 'Unknown'}
 Created: ${created}
 Last Updated: ${lastUpdated}
 
@@ -220,6 +225,10 @@ export function createCardFromTemplate({
   project = 'Motherbrain',
   priority = 'P2 normal',
   status = 'Backlog',
+  assignedCoder = 'Unknown',
+  startTime = 'Unknown',
+  estimate = 'Unknown',
+  completionTime = 'Unknown',
   objective,
   whyItMatters = 'Document why this work matters.',
   scope = '- [ ] define scope',
@@ -288,6 +297,10 @@ export function createCardFromTemplate({
     priority: String(priority).trim() || 'P2 normal',
     owner: String(owner).trim(),
     project: String(project).trim() || 'Motherbrain',
+    assignedCoder: String(assignedCoder).trim(),
+    startTime: String(startTime).trim(),
+    estimate: String(estimate).trim(),
+    completionTime: String(completionTime).trim(),
     created: today,
     lastUpdated: today,
     objective: String(objective).trim(),
