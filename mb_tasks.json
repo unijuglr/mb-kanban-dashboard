@@ -112,6 +112,17 @@
     ]
   },
   {
+    "id": "MB-027",
+    "title": "OLN Architecture Design",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/oln/architecture.md",
+      "PROOF_MB_027.md"
+    ]
+  },
+  {
     "id": "MB-030",
     "title": "Board screen",
     "state": "done",

@@ -1,11 +1,11 @@
 # MB-027 — OLN: Architecture: High-level System Design & Data Flow
 
-Status: Ready
+Status: Done
 Priority: P0 critical
 Project: OLN
 Owner: Prime Sam
 Created: 2026-04-01
-Last Updated: 2026-04-01
+Last Updated: 2026-04-01 20:25 PT
 
 ## Objective
 Finalize the high-level architecture for the Open Lore Network (OLN) ingestion and resolution pipeline on Motherbrain.
@@ -19,9 +19,10 @@ A structured knowledge layer for fictional universes requires a robust, scalable
 - Specify how OLID (Open Lore ID) generation fits into the flow.
 
 ## Steps
-- [ ] Create `docs/oln/architecture.md` with system diagram.
-- [ ] Define internal API boundaries between extraction and resolution.
-- [ ] Review schema requirements for Star Wars / Wookieepedia initial set.
+- [x] Create `docs/oln/architecture.md` with system diagram.
+- [x] Define internal API boundaries between extraction and resolution.
+- [x] Review schema requirements for Star Wars / Wookieepedia initial set.
 
 ## Artifacts
 - `docs/oln/architecture.md`
+- `PROOF_MB_027.md`
