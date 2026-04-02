@@ -1,0 +1,15 @@
+{
+  "aliases": {
+    "sw:farmboy": "oln-sw-luke-skywalker"
+  },
+  "entities": {
+    "oln-sw-luke-skywalker": {
+      "canonical_name": "Luke Skywalker",
+      "franchise": "SW"
+    },
+    "oln-sw-ahsoka-tano": {
+      "canonical_name": "Ahsoka Tano",
+      "franchise": "SW"
+    }
+  }
+}
