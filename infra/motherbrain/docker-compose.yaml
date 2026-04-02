@@ -1,68 +1,68 @@
+version: '3.8'
+
 services:
   neo4j:
-    image: neo4j:latest
+    image: neo4j:5.26.0
     container_name: oln-neo4j
     ports:
-      - "7474:7474" # HTTP
-      - "7687:7687" # Bolt
+      - "7474:7474"
+      - "7687:7687"
     environment:
-      - NEO4J_AUTH=neo4j/password # Change in production
+      - NEO4J_AUTH=neo4j/password # Default: user needs to change on first login or via env
+      - NEO4J_PLUGINS=["apoc"]
     volumes:
-      - /Volumes/hellastuff 1/oln/neo4j/data:/data
-      - /Volumes/hellastuff 1/oln/neo4j/logs:/logs
-    restart: always
+      - /Volumes/hellastuff/oln/neo4j/data:/data
+      - /Volumes/hellastuff/oln/neo4j/logs:/logs
+      - /Volumes/hellastuff/oln/neo4j/import:/var/lib/neo4j/import
+      - /Volumes/hellastuff/oln/neo4j/plugins:/plugins
+    networks:
+      - oln-network
+    restart: unless-stopped
 
-  temporal:
-    image: temporalio/admin-tools:latest
-    container_name: oln-temporal-tools
-    depends_on:
-      - temporal-server
-    environment:
-      - TEMPORAL_ADDRESS=temporal-server:7233
-
-  temporal-server:
-    image: temporalio/auto-setup:latest
-    container_name: oln-temporal-server
-    ports:
-      - "7233:7233"
-    environment:
-      - DB=postgresql
-      - POSTGRES_SEEDS=temporal-postgres
-      - DB_PORT=5432
-      - POSTGRES_USER=temporal
-      - POSTGRES_PWD=temporal
-      - POSTGRES_DB=temporal
-    volumes:
-      - /Volumes/hellastuff 1/oln/temporal/data:/var/lib/temporal
-    restart: always
-
-  temporal-postgres:
-    image: postgres:latest
-    container_name: oln-temporal-postgres
+  temporal-postgresql:
+    image: postgres:13
+    container_name: oln-temporal-postgresql
     environment:
       - POSTGRES_USER=temporal
       - POSTGRES_PASSWORD=temporal
       - POSTGRES_DB=temporal
     volumes:
-      - /Volumes/hellastuff 1/oln/temporal/postgres-data:/var/lib/postgresql/data
-    restart: always
+      - /Volumes/hellastuff/oln/temporal/postgres-data:/var/lib/postgresql/data
+    networks:
+      - oln-network
+    restart: unless-stopped
+
+  temporal:
+    image: temporalio/auto-setup:1.22.0
+    container_name: oln-temporal
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=temporal-postgresql
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
+    depends_on:
+      - temporal-postgresql
+    networks:
+      - oln-network
+    restart: unless-stopped
 
   temporal-ui:
-    image: temporalio/ui:latest
+    image: temporalio/ui:2.21.3
     container_name: oln-temporal-ui
     ports:
-      - "8080:8080"
+      - "8088:8080"
     environment:
-      - TEMPORAL_ADDRESS=temporal-server:7233
+      - TEMPORAL_ADDRESS=temporal:7233
     depends_on:
-      - temporal-server
-    restart: always
+      - temporal
+    networks:
+      - oln-network
+    restart: unless-stopped
 
-  redis:
-    image: redis:latest
-    container_name: oln-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - /Volumes/hellastuff 1/oln/redis/data:/data
-    restart: always
+networks:
+  oln-network:
+    driver: bridge
