@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agilitas Normalized Transcript Schema",
+  "description": "Unified schema for normalized transcripts in Agilitas.",
+  "type": "object",
+  "properties": {
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The timestamp of the transcript event (ISO 8601)."
+    },
+    "agent": {
+      "type": "string",
+      "description": "Name or ID of the agent."
+    },
+    "customer": {
+      "type": "string",
+      "description": "Name or ID of the customer."
+    },
+    "fullTranscript": {
+      "type": "string",
+      "description": "Complete text of the transcript with speaker names."
+    },
+    "customerTranscript": {
+      "type": "string",
+      "description": "Complete text of only the customer's parts."
+    },
+    "parts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["SystemPrompt", "Agent", "Customer"]
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": ["type", "text"]
+      }
+    }
+  },
+  "required": ["dateTime", "agent", "customer", "fullTranscript", "parts"]
+}

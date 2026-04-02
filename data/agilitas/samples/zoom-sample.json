@@ -1,0 +1,22 @@
+{
+  "meeting_id": "123456789",
+  "topic": "Agilitas Sync",
+  "start_time": "2026-04-02T10:00:00Z",
+  "duration": 30,
+  "participants": [
+    {"name": "Adam", "role": "Host"},
+    {"name": "Client", "role": "Guest"}
+  ],
+  "transcript": [
+    {
+      "speaker": "Adam",
+      "timestamp": "00:00:01",
+      "text": "Hello, how can I help you today?"
+    },
+    {
+      "speaker": "Client",
+      "timestamp": "00:00:05",
+      "text": "I'm having trouble with the dashboard."
+    }
+  ]
+}
