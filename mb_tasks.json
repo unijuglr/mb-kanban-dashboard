@@ -442,6 +442,21 @@
     ]
   },
   {
+    "id": "MB-049",
+    "title": "Agilitas: Security: PII Redaction Strategy (Presidio / GCP DLP)",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039"
+    ],
+    "artifacts": [
+      "services/agilitas-ai-core/redaction/presidio_redactor.py",
+      "scripts/test_agilitas_redaction.py",
+      "docs/agilitas/pii-strategy.md",
+      "PROOF_MB_049.md"
+    ]
+  },
+  {
     "id": "MB-034",
     "title": "OLN: Full Ingestion Pipeline Run",
     "state": "done",
