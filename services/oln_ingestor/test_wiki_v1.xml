@@ -1,0 +1,22 @@
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/">
+  <page>
+    <title>Luke Skywalker</title>
+    <ns>0</ns>
+    <id>1</id>
+    <revision>
+      <id>1001</id>
+      <timestamp>2026-04-01T12:00:00Z</timestamp>
+      <text xml:space="preserve">{{Character|name=Luke Skywalker}}[[Tatooine]] was his home.</text>
+    </revision>
+  </page>
+  <page>
+    <title>Han Solo</title>
+    <ns>0</ns>
+    <id>2</id>
+    <revision>
+      <id>1002</id>
+      <timestamp>2026-04-01T12:05:00Z</timestamp>
+      <text xml:space="preserve">{{Character|name=Han Solo}}Captain of the [[Millennium Falcon]].</text>
+    </revision>
+  </page>
+</mediawiki>
