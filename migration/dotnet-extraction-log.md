@@ -71,3 +71,9 @@ public enum TranscriptPartType
 - The .NET project uses Entity Framework style navigation properties (virtual ICollection). These are flattened or represented as arrays/IDs in the new schemas.
 - `TranscriptData.cs` actually contains a `Transcript` class.
 - Added `TranscriptPart` and `TranscriptPartType` to ensure full porting of the transcript structure.
+
+## 2026-04-02 Follow-on Extraction
+- Inspected legacy SQL scripts under `SQL/` plus EF mapping files under `Agilitas.Data/Database/Mappings/`.
+- Produced `migration/sql-porting-script.sql` as a Cloud SQL/PostgreSQL-ready artifact that preserves transcript/error/emotion/pain-point entities and seed values.
+- Produced `docs/agilitas/dotnet-to-gcp-feature-map.md` to map .NET/OCI behaviors onto the current GCP-hosted AI-Core + Motherbrain-local architecture.
+- Captured proof and QA notes in `migration/mb-047-proof.md`.
