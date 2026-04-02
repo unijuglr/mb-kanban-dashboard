@@ -23,8 +23,12 @@ A task is not done unless:
 - proof file exists
 - task state updated
 
-## Initial focus
-- MB-010
-- MB-011
-- MB-012
-- then MB-021
+## Current Status (2026-04-01 19:40 PT)
+- Wave 1 functionality complete (Board, Metrics, Decisions, Updates, Writes).
+- MB-060 (E2E QA) and MB-061 (Cleanup) are functionally complete.
+- Branch `sam/mb-wave-20260331-commit` is current and pushed to origin.
+- Next primary action: MB-062 (GitHub Push Preparation).
+
+## Next focus
+- MB-062
+- Wave 2 Planning (Agilitas, HellaThis, Ai-Bitz execution)
