@@ -29,8 +29,8 @@ Ensures continuity across sessions and provides a durable log of autonomous acti
 - [x] Initial repo/task state inspection.
 - [x] Fix critical UI bug in card creation (assignedCoder reference error).
 - [x] Implement MB-036: OLN: Scale: Incremental Updates & Delta Ingestion.
-- [ ] Implement MB-035: SWLN Demo API.
-- [ ] Final summary and reporting.
+- [x] Implement MB-035: SWLN Demo API.
+- [x] Final summary and reporting.
 
 ## Blockers
 - None currently.

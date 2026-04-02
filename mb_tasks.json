@@ -500,6 +500,22 @@
     ]
   },
   {
+    "id": "MB-055",
+    "title": "Agilitas: Engineering: Semantic Extraction Pipeline replacement",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039",
+      "MB-044"
+    ],
+    "artifacts": [
+      "services/agilitas-ai-core/llm_client.py",
+      "services/agilitas-ai-core/extractor.py",
+      "scripts/qa_agilitas_pipeline.py",
+      "PROOF_MB_055.md"
+    ]
+  },
+  {
     "id": "MB-038",
     "title": "OLN: Franchise Generalization",
     "state": "done",
