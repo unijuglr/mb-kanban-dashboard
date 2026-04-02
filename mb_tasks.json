@@ -640,7 +640,7 @@
   {
     "id": "MB-073",
     "title": "Agilitas: Motherbrain runnable local stack definition",
-    "state": "ready",
+    "state": "done",
     "owner": "Prime Sam",
     "depends_on": [
       "MB-048",
@@ -681,7 +681,7 @@
   {
     "id": "MB-076",
     "title": "Agilitas: first local demo flow on Motherbrain",
-    "state": "ready",
+    "state": "done",
     "owner": "Prime Sam",
     "depends_on": [
       "MB-073",
