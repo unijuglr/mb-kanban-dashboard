@@ -138,6 +138,21 @@
     ]
   },
   {
+    "id": "MB-029",
+    "title": "OLN-Resolution: Stable OLID generation & alias resolution",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-028"
+    ],
+    "artifacts": [
+      "src/oln/resolution/olid_manager.py",
+      "data/oln/resolution_cache.json",
+      "scripts/prove-mb-029.py",
+      "PROOF_MB_029.md"
+    ]
+  },
+  {
     "id": "MB-030",
     "title": "Board screen",
     "state": "done",
