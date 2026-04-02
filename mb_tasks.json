@@ -138,6 +138,21 @@
     ]
   },
   {
+    "id": "MB-029",
+    "title": "OLN-Resolution: Stable OLID generation & alias resolution",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-028"
+    ],
+    "artifacts": [
+      "src/oln/resolution/olid_manager.py",
+      "data/oln/resolution_cache.json",
+      "scripts/prove-mb-029.py",
+      "PROOF_MB_029.md"
+    ]
+  },
+  {
     "id": "MB-030",
     "title": "Board screen",
     "state": "done",
@@ -212,16 +227,17 @@
   },
   {
     "id": "MB-040",
-    "title": "Metrics backfill/import for MB work",
+    "title": "Agilitas: Deterministic Scoring & Business Logic",
     "state": "done",
-    "owner": "Coder-4",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-003"
+      "MB-039"
     ],
     "artifacts": [
-      "scripts/mb_metrics_backfill.py",
-      "data/mb_metrics_backfill_report.json",
-      "PROOF_MB_040.md"
+      "services/agilitas-business-engine/scoring_engine.py",
+      "docs/agilitas/kpi-formulas.md",
+      "scripts/prove-mb-040.py",
+      "PROOF_MB_040_AGILITAS.md"
     ]
   },
   {
