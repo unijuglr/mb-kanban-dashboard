@@ -905,5 +905,20 @@
       "docs/oln/neo4j-motherbrain-execution-tranche-2026-04-02.md",
       "docs/cards/MB-086-oln-neo4j-motherbrain-path-selection-and-startup-hardening.md"
     ]
+  },
+  {
+    "id": "MB-089",
+    "title": "3D Graph Explorer: MVP visualization for Neo4j nodes",
+    "state": "ready",
+    "owner": "Coder-2",
+    "depends_on": [
+      "MB-087",
+      "MB-088"
+    ],
+    "artifacts": [
+      "src/graph-explorer/",
+      "scripts/dev-server.mjs",
+      "PROOF_MB_089.md"
+    ]
   }
 ]
