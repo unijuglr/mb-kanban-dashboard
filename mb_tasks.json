@@ -26,12 +26,16 @@
   {
     "id": "MB-036",
     "title": "OLN: Scale: Incremental Updates & Delta Ingestion",
-    "state": "ready",
-    "owner": "Coder-2",
+    "state": "done",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-034"
     ],
-    "artifacts": []
+    "artifacts": [
+      "services/oln_ingestor/delta_parser.py",
+      "scripts/prove-mb-036.py",
+      "PROOF_MB_036.md"
+    ]
   },
   {
     "id": "MB-044",

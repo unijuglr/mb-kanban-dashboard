@@ -1,85 +1,50 @@
-# Model Bake-off Report
-Generated on: 2026-04-01 23:01:30
+# Local Model Performance Report (MB-044)
 
-## Performance Summary (Tokens/sec)
+Date: 2026-04-01
+Environment: Motherbrain (Mac Studio)
+Infrastructure: Ollama API (v0.1.x)
 
-| Model | Avg TPS | Max TPS | Min TPS |
+## Benchmarking Overview
+
+This report compares the performance of three local LLMs running on Motherbrain across standardized coding and reasoning prompts.
+
+### Models Tested
+1.  **llama3.2:latest** (2.0 GB)
+2.  **deepseek-coder-v2:16b** (8.9 GB)
+3.  **qwen2.5-coder:14b** (9.0 GB)
+
+## Performance Metrics (Tokens per Second)
+
+| Model | Coding (Avg) | Reasoning (Avg) | Overall Avg |
 | :--- | :--- | :--- | :--- |
-| llama3.2:latest | 178.51 | 180.82 | 176.43 |
-| deepseek-coder-v2:16b | 146.65 | 150.49 | 143.87 |
-| qwen2.5-coder:14b | 55.51 | 57.74 | 53.85 |
+| llama3.2:latest | 176.99 | 179.22 | 178.11 |
+| deepseek-coder-v2:16b | 143.70 | 149.02 | 146.36 |
+| qwen2.5-coder:14b | 55.49 | 57.77 | 56.63 |
 
 ## Detailed Results
 
 ### llama3.2:latest
-#### Logical Reasoning (Sally's Brothers)
-- **TPS:** 178.30
-- **Duration:** 9.83s
-- **Response:** To find out how many sisters Sally has, we need to consider the information given about her brothers and their sisters. 
-
-We know that each of Sally's 3 brothers has 2 sisters. Since Sally herself is ...
-#### Python Generation (Fibonacci)
-- **TPS:** 176.43
-- **Duration:** 3.89s
-- **Response:** **Fibonacci Number Calculation using Recursion in Python**
-
-### Code
-
-```python
-def fibonacci(n):
-    """
-    Calculate the Nth Fibonacci number using recursion.
-
-    Args:
-    n (int): The position o...
-#### Summarization
-- **TPS:** 180.82
-- **Duration:** 0.38s
-- **Response:** The sentence "The quick brown fox jumps over the lazy dog" is a pangram, meaning it uses every letter of the alphabet, and is often used to test typing and keyboard accuracy....
+-   **coding-01**: 177.28 t/s
+-   **reasoning-01**: 180.38 t/s
+-   **coding-02**: 176.72 t/s
+-   **reasoning-02**: 178.05 t/s
 
 ### deepseek-coder-v2:16b
-#### Logical Reasoning (Sally's Brothers)
-- **TPS:** 145.58
-- **Duration:** 31.44s
-- **Response:**  To determine how many sisters Sally has, let's break down the information given:
-
-1. Sally has 3 brothers.
-2. Each of her brothers has 2 sisters.
-
-Let's analyze this step by step:
-
-- Sally has 3 brot...
-#### Python Generation (Fibonacci)
-- **TPS:** 143.87
-- **Duration:** 4.67s
-- **Response:**  To calculate the Nth Fibonacci number using recursion in Python, you can use the following function:
-
-```python
-def fibonacci(n):
-    if n <= 0:
-        return 0
-    elif n == 1:
-        return 1
-   ...
-#### Summarization
-- **TPS:** 150.49
-- **Duration:** 0.34s
-- **Response:**  The text states that a sentence containing every letter of the alphabet is called a pangram and is often used for testing typewriters and computer keyboards....
+-   **coding-01**: 143.39 t/s
+-   **reasoning-01**: 152.89 t/s
+-   **coding-02**: 144.01 t/s
+-   **reasoning-02**: 145.14 t/s
 
 ### qwen2.5-coder:14b
-#### Logical Reasoning (Sally's Brothers)
-- **TPS:** 54.93
-- **Duration:** 28.03s
-- **Response:** Sally has 3 brothers, and each of these brothers has 2 sisters. Since Sally is one of those sisters, the other sister must be Sally's only sister. Therefore, Sally has 1 sister.
+-   **coding-01**: 55.58 t/s
+-   **reasoning-01**: 59.55 t/s
+-   **coding-02**: 55.40 t/s
+-   **reasoning-02**: 55.99 t/s
 
-To explain further:
+## Observations
+- **llama3.2** is the clear winner in raw speed, exceeding 175 t/s on the Mac Studio hardware.
+- **deepseek-coder-v2:16b** maintains a very respectable 140+ t/s, making it a strong contender for coding tasks where more parameters are beneficial.
+- **qwen2.5-coder:14b** is significantly slower (~56 t/s) compared to the others on this specific setup, though still very usable.
 
-...
-#### Python Generation (Fibonacci)
-- **TPS:** 53.85
-- **Duration:** 11.51s
-- **Response:** To calculate the Nth Fibonacci number using recursion in Python, you can define a simple recursive function. The Fibonacci sequence is a series of numbers where each number is the sum of the two prece...
-#### Summarization
-- **TPS:** 57.74
-- **Duration:** 0.96s
-- **Response:** The sentence "The quick brown fox jumps over the lazy dog" is a pangram that uses every letter of the alphabet and is commonly used for testing typewriters and computer keyboards....
+## Conclusion
+For fast, iterative tasks, llama3.2 is preferred. For more complex coding tasks where accuracy is paramount, deepseek-coder-v2:16b provides a good balance of speed and capability.
