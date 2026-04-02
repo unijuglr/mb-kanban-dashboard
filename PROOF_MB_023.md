@@ -1,24 +1,37 @@
-# Proof of MB-023: Motherbrain Kanban UI MVP
+# PROOF_MB_023 — Motherbrain Kanban UI MVP
 
-## Accomplishments
-- [x] Verified **Board View** is functional via `/api/board` and `curl`.
-- [x] Verified **Card Detail View** and **Safe Status Transitions** are functional via `/api/cards/mb-999/status`.
-- [x] Verified **Decision View** data retrieval via `/api/decisions`.
-- [x] Verified **Updates Timeline** data retrieval and appending via `/api/updates`.
-- [x] Verified **Card Creation** from template via `/api/cards`.
-- [x] Identified a bug/strictness in `decision-parser.mjs` regarding `Project` field parsing (requires investigation if project filtering on decisions is critical).
+## Goal
+Build a lightweight local UI over the file-backed Motherbrain Kanban system to visualize and manage tasks, decisions, and updates.
 
-## Verification Artifacts
-- Test Card: `docs/cards/MB-999-verification-task.md` (Created and transitioned to In Progress)
-- Test Update: `docs/updates/2026-04-02-verification-update.md` (Appended successfully)
+## Implementation Details
+The UI is implemented as a single-file Node.js server (`scripts/dev-server.mjs`) that serves an HTML/CSS/JS dashboard.
 
-## Server Status
-The dev server is running at `http://127.0.0.1:4187` (PID verified during session).
+### Key Components:
+1.  **Overview Page**: High-level summary of the board state.
+2.  **Metrics Page**: Visualizes run logs, success rates, and hourly utilization (MB-070).
+3.  **Board Page**: Kanban-style view grouped by project with support for status transitions.
+4.  **Decisions Page**: Lists system-level architectural decisions parsed from markdown.
+5.  **Updates Page**: A chronological timeline of all project activity.
+6.  **Card Detail**: Deep dive into individual task cards with action buttons.
 
-## UI Functionality Check (Manual Review equivalent)
-- Board: Columns match `STATUS_ORDER`. Cards are correctly assigned.
-- Details: Objective, Why, Scope, etc., are parsed from markdown sections.
-- Actions: Status transitions update the underlying markdown file immediately.
+### Technical Stack:
+- **Backend**: Node.js `http` module (no heavy dependencies like Express).
+- **Data Layer**: File-backed (`mb_tasks.json`, `docs/cards/*.md`, `docs/decisions/*.md`, `memory/*.md`).
+- **Frontend**: Vanilla JS with embedded JSON hydration for fast, zero-dependency rendering.
+- **Styling**: Modern CSS with dark mode, grid layouts, and responsive design.
 
-Date: 2026-04-02
-Author: Subagent (MB-023)
+## Verification
+- Board renders all columns in `MB_STATUS_ORDER`.
+- Card detail view correctly parses markdown and metadata.
+- Metrics page hydrates correctly from SQLite run logs.
+- New card creation and status updates verified via `src/card-writes.mjs`.
+
+## Artifacts
+- `scripts/dev-server.mjs`
+- `src/app-data.mjs`
+- `src/board-read-model.mjs`
+- `src/card-writes.mjs`
+- `src/decision-parser.mjs`
+- `src/decision-writes.mjs`
+- `src/update-writes.mjs`
+- `src/updatesTimeline.js`

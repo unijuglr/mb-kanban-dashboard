@@ -13,14 +13,15 @@
   {
     "id": "MB-023",
     "title": "Build Motherbrain Kanban UI MVP",
-    "state": "ready",
-    "owner": "Coder-1",
+    "state": "done",
+    "owner": "MB-Sam",
     "depends_on": [
       "MB-013",
       "MB-020"
     ],
     "artifacts": [
-      "scripts/dev-server.mjs"
+      "scripts/dev-server.mjs",
+      "PROOF_MB_023.md"
     ]
   },
   {
@@ -612,14 +613,15 @@
   {
     "id": "MB-070",
     "title": "Implement Hourly Utilization Chart on Metrics Page",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-1",
     "depends_on": [
       "MB-020"
     ],
     "artifacts": [
       "scripts/dev-server.mjs",
-      "src/metrics-api.mjs"
+      "src/metrics-api.mjs",
+      "PROOF_MB_070.md"
     ]
   }
 ]
