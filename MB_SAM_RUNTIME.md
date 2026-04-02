@@ -25,3 +25,8 @@
 - LLM response parsing handles markdown code blocks vs raw JSON.
 - UI is zero-dependency, hydration-based for speed.
 - Metrics pipeline provides hourly resolution for utilization charting.
+
+## 🌙 Overnight Swarm Notes (2026-04-02 09:12 PT pass)
+- Task-state audit found card/index drift: `MB-004`, `MB-018`, `MB-019`, `MB-022`, `MB-024`, `MB-025`, `MB-026`, and `MB-047` existed in `docs/cards/` but were missing from `mb_tasks.json`.
+- Opened a cleanup branch to restore those cards into `mb_tasks.json` so scheduler decisions stay durable.
+- Dispatched focused execution on `MB-047` (Agilitas migration track) on a fresh feature branch; excluded DTS/Rockler work.

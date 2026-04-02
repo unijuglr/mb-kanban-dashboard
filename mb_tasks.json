@@ -11,76 +11,6 @@
     ]
   },
   {
-    "id": "MB-023",
-    "title": "Build Motherbrain Kanban UI MVP",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-013",
-      "MB-020"
-    ],
-    "artifacts": [
-      "scripts/dev-server.mjs",
-      "PROOF_MB_023.md"
-    ]
-  },
-  {
-    "id": "MB-036",
-    "title": "OLN: Scale: Incremental Updates & Delta Ingestion",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-034"
-    ],
-    "artifacts": [
-      "services/oln_ingestor/delta_parser.py",
-      "scripts/prove-mb-036.py",
-      "PROOF_MB_036.md"
-    ]
-  },
-  {
-    "id": "MB-037",
-    "title": "OLN: Analysis: Graph Relationship Density & Quality",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-034"
-    ],
-    "artifacts": [
-      "docs/oln/graph-analysis-v1.md",
-      "scripts/prove-mb-037.py",
-      "PROOF_MB_037.md"
-    ]
-  },
-  {
-    "id": "MB-038",
-    "title": "OLN: Franchise Generalization",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-028"
-    ],
-    "artifacts": [
-      "services/oln_ingestor/lore_config.yaml",
-      "data/oln/samples/memory-alpha-test.xml",
-      "docs/oln/franchise-agnostic-design.md",
-      "scripts/prove-mb-038.py",
-      "PROOF_MB_038.md"
-    ]
-  },
-  {
-    "id": "MB-044",
-    "title": "Evaluation: Local Model Bake-off",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "scripts/model_bakeoff.py",
-      "docs/eval/model-performance-report.md",
-      "PROOF_MB_044.md"
-    ]
-  },
-  {
     "id": "MB-003",
     "title": "Create MB metrics wiring baseline",
     "state": "done",
@@ -91,6 +21,18 @@
     "artifacts": [
       "docs/metrics-baseline.md",
       "PROOF_MB_003.md"
+    ]
+  },
+  {
+    "id": "MB-004",
+    "title": "Enable early local coding agents on Motherbrain",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "future bootstrap doc",
+      "future runbook",
+      "future decision record"
     ]
   },
   {
@@ -151,6 +93,31 @@
     ]
   },
   {
+    "id": "MB-018",
+    "title": "Build the Kanban interface itself",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/motherbrain-kanban.md",
+      "docs/motherbrain-kanban/README.md",
+      "docs/motherbrain-kanban/templates/card-template.md",
+      "docs/motherbrain-kanban/templates/decision-template.md",
+      "docs/motherbrain-kanban/updates/2026-03-30-initialization.md"
+    ]
+  },
+  {
+    "id": "MB-019",
+    "title": "Populate initial cards and decision seed docs",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "initial card files under `docs/motherbrain-kanban/cards/",
+      "docs/motherbrain-kanban.md"
+    ]
+  },
+  {
     "id": "MB-020",
     "title": "Minimal app shell + local server",
     "state": "done",
@@ -179,6 +146,64 @@
       "scripts/dev-server.mjs",
       "scripts/prove-mb-021.mjs",
       "PROOF_MB_021.md"
+    ]
+  },
+  {
+    "id": "MB-022",
+    "title": "Fix Motherbrain gateway persistence",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/motherbrain-operations.md",
+      "docs/motherbrain-local-agent-bootstrap.md"
+    ]
+  },
+  {
+    "id": "MB-023",
+    "title": "Build Motherbrain Kanban UI MVP",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-013",
+      "MB-020"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "PROOF_MB_023.md"
+    ]
+  },
+  {
+    "id": "MB-024",
+    "title": "Prove Motherbrain local coder reliability",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/motherbrain-local-agent-evidence.md",
+      "docs/motherbrain-local-agent-bootstrap.md"
+    ]
+  },
+  {
+    "id": "MB-025",
+    "title": "Repair live model-mediated local coding path",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/motherbrain-local-agent-evidence.md",
+      "docs/motherbrain-kanban/updates/2026-03-30-now-proof-failure.md"
+    ]
+  },
+  {
+    "id": "MB-026",
+    "title": "Build file-backed Motherbrain agent pipeline",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/motherbrain-multi-agent-pipeline.md",
+      "future pipeline scripts and task files"
     ]
   },
   {
@@ -281,6 +306,110 @@
     ]
   },
   {
+    "id": "MB-034",
+    "title": "OLN: Full Ingestion Pipeline Run",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-031",
+      "MB-032"
+    ],
+    "artifacts": [
+      "docs/oln/ingestion-report.md",
+      "data/mb_metrics.json",
+      "scripts/simulate_ingestion.py",
+      "PROOF_MB_034.md"
+    ]
+  },
+  {
+    "id": "MB-035",
+    "title": "OLN: Demo: Star Wars Lore Network (SWLN) MVP",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "src/oln/demo/swln-api/api.py",
+      "docs/oln/swln-demo-guide.md",
+      "PROOF_MB_035.md"
+    ]
+  },
+  {
+    "id": "MB-036",
+    "title": "OLN: Scale: Incremental Updates & Delta Ingestion",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "services/oln_ingestor/delta_parser.py",
+      "scripts/prove-mb-036.py",
+      "PROOF_MB_036.md"
+    ]
+  },
+  {
+    "id": "MB-037",
+    "title": "OLN: Analysis: Graph Relationship Density & Quality",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "docs/oln/graph-analysis-v1.md",
+      "scripts/prove-mb-037.py",
+      "PROOF_MB_037.md"
+    ]
+  },
+  {
+    "id": "MB-037",
+    "title": "OLN: Analysis: Graph Relationship Density & Quality",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "docs/oln/graph-analysis-v1.md",
+      "scripts/prove-mb-037.py",
+      "PROOF_MB_037.md"
+    ]
+  },
+  {
+    "id": "MB-038",
+    "title": "OLN: Franchise Generalization",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-028"
+    ],
+    "artifacts": [
+      "services/oln_ingestor/lore_config.yaml",
+      "data/oln/samples/memory-alpha-test.xml",
+      "docs/oln/franchise-agnostic-design.md",
+      "scripts/prove-mb-038.py",
+      "PROOF_MB_038.md"
+    ]
+  },
+  {
+    "id": "MB-038",
+    "title": "OLN: Franchise Generalization",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-028"
+    ],
+    "artifacts": [
+      "services/oln_ingestor/lore_config.yaml",
+      "data/oln/samples/memory-alpha-test.xml",
+      "docs/oln/franchise-agnostic-design.md",
+      "scripts/prove-mb-038.py",
+      "PROOF_MB_038.md"
+    ]
+  },
+  {
     "id": "MB-039",
     "title": "Agilitas Core AI Architecture & Evaluation Baseline",
     "state": "done",
@@ -347,6 +476,18 @@
     ]
   },
   {
+    "id": "MB-044",
+    "title": "Evaluation: Local Model Bake-off",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "scripts/model_bakeoff.py",
+      "docs/eval/model-performance-report.md",
+      "PROOF_MB_044.md"
+    ]
+  },
+  {
     "id": "MB-045",
     "title": "Agilitas: Actions & Outcomes: Inner/Outer Loop Engine",
     "state": "done",
@@ -359,6 +500,61 @@
       "services/agilitas-action-engine/prompts/action-generator-v1.yaml",
       "scripts/prove-mb-045.py",
       "PROOF_MB_045.md"
+    ]
+  },
+  {
+    "id": "MB-046",
+    "title": "Agilitas: Infrastructure: GCP Demoable Prototype (Functional MVP)",
+    "state": "done",
+    "owner": "Adam Goldband",
+    "depends_on": [
+      "MB-063"
+    ],
+    "artifacts": [
+      "infra/gcp-deployment/cloud-run-deploy.sh",
+      "scripts/prove-mb-046.py",
+      "PROOF_MB_046.md"
+    ]
+  },
+  {
+    "id": "MB-047",
+    "title": "Agilitas: Migration: .NET to Node/Python Track",
+    "state": "ready",
+    "owner": "Adam Goldband",
+    "depends_on": [],
+    "artifacts": [
+      "migration/dotnet-extraction-log.md",
+      "migration/sql-porting-script.sql"
+    ]
+  },
+  {
+    "id": "MB-048",
+    "title": "Agilitas: Ingestion: Transcript Normalization Pipeline",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039"
+    ],
+    "artifacts": [
+      "services/agilitas_ingestor/normalizer.py",
+      "scripts/test_agilitas_ingestor.py",
+      "docs/agilitas/unified-schema.json",
+      "PROOF_MB_048.md"
+    ]
+  },
+  {
+    "id": "MB-049",
+    "title": "Agilitas: Security: PII Redaction Strategy (Presidio / GCP DLP)",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039"
+    ],
+    "artifacts": [
+      "services/agilitas-ai-core/redaction/presidio_redactor.py",
+      "scripts/test_agilitas_redaction.py",
+      "docs/agilitas/pii-strategy.md",
+      "PROOF_MB_049.md"
     ]
   },
   {
@@ -433,6 +629,22 @@
     ]
   },
   {
+    "id": "MB-055",
+    "title": "Agilitas: Engineering: Semantic Extraction Pipeline replacement",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039",
+      "MB-044"
+    ],
+    "artifacts": [
+      "services/agilitas-ai-core/llm_client.py",
+      "services/agilitas-ai-core/extractor.py",
+      "scripts/qa_agilitas_pipeline.py",
+      "PROOF_MB_055.md"
+    ]
+  },
+  {
     "id": "MB-060",
     "title": "End-to-end QA pass",
     "state": "done",
@@ -488,126 +700,6 @@
       "infra/agilitas/docker-compose.yaml",
       "scripts/prove-mb-063.py",
       "PROOF_MB_063.md"
-    ]
-  },
-  {
-    "id": "MB-048",
-    "title": "Agilitas: Ingestion: Transcript Normalization Pipeline",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-039"
-    ],
-    "artifacts": [
-      "services/agilitas_ingestor/normalizer.py",
-      "scripts/test_agilitas_ingestor.py",
-      "docs/agilitas/unified-schema.json",
-      "PROOF_MB_048.md"
-    ]
-  },
-  {
-    "id": "MB-049",
-    "title": "Agilitas: Security: PII Redaction Strategy (Presidio / GCP DLP)",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-039"
-    ],
-    "artifacts": [
-      "services/agilitas-ai-core/redaction/presidio_redactor.py",
-      "scripts/test_agilitas_redaction.py",
-      "docs/agilitas/pii-strategy.md",
-      "PROOF_MB_049.md"
-    ]
-  },
-  {
-    "id": "MB-034",
-    "title": "OLN: Full Ingestion Pipeline Run",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-031",
-      "MB-032"
-    ],
-    "artifacts": [
-      "docs/oln/ingestion-report.md",
-      "data/mb_metrics.json",
-      "scripts/simulate_ingestion.py",
-      "PROOF_MB_034.md"
-    ]
-  },
-  {
-    "id": "MB-046",
-    "title": "Agilitas: Infrastructure: GCP Demoable Prototype (Functional MVP)",
-    "state": "done",
-    "owner": "Adam Goldband",
-    "depends_on": [
-      "MB-063"
-    ],
-    "artifacts": [
-      "infra/gcp-deployment/cloud-run-deploy.sh",
-      "scripts/prove-mb-046.py",
-      "PROOF_MB_046.md"
-    ]
-  },
-  {
-    "id": "MB-035",
-    "title": "OLN: Demo: Star Wars Lore Network (SWLN) MVP",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-034"
-    ],
-    "artifacts": [
-      "src/oln/demo/swln-api/api.py",
-      "docs/oln/swln-demo-guide.md",
-      "PROOF_MB_035.md"
-    ]
-  },
-  {
-    "id": "MB-037",
-    "title": "OLN: Analysis: Graph Relationship Density & Quality",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-034"
-    ],
-    "artifacts": [
-      "docs/oln/graph-analysis-v1.md",
-      "scripts/prove-mb-037.py",
-      "PROOF_MB_037.md"
-    ]
-  },
-  {
-    "id": "MB-055",
-    "title": "Agilitas: Engineering: Semantic Extraction Pipeline replacement",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-039",
-      "MB-044"
-    ],
-    "artifacts": [
-      "services/agilitas-ai-core/llm_client.py",
-      "services/agilitas-ai-core/extractor.py",
-      "scripts/qa_agilitas_pipeline.py",
-      "PROOF_MB_055.md"
-    ]
-  },
-  {
-    "id": "MB-038",
-    "title": "OLN: Franchise Generalization",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-028"
-    ],
-    "artifacts": [
-      "services/oln_ingestor/lore_config.yaml",
-      "data/oln/samples/memory-alpha-test.xml",
-      "docs/oln/franchise-agnostic-design.md",
-      "scripts/prove-mb-038.py",
-      "PROOF_MB_038.md"
     ]
   },
   {
