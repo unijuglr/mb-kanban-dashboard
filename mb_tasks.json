@@ -316,17 +316,19 @@
   {
     "id": "MB-061",
     "title": "Repo cleanup for review",
-    "state": "ready",
-    "owner": "Coder-1",
+    "state": "active",
+    "owner": "MB-Sam",
     "depends_on": [
       "MB-060"
     ],
-    "artifacts": []
+    "artifacts": [
+      "docs/mb-061-review-readiness.md"
+    ]
   },
   {
     "id": "MB-062",
     "title": "GitHub push preparation",
-    "state": "ready",
+    "state": "pending",
     "owner": "Coder-1",
     "depends_on": [
       "MB-061"
