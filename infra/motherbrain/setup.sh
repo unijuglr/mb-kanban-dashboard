@@ -1,12 +1,24 @@
 #!/bin/bash
 
 # Configuration
-# Note: Using /Volumes/hellastuff as the primary mount point per current implementation
-# If you need to switch to "/Volumes/hellastuff 1", update this variable.
-BASE_VOLUME="/Volumes/hellastuff/oln"
-LOG_VOLUME="/Volumes/external-logs/oln"
+DEFAULT_BASE_VOLUME="/Volumes/hellastuff/oln"
+ALT_BASE_VOLUME="/Volumes/hellastuff 1/oln"
+BASE_VOLUME="${OLN_BASE_VOLUME:-}"
+LOG_VOLUME="${OLN_LOG_VOLUME:-/Volumes/external-logs/oln}"
+
+if [ -z "$BASE_VOLUME" ]; then
+  if [ -d "/Volumes/hellastuff" ]; then
+    BASE_VOLUME="$DEFAULT_BASE_VOLUME"
+  elif [ -d "/Volumes/hellastuff 1" ]; then
+    BASE_VOLUME="$ALT_BASE_VOLUME"
+  else
+    BASE_VOLUME="$DEFAULT_BASE_VOLUME"
+  fi
+fi
 
 echo "Initializing OLN directories on Motherbrain..."
+echo "Using OLN_BASE_VOLUME=$BASE_VOLUME"
+echo "Using OLN_LOG_VOLUME=$LOG_VOLUME"
 
 # Create core directories
 mkdir -p "$BASE_VOLUME/neo4j/data"
