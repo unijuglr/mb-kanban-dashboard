@@ -1,1 +1,40 @@
-Ollama Error: 404 Client Error: Not Found for url: http://127.0.0.1:11435/api/generate
+Here is a realistic anonymized customer support transcript for the Industrial vertical:
+
+**Transcript**
+
+**Date:** 2023-02-20
+**Time:** 10:45 AM EST
+**Customer ID:** INDUSTRIAL1234
+
+**Agent:** Rachel Lee (rlee@industrialtech.com)
+**Customer:** John Smith (john.smith@xyzcorp.com)
+
+**Rachel Lee (Agent):** Good morning, thank you for calling IndustrialTech Support. My name is Rachel Lee, how can I assist you today?
+
+**John Smith (Customer):** Hi Rachel, it's John Smith from XYZ Corporation. We're having some issues with our manufacturing line. The conveyor belt just stopped working and we can't seem to get it going again.
+
+**Rachel Lee (Agent):** I apologize for the inconvenience, John. Can you tell me more about what happened? Did you notice any error messages or lights on the control panel?
+
+**John Smith (Customer):** (frustrated) Look, we just tried to start it up and nothing happens. The belt just freezes in place. We've been running this line for years without a problem.
+
+**Rachel Lee (Agent):** I understand your frustration, John. Can you please check if the conveyor belt is properly aligned and if all the safety sensors are functioning correctly?
+
+**John Smith (Customer):** (sighs) Yeah, they're good. We've checked everything twice. It's just not working.
+
+**Rachel Lee (Agent):** Okay, I'm going to check on some troubleshooting steps for you. Can you please confirm your IndustrialTech software version and hardware model?
+
+**John Smith (Customer):** Let me check... (pause) Yeah, it's version 2.5 and the hardware is a Model 345.
+
+**Rachel Lee (Agent):** Thank you, John. I've checked on some known issues with that specific hardware model and software version. It looks like there was a recent firmware update that might have caused the issue. I'm going to go ahead and update the firmware for you. Can you please wait for about 10 minutes while I do that?
+
+**John Smith (Customer):** Okay... (pause) Alright, is it done yet? We can't just sit here all day waiting.
+
+**Rachel Lee (Agent):** I apologize for the delay, John. The update should be complete now. Please try restarting the conveyor belt and see if that resolves the issue.
+
+**John Smith (Customer):** Okay... (pause) Oh, wow! It's working again!
+
+**Rachel Lee (Agent):** Great news, John! I'm glad we were able to resolve the issue for you. If you have any further concerns or issues, please don't hesitate to reach out to us. Have a great day!
+
+**John Smith (Customer):** Thanks, Rachel. You're a lifesaver.
+
+**Rachel Lee (Agent):** Anytime, John. Have a great day and we'll talk soon!

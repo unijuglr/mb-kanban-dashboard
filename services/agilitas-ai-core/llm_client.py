@@ -21,7 +21,7 @@ class AgilitasLLMClient:
         self.project_id = os.getenv("GCP_PROJECT_ID")
         self.location = os.getenv("GCP_LOCATION", "us-central1")
 
-    def call_ollama(self, prompt, model="llama3.2:latest"):
+    def call_ollama(self, prompt, model="llama3.2:3b"):
         """
         Calls local Ollama.
 
@@ -90,7 +90,7 @@ class AgilitasLLMClient:
         Unified completion method.
         """
         if provider == "ollama":
-            target_model = model if model else "llama3.2:latest"
+            target_model = model if model else "llama3.2:3b"
             return self.call_ollama(prompt, model=target_model)
         elif provider == "vertex":
             target_model = model if model else "gemini-1.5-flash"

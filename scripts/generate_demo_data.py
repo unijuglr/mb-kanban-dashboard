@@ -32,7 +32,7 @@ def generate_synthetic_transcript(vertical, client):
     print(f"Generating transcript for {vertical}...")
     # Use local Ollama for cost discipline.
     # Default path is Motherbrain-local 127.0.0.1:11434; laptop-tunnel runs can set OLLAMA_HOST=127.0.0.1:11435.
-    transcript = client.complete(prompt, provider="ollama", model="llama3")
+    transcript = client.complete(prompt, provider="ollama", model="llama3.2:3b")
     return transcript
 
 def main():
