@@ -627,7 +627,7 @@
   {
     "id": "MB-072",
     "title": "OLN: Motherbrain vertical slice definition",
-    "state": "ready",
+    "state": "done",
     "owner": "Prime Sam",
     "depends_on": [
       "MB-027",
@@ -668,7 +668,7 @@
   {
     "id": "MB-075",
     "title": "OLN: first local ingest runbook on Motherbrain",
-    "state": "ready",
+    "state": "done",
     "owner": "Prime Sam",
     "depends_on": [
       "MB-072",
