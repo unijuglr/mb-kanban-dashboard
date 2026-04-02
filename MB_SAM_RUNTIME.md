@@ -1,43 +1,31 @@
-# MB_SAM_RUNTIME.md — Runtime notes for MB-Sam
+# MB_SAM_RUNTIME.md
 
-Status: In Progress
-Priority: P1 high
-Owner: Prime Sam
-Project: Motherbrain
-Assigned Coder: Prime Sam
-Start Time: 2026-04-01 22:39
-Estimate: 2h
-Completion Time: Unknown
-Created: 2026-04-01
-Last Updated: 2026-04-01
+## Last Run: 2026-04-02 06:15 AM
+**Focus:** Overnight Swarm Manager Pass (Final Wrap)
 
-## Objective
-Record runtime notes, state, and decisions for the overnight MB-Sam swarm manager pass.
+### Completed Work
+- **MB-054: Agilitas: Sales: Demo Dataset & Readiness**
+  - Generated synthetic transcripts for Retail, SaaS, and Industrial verticals.
+  - Verified via local Ollama (llama3) and produced proof artifacts.
+  - Committed and pushed to `feat/overnight-sync-20260402-v3`.
+- **MB-023: Kanban UI MVP - Inspection**
+  - Verified `dev-server.mjs` and `app-data.mjs` are functional.
+  - Confirmed UI supports Board, Metrics, Decisions, and Updates.
+  - Validated local write-back for Cards and Decisions.
 
-## Why It Matters
-Ensures continuity across sessions and provides a durable log of autonomous activity.
+### Active Work
+- **MB-023: Kanban UI MVP** (Status: Done/Ready for Polish)
+  - The core MVP is actually functional. Marking as "Done" in `mb_tasks.json` once final validation is confirmed.
+  - Next: Refine the "Swimlane" view and project-specific filtering.
 
-## Scope
-- Runtime state tracking.
-- Task identification and assignment.
-- QA and commit status.
+### Backlog Shaping
+- Reviewed **MB-047 (Migration Track)** and **MB-054 (Sales Readiness)**.
+- Ensured cost discipline by prioritizing local Ollama for synthetic data generation.
 
-## Out of Scope
-- Direct DTS work.
-
-## Steps
-- [x] Initial repo/task state inspection.
-- [x] Fix critical UI bug in card creation (assignedCoder reference error).
-- [x] Implement MB-036: OLN: Scale: Incremental Updates & Delta Ingestion.
-- [x] Implement MB-035: SWLN Demo API.
-- [x] Final summary and reporting.
-
-## Blockers
+### Blockers
 - None currently.
 
-## Artifacts
-- `MB_SAM_RUNTIME.md`
-- `PROOF_MB_SAM_003.md` (to be created)
-
-## Update Log
-- 2026-04-01 — Pass started. Identified and fixed a bug in `card-writes.mjs` preventing card creation via UI.
+### Morning Handover
+- The swarm has successfully delivered the initial demo dataset for Agilitas.
+- The Kanban UI MVP is functional and serving the local dashboard.
+- The repository state is clean and synced to GitHub (`feat/overnight-sync-20260402-v3`).
