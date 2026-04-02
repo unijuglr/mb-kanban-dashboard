@@ -2,9 +2,13 @@ import json
 import os
 import sys
 import importlib.util
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEMO_DATA_DIR = REPO_ROOT / "data" / "demo"
 
 # Load the AgilitasLLMClient module from the file path directly to handle the hyphenated directory
-module_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../services/agilitas-ai-core/llm_client.py'))
+module_path = REPO_ROOT / 'services' / 'agilitas-ai-core' / 'llm_client.py'
 spec = importlib.util.spec_from_file_location("llm_client", module_path)
 llm_client_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(llm_client_module)
@@ -34,18 +38,17 @@ def generate_synthetic_transcript(vertical, client):
 def main():
     client = AgilitasLLMClient()
     verticals = ["Retail", "SaaS", "Industrial"]
-    
-    # Ensure data/demo exists
-    os.makedirs("projects/mb-kanban-dashboard/data/demo", exist_ok=True)
-    
+
+    DEMO_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
     for vertical in verticals:
         transcript = generate_synthetic_transcript(vertical, client)
-        
-        filename = f"projects/mb-kanban-dashboard/data/demo/transcript_{vertical.lower()}.txt"
+
+        filename = DEMO_DATA_DIR / f"transcript_{vertical.lower()}.txt"
         with open(filename, "w") as f:
             f.write(transcript)
-        
-        print(f"Saved to {filename}")
+
+        print(f"Saved to {filename.relative_to(REPO_ROOT)}")
 
 if __name__ == "__main__":
     main()
