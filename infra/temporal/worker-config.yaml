@@ -1,0 +1,14 @@
+# Temporal Worker Config for Star Wars Lore Network (OLN)
+# Environment: Motherbrain (Mac Studio)
+
+namespace: "oln-namespace"
+task_queue: "oln-task-queue"
+
+# Performance settings for Motherbrain (32GB RAM / M2 Ultra)
+worker:
+  max_concurrent_activities: 20
+  max_concurrent_workflows: 10
+  
+# Persistence
+storage:
+  path: "/Volumes/hellastuff 1/oln/temporal/data"
