@@ -15,12 +15,21 @@ The primary focus has shifted to "Wave 2" (OLN, Agilitas, AI-Bitz) while maintai
   - **Status**: Implemented `docker-compose.yaml` and `setup.sh`. Scripts pushed to GitHub and deployed to Motherbrain.
   - **Action**: Awaiting permission fix for `docker.sock` on Motherbrain to trigger container start.
   - **Next**: Run `setup.sh` on Motherbrain and start services.
+- **MB-039 (Agilitas Core AI)**: [DONE]
+  - Delivered `docs/agilitas/ai-strategy.md`, `data/agilitas/golden-dataset-v1.json`, and `services/agilitas-ai-core/extractor.py`.
+- **MB-028 (OLN Ingestor)**: [DONE]
+  - Delivered `services/oln_ingestor/parser.py`, `data/oln/samples/wookieepedia-test.xml`, and `scripts/prove-mb-028.py`.
+- **MB-041 (HellaThis Relaunch)**: [DONE]
+  - Delivered `docs/hellathis/relaunch-vision.md` and `src/hellathis/search-api/response-schema.json`.
 - **MB-027 (OLN Architecture)**: [DONE] 
   - Architecture delivered in `docs/oln/architecture.md`.
 
 ## QA & Proof Status
 - **Wave 1 Proofs**: All passing (`mb-011` through `mb-053`).
-- **Wave 2 Proofs**: Pending implementation.
+- **Wave 2 Proofs**: 
+  - `PROOF_MB_028.md`: PASS (Parser skeleton logic verified).
+  - `PROOF_MB_039.md`: PASS (Strategy and extraction schema verified).
+  - `PROOF_MB_041.md`: PASS (Relaunch vision and API schema verified).
 
 ## Blockers & Notes
 - **DTS Work**: Explicitly excluded per policy.

@@ -126,12 +126,12 @@
     "id": "MB-028",
     "title": "OLN Ingestor Parser Skeleton & Test Files",
     "state": "done",
-    "owner": "agent:main:subagent:1706bec3-da79-4846-8dee-0a0a816b79c5",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-027"
     ],
     "artifacts": [
-      "services/oln_ingestor/parser.py",
+      "services/oln-ingestor/parser.py",
       "data/oln/samples/wookieepedia-test.xml",
       "scripts/prove-mb-028.py",
       "PROOF_MB_028.md"
@@ -195,6 +195,19 @@
       "scripts/prove-mb-033.mjs",
       "PROOF_MB_033.md",
       "README.md"
+    ]
+  },
+  {
+    "id": "MB-039",
+    "title": "Agilitas Core AI Architecture & Evaluation Baseline",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/agilitas/ai-strategy.md",
+      "data/agilitas/golden-dataset-v1.json",
+      "services/agilitas-ai-core/extractor.py",
+      "PROOF_MB_039.md"
     ]
   },
   {
