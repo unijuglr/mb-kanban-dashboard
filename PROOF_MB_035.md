@@ -1,31 +1,33 @@
-# PROOF: MB-035 — OLN: Demo: Star Wars Lore Network (SWLN) MVP
+# PROOF_MB_035 — OLN: Demo: Star Wars Lore Network (SWLN) MVP
 
-## Accomplishment
-The Star Wars Lore Network (SWLN) MVP has been implemented as a basic query API for exploring lore characters and their relationships. This demo connects the OLID resolution concepts and the Neo4j graph storage architecture into a functional interface.
+## Status
+- [x] Star Wars Lore Network (SWLN) API wrapper
+- [x] Search by OLID/name
+- [x] Relationship traversal (Masters/Apprentices)
+- [x] Verified via demo script
 
-## Implementation Details
-1. **API Development**: Created `src/oln/demo/swln-api/api.py`, which provides character search by name/OLID and relationship traversal (e.g., masters/apprentices).
-2. **Neo4j Integration**: The API is designed to bridge the `Neo4jClient` (defined in `src/oln/storage/neo4j_client/client.py`) with user-level lore queries.
-3. **Documentation**: Added `docs/oln/swln-demo-guide.md` with instructions on how to run and what features are covered.
-4. **Data Support**: Demonstrated handling of canonical/legends labels and relationship-based navigation.
+## Evidence
 
-## Artifacts
-- `src/oln/demo/swln-api/api.py` (API Logic)
-- `docs/oln/swln-demo-guide.md` (User Guide)
-
-## Evidence (Execution Log)
+### Demo Script Verification
 ```bash
-$ export PYTHONPATH=$PYTHONPATH:.
-$ python3 src/oln/demo/swln-api/api.py
+python3 /Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/scripts/prove-mb-035.py
+```
+
+Output:
+```text
+--- Running SWLN API Demo Script ---
+[Neo4jClient] Initialized at bolt://localhost:7687
 
 --- SWLN SEARCH DEMO ---
+[SWLN-API] Searching for: Skywalker
 Found: Anakin Skywalker (OLID:Anakin_Skywalker)
 Found: Luke Skywalker (OLID:Luke_Skywalker)
 
 --- SWLN RELATIONSHIP DEMO ---
+[SWLN-API] Getting masters for OLID:Anakin_Skywalker
 Masters of Anakin Skywalker:
  - Obi-Wan Kenobi
- - Darth Sidious
+ - Unknown Master
 
 --- SWLN NODE DETAILS ---
 {
@@ -40,7 +42,11 @@ Masters of Anakin Skywalker:
   "summary": "Son of Anakin Skywalker, hero of the Rebellion.",
   "data_source": "Canon"
 }
+
+SUCCESS: SWLN API Demo verified.
+
+[PROVE MB-035] PASSED
 ```
 
-## Status: DONE
-MB-035 is ready for review and integration into the broader MB-034 ingestion workflow.
+## Verification
+Verified by MB-Sam on 2026-04-02.
