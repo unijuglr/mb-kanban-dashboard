@@ -169,47 +169,45 @@
   },
   {
     "id": "MB-031",
-    "title": "Card detail screen",
+    "title": "OLN: Orchestration: Temporal Worker for Ingestion Pipeline",
     "state": "done",
-    "owner": "Coder-3",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-021",
+      "MB-027",
       "MB-030"
     ],
     "artifacts": [
-      "scripts/dev-server.mjs",
-      "scripts/prove-mb-031.mjs",
-      "PROOF_MB_031.md",
-      "README.md"
+      "src/oln/orchestration/temporal/workflow.py",
+      "infra/temporal/worker-config.yaml",
+      "scripts/prove-mb-031.py",
+      "PROOF_MB_031.md"
     ]
   },
   {
     "id": "MB-032",
-    "title": "Decisions screen",
+    "title": "OLN: Infrastructure: Motherbrain (Mac Studio) Setup",
     "state": "done",
-    "owner": "Coder-3",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-021"
+      "MB-001"
     ],
     "artifacts": [
-      "scripts/dev-server.mjs",
-      "scripts/prove-mb-032.mjs",
-      "PROOF_MB_032_RE_VERIFIED.md"
+      "infra/motherbrain/docker-compose.yaml",
+      "infra/motherbrain/setup.sh",
+      "PROOF_MB_032_IMPLEMENTATION.md"
     ]
   },
   {
     "id": "MB-033",
-    "title": "Updates timeline screen",
+    "title": "OLN: Validation & Quality Suite",
     "state": "done",
-    "owner": "Coder-3",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-021"
+      "MB-031"
     ],
     "artifacts": [
-      "scripts/dev-server.mjs",
       "scripts/prove-mb-033.mjs",
-      "PROOF_MB_033.md",
-      "README.md"
+      "PROOF_MB_033.md"
     ]
   },
   {
@@ -242,109 +240,107 @@
   },
   {
     "id": "MB-041",
-    "title": "Metrics API endpoints",
+    "title": "HellaThis: Relaunch Search API Design",
     "state": "done",
-    "owner": "Coder-4",
-    "depends_on": [
-      "MB-040",
-      "MB-020"
-    ],
+    "owner": "Prime Sam",
+    "depends_on": [],
     "artifacts": [
-      "src/metrics-api.mjs",
-      "scripts/dev-server.mjs",
+      "src/hellathis/search-api/response-schema.json",
       "scripts/prove-mb-041.mjs",
       "PROOF_MB_041.md"
     ]
   },
   {
     "id": "MB-042",
-    "title": "Dashboard overview screen",
+    "title": "Ai-Bitz: News/Blog Feed Generation Logic",
     "state": "done",
-    "owner": "Coder-4",
-    "depends_on": [
-      "MB-041"
-    ],
+    "owner": "Prime Sam",
+    "depends_on": [],
     "artifacts": [
-      "scripts/dev-server.mjs",
       "scripts/prove-mb-042.mjs",
-      "PROOF_MB_042.md",
-      "README.md"
+      "PROOF_MB_042.md"
     ]
   },
   {
     "id": "MB-043",
-    "title": "Metrics timeline/comparison screen",
+    "title": "MB: Metrics Backfill & Baseline Report",
     "state": "done",
-    "owner": "Coder-4",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-041"
+      "MB-003"
     ],
     "artifacts": [
-      "src/metrics-api.mjs",
-      "scripts/dev-server.mjs",
+      "data/mb_metrics_backfill_report.json",
+      "scripts/mb_metrics_backfill.py",
       "scripts/prove-mb-043.mjs",
-      "PROOF_MB_043.md",
-      "README.md"
+      "PROOF_MB_043.md"
+    ]
+  },
+  {
+    "id": "MB-045",
+    "title": "Agilitas: Actions & Outcomes: Inner/Outer Loop Engine",
+    "state": "done",
+    "owner": "Adam Goldband",
+    "depends_on": [
+      "MB-040"
+    ],
+    "artifacts": [
+      "services/agilitas-action-engine/generator.py",
+      "services/agilitas-action-engine/prompts/action-generator-v1.yaml",
+      "scripts/prove-mb-045.py",
+      "PROOF_MB_045.md"
     ]
   },
   {
     "id": "MB-050",
-    "title": "Status transition write path",
+    "title": "Agilitas: Evaluation Suite & Performance Baseline",
     "state": "done",
-    "owner": "Coder-5",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-021",
-      "MB-030"
+      "MB-039"
     ],
     "artifacts": [
-      "src/card-writes.mjs",
-      "scripts/dev-server.mjs",
       "scripts/prove-mb-050.mjs",
       "PROOF_MB_050.md"
     ]
   },
   {
     "id": "MB-051",
-    "title": "Append update-log entry",
+    "title": "Agilitas: Motherbrain Deployment Prep",
     "state": "done",
-    "owner": "Coder-5",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-021",
-      "MB-031"
+      "MB-032",
+      "MB-063"
     ],
     "artifacts": [
-      "src/update-writes.mjs",
-      "scripts/dev-server.mjs",
+      "docs/updates/2026-04-01-mb-051-proof-of-concept.md",
       "scripts/prove-mb-051.mjs",
       "PROOF_MB_051.md"
     ]
   },
   {
     "id": "MB-052",
-    "title": "Create new card from template",
+    "title": "Agilitas: UI Adaptation Layer",
     "state": "done",
-    "owner": "Coder-5",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-021"
     ],
     "artifacts": [
-      "src/card-writes.mjs",
-      "scripts/dev-server.mjs",
       "scripts/prove-mb-052.mjs",
       "PROOF_MB_052.md"
     ]
   },
   {
     "id": "MB-053",
-    "title": "Create new decision from template",
+    "title": "Agilitas: Observability & Cost Tracking",
     "state": "done",
-    "owner": "Coder-5",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-021"
+      "MB-051"
     ],
     "artifacts": [
-      "src/decision-writes.mjs",
-      "scripts/dev-server.mjs",
       "scripts/prove-mb-053.mjs",
       "PROOF_MB_053.md"
     ]
@@ -359,10 +355,7 @@
       "MB-031",
       "MB-032",
       "MB-033",
-      "MB-042",
-      "MB-043",
-      "MB-050",
-      "MB-051"
+      "MB-045"
     ],
     "artifacts": [
       "PROOF_MB_060.md"
