@@ -29,8 +29,9 @@ Purpose: unblock coders working on both OLN and Agilitas with one shared local-f
 
 ## 4) Model/runtime access
 - [ ] Ollama on Motherbrain is reachable from the host.
-- [ ] Container-to-model path is confirmed for Agilitas (`OLLAMA_HOST` currently expects host access).
-- [ ] If using the laptop tunnel, `http://127.0.0.1:11435` responds before local coding work begins.
+- [ ] Direct-host Agilitas runs use Motherbrain-local `http://127.0.0.1:11434` by default.
+- [ ] Container-to-model path is confirmed for Agilitas (`OLLAMA_HOST=http://host.docker.internal:11434` for compose).
+- [ ] If using the laptop tunnel, set `OLLAMA_HOST=http://127.0.0.1:11435` and verify it responds before local coding work begins.
 - [ ] The required local model names are agreed up front; do not let coders discover missing models mid-run.
 
 ## 5) Service healthchecks

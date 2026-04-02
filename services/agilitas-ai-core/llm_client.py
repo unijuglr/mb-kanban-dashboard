@@ -2,21 +2,31 @@ import requests
 import os
 import json
 
+
 class AgilitasLLMClient:
     """
     Model-agnostic LLM client for Agilitas AI Core.
     Supports local Ollama and Google Cloud Vertex AI.
+
+    Local default is Motherbrain-host Ollama on port 11434.
+    If running from Adam's laptop through the SSH tunnel, set:
+      OLLAMA_HOST=http://127.0.0.1:11435
     """
 
     def __init__(self):
-        self.ollama_endpoint = "http://127.0.0.1:11435/api/generate"
+        ollama_host = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
+        self.ollama_host = ollama_host
+        self.ollama_endpoint = f"{ollama_host}/api/generate"
         # Vertex AI settings would typically come from environment variables
         self.project_id = os.getenv("GCP_PROJECT_ID")
         self.location = os.getenv("GCP_LOCATION", "us-central1")
 
     def call_ollama(self, prompt, model="llama3.2:latest"):
         """
-        Calls local Ollama instance via the MB tunnel (port 11435).
+        Calls local Ollama.
+
+        Default path is Motherbrain-local `127.0.0.1:11434`.
+        Laptop-tunnel runs can override this via `OLLAMA_HOST=http://127.0.0.1:11435`.
         """
         payload = {
             "model": model,

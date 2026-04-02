@@ -782,5 +782,78 @@
     "artifacts": [
       "docs/agilitas/motherbrain-demo-flow.md"
     ]
+  },
+  {
+    "id": "MB-077",
+    "title": "Agilitas: fix local demo transcript and Ollama endpoint alignment",
+    "state": "done",
+    "owner": "Coder-1",
+    "depends_on": [
+      "MB-073",
+      "MB-076"
+    ],
+    "artifacts": [
+      "data/demo/transcript_retail.txt",
+      "services/agilitas-ai-core/llm_client.py",
+      "PROOF_MB_077.md"
+    ]
+  },
+  {
+    "id": "MB-078",
+    "title": "Agilitas: runnable local proof pipeline on Motherbrain",
+    "state": "ready",
+    "owner": "Coder-2",
+    "depends_on": [
+      "MB-077"
+    ],
+    "artifacts": [
+      "scripts/qa_agilitas_pipeline.py",
+      "docs/agilitas/motherbrain-local-proof-output.json",
+      "PROOF_MB_078.md"
+    ]
+  },
+  {
+    "id": "MB-079",
+    "title": "OLN: implement real local Neo4j write path for vertical slice",
+    "state": "ready",
+    "owner": "Coder-3",
+    "depends_on": [
+      "MB-072",
+      "MB-075"
+    ],
+    "artifacts": [
+      "src/oln/storage/neo4j-client/",
+      "PROOF_MB_079.md"
+    ]
+  },
+  {
+    "id": "MB-080",
+    "title": "OLN: create 2-page local sample corpus and executable ingest proof",
+    "state": "ready",
+    "owner": "Coder-4",
+    "depends_on": [
+      "MB-079"
+    ],
+    "artifacts": [
+      "data/oln/samples/wookieepedia-test.xml",
+      "scripts/prove-mb-080.py",
+      "PROOF_MB_080.md"
+    ]
+  },
+  {
+    "id": "MB-081",
+    "title": "Motherbrain: preflight and stale-process guardrails for local dev",
+    "state": "done",
+    "owner": "Coder-5",
+    "depends_on": [
+      "MB-074"
+    ],
+    "artifacts": [
+      "scripts/check-mb-dev.sh",
+      "scripts/start-mb-dev.sh",
+      "PROOF_MB_081.md"
+    ],
+    "completed_at": "2026-04-02",
+    "notes": "Added stale pidfile cleanup, healthy-process adoption, startup wait/health verification, and explicit port-conflict failure diagnostics for local dev scripts."
   }
 ]
