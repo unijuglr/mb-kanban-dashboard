@@ -623,5 +623,72 @@
       "src/metrics-api.mjs",
       "PROOF_MB_070.md"
     ]
+  },
+  {
+    "id": "MB-072",
+    "title": "OLN: Motherbrain vertical slice definition",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-027",
+      "MB-032"
+    ],
+    "artifacts": [
+      "docs/oln/motherbrain-vertical-slice-plan.md"
+    ]
+  },
+  {
+    "id": "MB-073",
+    "title": "Agilitas: Motherbrain runnable local stack definition",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-048",
+      "MB-049",
+      "MB-055",
+      "MB-051"
+    ],
+    "artifacts": [
+      "docs/agilitas/motherbrain-local-stack-plan.md"
+    ]
+  },
+  {
+    "id": "MB-074",
+    "title": "Motherbrain: shared dev environment readiness checklist",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-001",
+      "MB-022"
+    ],
+    "artifacts": [
+      "docs/motherbrain/dev-readiness-checklist.md"
+    ]
+  },
+  {
+    "id": "MB-075",
+    "title": "OLN: first local ingest runbook on Motherbrain",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-072",
+      "MB-074"
+    ],
+    "artifacts": [
+      "docs/oln/motherbrain-first-ingest-runbook.md"
+    ]
+  },
+  {
+    "id": "MB-076",
+    "title": "Agilitas: first local demo flow on Motherbrain",
+    "state": "ready",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-073",
+      "MB-074"
+    ],
+    "artifacts": [
+      "docs/agilitas/motherbrain-demo-flow.md"
+    ]
   }
 ]
