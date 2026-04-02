@@ -30,3 +30,11 @@
 - Task-state audit found card/index drift: `MB-004`, `MB-018`, `MB-019`, `MB-022`, `MB-024`, `MB-025`, `MB-026`, and `MB-047` existed in `docs/cards/` but were missing from `mb_tasks.json`.
 - Opened a cleanup branch to restore those cards into `mb_tasks.json` so scheduler decisions stay durable.
 - Dispatched focused execution on `MB-047` (Agilitas migration track) on a fresh feature branch; excluded DTS/Rockler work.
+
+## 🌙 Overnight Swarm Notes (2026-04-02 11:17 PT pass)
+- Audited current non-DTS ready work and found the active branch `feat/mb-047-agilitas-migration-refresh` already contains unpushed commits for `MB-077` and `MB-079`.
+- Re-ran `python3 scripts/prove-mb-079.py` successfully; contract proof passes and confirms authenticated Neo4j transactional writes are implemented.
+- Re-ran `python3 scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml`; live proof still fails honestly because local Neo4j is not reachable at `127.0.0.1:7474`.
+- Re-ran `python3 scripts/qa_agilitas_pipeline.py`; QA is blocked on unavailable local Ollama at `127.0.0.1:11434`, so no false completion claim was made.
+- Spawned a focused cleanup sub-agent to repair `scripts/generate_demo_data.py`, which currently writes into an erroneous nested `projects/mb-kanban-dashboard/...` path when executed from repo root.
+- Pushing the current feature branch so completed work is not left stranded only on this machine.

@@ -824,7 +824,8 @@
     "artifacts": [
       "src/oln/storage/neo4j-client/",
       "PROOF_MB_079.md"
-    ]
+    ],
+    "notes": "Code and contract proof exist on feat/mb-047-agilitas-migration-refresh and prove-mb-079 passes. Keep state non-done until live Neo4j-backed ingest proof succeeds against a reachable local instance."
   },
   {
     "id": "MB-080",
