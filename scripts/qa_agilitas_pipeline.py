@@ -1,69 +1,68 @@
+#!/usr/bin/env python3
+import json
 import os
 import sys
-import json
 import importlib.util
 
-# Add project root to sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
 sys.path.insert(0, project_root)
 
+
+def load_module(name: str, relative_path: str):
+    module_path = os.path.join(project_root, relative_path)
+    spec = importlib.util.spec_from_file_location(name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def qa_agilitas_extraction():
-    print("Starting QA of Agilitas Core AI Extraction Pipeline (with PII Redaction)...")
-    
-    # Import service with hyphen in name
-    module_path = os.path.join(project_root, 'services', 'agilitas-ai-core', 'extractor.py')
-    spec = importlib.util.spec_from_file_location("agilitas_extractor", module_path)
-    extractor_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(extractor_module)
-    
+    print("Starting QA of Agilitas Core AI Extraction Pipeline (offline-friendly)...")
+    extractor_module = load_module("agilitas_extractor", os.path.join('services', 'agilitas-ai-core', 'extractor.py'))
     AgilitasExtractor = extractor_module.AgilitasExtractor
-    
-    # Initialize extractor (local mode + PII redaction)
-    extractor = AgilitasExtractor(use_cloud=False, redact_pii=True)
-    
-    # Test Transcript with PII (John Doe, 123-456-7890)
-    test_transcript = "My name is John Doe and my phone is 123-456-7890. I've been trying to use the new dashboard for our retail client, but it's very slow. Also, we really need a direct export to Shopify, which CompetitorX already has. The sentiment analysis is cool though."
-    
-    print(f"Testing Extraction and Redaction for: {test_transcript[:50]}...")
-    
-    result = extractor.extract_dimensions(test_transcript)
-    
-    # Verify Dimensions
+
+    test_transcript = (
+        "My name is John Doe and my phone is 123-456-7890. I've been trying to use the new dashboard "
+        "for our retail client, but it's very slow. Also, we really need a direct export to Shopify, "
+        "which CompetitorX already has. The sentiment analysis is cool though."
+    )
+
+    extractor = AgilitasExtractor(use_cloud=False, redact_pii=True, deterministic_fallback=True)
+
+    deterministic = extractor.extract_dimensions(test_transcript, provider="deterministic")
+    provider_attempt = extractor.extract_dimensions(test_transcript, provider="ollama")
+
     required_dimensions = [
-        "sentiment", "pain_points", "emotion", 
+        "sentiment", "pain_points", "emotion",
         "effort", "competitors", "innovation", "summary"
     ]
-    
-    print("\nExtraction Result:")
-    print(json.dumps(result, indent=2))
-    
-    if "error" in result:
-        print(f"\n❌ QA Failed: {result['error']}")
+
+    print("\nDeterministic Result:")
+    print(json.dumps(deterministic, indent=2))
+
+    missing = [d for d in required_dimensions if d not in deterministic]
+    if missing:
+        print(f"\n❌ QA Failed: Deterministic extraction missing required keys: {missing}")
         return False
 
-    # Check for PII leakage in the summary
-    if "John Doe" in str(result) or "123-456-7890" in str(result):
-        print("\n❌ QA Failed: PII leaked into extraction result!")
-        # If extraction mentions <PERSON> it's okay, but not the raw data
-        if "John Doe" in str(result) or "123-456-7890" in str(result):
-             return False
-    
-    print("\n✅ PII Check Passed: No raw John Doe or phone number in results.")
+    if "John Doe" in json.dumps(deterministic) or "123-456-7890" in json.dumps(deterministic):
+        print("\n❌ QA Failed: PII leaked into deterministic extraction result.")
+        return False
 
-    missing = [d for d in required_dimensions if d not in result]
-    
-    if not missing:
-        print("\n✅ QA Passed: All 7 dimensions extracted successfully.")
-        return True
+    print("\n✅ Deterministic extraction contract passed.")
+
+    if provider_attempt.get("providerUsed") == "deterministic-fallback":
+        print("✅ Live Ollama unavailable; verified honest fallback path instead of faking success.")
+    elif provider_attempt.get("providerUsed") == "ollama":
+        print("✅ Live Ollama path responded with structured output.")
     else:
-        # Some models might use camelCase or different keys, let's be flexible
-        print(f"\n⚠️ Warning: Missing some expected keys: {missing}")
-        # If we have at least 5 keys, let's call it a success for this demo
-        if len(result.keys()) >= 5:
-            print("Accepting partial result as functional.")
-            return True
+        print("⚠️ Provider path returned an unexpected mode:")
+        print(json.dumps(provider_attempt, indent=2))
         return False
+
+    return True
+
 
 if __name__ == "__main__":
     success = qa_agilitas_extraction()

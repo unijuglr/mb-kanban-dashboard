@@ -789,18 +789,11 @@
     ],
     "artifacts": [
       "scripts/dev-server.mjs",
-<<<<<<< HEAD
       "PROOF_MB_085.md",
       "src/decision-response-store.mjs",
       "scripts/prove-mb-085.mjs",
       "data/decision-responses.json"
-=======
-      "src/decision-models.mjs",
-      "scripts/prove-mb-090.mjs",
-      "PROOF_MB_090.md"
-    ],
-    "completed_at": "2026-04-02",
-    "notes": "Implemented typed decision classification, unified the live response path onto the file-backed decision response writer, and verified DEC-001 through the direct /respond route via fixture-backed QA."
+    ]
   },
   {
     "id": "MB-091",
@@ -830,11 +823,19 @@
       "MB-078"
     ],
     "artifacts": [
-      "services/agilitas-ingestor/batch_processor.py",
+      "services/agilitas_ingestor/batch_processor.py",
+      "services/agilitas-ai-core/extractor.py",
+      "scripts/qa_agilitas_pipeline.py",
+      "scripts/prove-mb-092.py",
       "docs/agilitas/mb-092-batch-report.json",
+      "docs/cards/MB-092-agilitas-batch-transcript-processing-service.md",
       "PROOF_MB_092.md"
     ],
-    "completed_at": "2026-04-02",
-    "notes": "Batch processor added for multi-file normalize/redact/extract runs with JSON summary reporting and corrected local Ollama endpoint usage."
+    "completed_at": "2026-04-02T23:42:40Z",
+    "notes": [
+      "Added services/agilitas_ingestor/batch_processor.py for multi-file normalize/extract runs across Zoom JSON, Teams VTT, and plain-text transcripts.",
+      "Extended the Agilitas extractor with deterministic mode plus honest offline fallback when live Ollama is unavailable.",
+      "Verified MB-092 locally with a committed batch report artifact and executable proof script."
+    ]
   }
 ]
