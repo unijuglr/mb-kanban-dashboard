@@ -1,0 +1,22 @@
+franchises:
+  star_wars:
+    source: "Wookieepedia"
+    id_prefix: "SWLN"
+    infobox_patterns:
+      - "Character"
+      - "Planet"
+      - "Starship"
+    link_regex: "\\[\\[(.*?)\\]\\]"
+  star_trek:
+    source: "Memory Alpha"
+    id_prefix: "STLN"
+    infobox_patterns:
+      - "Character"
+      - "Starship"
+      - "Species"
+    link_regex: "\\[\\[(.*?)\\]\\]"
+  default:
+    source: "Generic Wikitext"
+    id_prefix: "OLID"
+    infobox_patterns: []
+    link_regex: "\\[\\[(.*?)\\]\\]"

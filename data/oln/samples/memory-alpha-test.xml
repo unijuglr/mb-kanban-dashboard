@@ -1,0 +1,47 @@
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xml:lang="en">
+  <page>
+    <title>James T. Kirk</title>
+    <ns>0</ns>
+    <id>1234</id>
+    <revision>
+      <id>5678</id>
+      <timestamp>2024-01-01T00:00:00Z</timestamp>
+      <contributor>
+        <username>StarfleetCommand</username>
+        <id>1</id>
+      </contributor>
+      <comment>Initial captain entry</comment>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text xml:space="preserve">
+{{Character
+| name = James T. Kirk
+| rank = Captain
+| assignment = USS Enterprise
+}}
+'''James Tiberius Kirk''' was a celebrated [[Starfleet]] officer.
+He commanded the [[USS Enterprise (NCC-1701)]].
+Kirk was born in [[Riverside, Iowa]].
+      </text>
+      <sha1>abcdef123456</sha1>
+    </revision>
+  </page>
+  <page>
+    <title>USS Enterprise (NCC-1701)</title>
+    <ns>0</ns>
+    <id>1235</id>
+    <revision>
+      <id>5679</id>
+      <timestamp>2024-01-01T01:00:00Z</timestamp>
+      <text xml:space="preserve">
+{{Starship
+| name = USS Enterprise
+| class = Constitution
+| registry = NCC-1701
+}}
+The '''USS Enterprise''' was a Federation [[Constitution-class]] heavy cruiser.
+It was commanded by [[Christopher Pike]] and later [[James T. Kirk]].
+      </text>
+    </revision>
+  </page>
+</mediawiki>
