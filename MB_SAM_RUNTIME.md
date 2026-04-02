@@ -1,34 +1,31 @@
-# MB-Sam Runtime
+# MB-SAM-RUNTIME: Overnight Swarm Manager Update (2026-04-01 20:00 PT)
 
-## Mission
-Operate the MB workstream without requiring Prime Sam to manually decide every next step.
+## Summary
+The Motherbrain project ecosystem is currently in a "Wave 1" completion state.
+The primary focus has shifted to "Wave 2" (OLN, Agilitas, AI-Bitz) while maintaining Wave 1 stability.
 
-## Inputs
-- `mb_tasks.json`
-- `docs/metrics-baseline.md`
-- repo working tree
-- proof files
+## Recently Completed (Wave 1)
+- **MB-060/061/062**: Fully completed. Wave 1 code is merged to `main` and pushed.
+- **Cleanup**: Stale `proof:mb-020` scripts have been reconciled.
+- **Persistence**: Metrics, Write paths, and Template-based card/decision creation are live.
 
-## Required loop
-1. read task state
-2. identify ready tasks whose dependencies are done
-3. assign only unowned/ready work
-4. require artifact + proof for completion
-5. update task state
-6. recommend next work
+## Active Swarm (Wave 2)
+- **MB-032 (OLN Infrastructure)**: [IN PROGRESS] 
+  - **Branch**: `mb-032-oln-infra-setup`
+  - **Status**: Initialized infrastructure plan for Motherbrain (Mac Studio).
+  - **Next**: `docker-compose.yaml` for Neo4j, Temporal, and Redis on RAID volume.
+- **MB-027 (OLN Architecture)**: [DONE] 
+  - Architecture delivered in `docs/oln/architecture.md`.
 
-## Completion rule
-A task is not done unless:
-- artifact exists
-- proof file exists
-- task state updated
+## QA & Proof Status
+- **Wave 1 Proofs**: All passing (`mb-011` through `mb-053`).
+- **Wave 2 Proofs**: Pending implementation.
 
-## Current Status (2026-04-01 19:40 PT)
-- Wave 1 functionality complete (Board, Metrics, Decisions, Updates, Writes).
-- MB-060 (E2E QA) and MB-061 (Cleanup) are functionally complete.
-- Branch `sam/mb-wave-20260331-commit` is current and pushed to origin.
-- Next primary action: MB-062 (GitHub Push Preparation).
+## Blockers & Notes
+- **DTS Work**: Explicitly excluded per policy.
+- **Motherbrain Storage**: `/Volumes/hellastuff 1` confirmed as primary 31TB RAID target for OLN.
+- **Cost Discipline**: All work using local or existing free-tier services.
 
-## Next focus
-- MB-062
-- Wave 2 Planning (Agilitas, HellaThis, Ai-Bitz execution)
+## Next Meaningful Update
+- **Target**: Thursday, April 2nd, 2026 — 09:00 AM PT
+- **Goal**: Initial `docker-compose` setup on Motherbrain.
