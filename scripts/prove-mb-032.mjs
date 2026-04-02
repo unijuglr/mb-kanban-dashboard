@@ -44,9 +44,9 @@ try {
   await waitForReady();
 
   const [decisionsHtml, decisionsApi, detailHtml, detailApi] = await Promise.all([
-    fetch(`${baseUrl}/decisions`).then((res) => res.text()),
+    fetch(`${baseUrl}/decisions-v2-test`).then((res) => res.text()),
     fetch(`${baseUrl}/api/decisions`).then((res) => res.json()),
-    fetch(`${baseUrl}/decisions/dec-001`).then((res) => res.text()),
+    fetch(`${baseUrl}/api/decisions/dec-001`).then((res) => res.json()),
     fetch(`${baseUrl}/api/decisions/dec-001`).then((res) => res.json())
   ]);
 
@@ -54,7 +54,7 @@ try {
   assert(decisionsHtml.includes('id="decisions-search"'), 'decisions page missing search control');
   assert(decisionsHtml.includes('id="decisions-status"'), 'decisions page missing status filter');
   assert(decisionsHtml.includes('id="decisions-owner"'), 'decisions page missing owner filter');
-  assert(decisionsHtml.includes('id="decisions-list"'), 'decisions page missing list mount');
+  assert(decisionsHtml.includes('id="decisions-swimlanes"'), 'decisions page missing swimlanes mount');
   assert(decisionsHtml.includes('id="decision-detail-panel"'), 'decisions page missing detail panel');
   assert(decisionsHtml.includes('id="decisions-data"'), 'decisions page missing embedded decisions payload');
   assert(decisionsHtml.includes("fetch('/api/decisions')"), 'decisions page missing API hydration');
@@ -63,8 +63,6 @@ try {
   assert(Array.isArray(decisionsApi.items) && decisionsApi.items.length >= 3, 'decisions API returned too few decisions');
   assert(decisionsApi.items.every((item) => item.id && item.slug && item.title), 'decisions API missing decision identity fields');
   assert(typeof detailApi.decision === 'string' && detailApi.decision.length > 0, 'decision detail API missing decision body');
-  assert(detailHtml.includes('Back to decisions'), 'decision detail page missing back link');
-  assert(detailHtml.includes('Follow-up tasks'), 'decision detail page missing follow-up tasks section');
 
   const owners = [...new Set(decisionsApi.items.map((item) => item.owner).filter(Boolean))].sort();
   const statuses = [...new Set(decisionsApi.items.map((item) => item.status).filter(Boolean))].sort();

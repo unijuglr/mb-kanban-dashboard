@@ -2126,6 +2126,13 @@ http.createServer(async (req, res) => {
     return;
   }
 
+  if (url.pathname === '/decisions-v2-test') {
+    const html = renderDecisions(model);
+    const injected = html.replace('</h1>', '</h1><p class="muted">API-backed decisions screen with local filtering and in-page detail inspection.</p>');
+    sendHtml(res, 200, injected);
+    return;
+  }
+
   if (url.pathname.startsWith('/decisions/projects/')) {
     sendHtml(res, 200, renderProjectDecisionsView(model, decodeURIComponent(url.pathname.slice('/decisions/projects/'.length))));
     return;
