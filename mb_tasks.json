@@ -870,5 +870,48 @@
       "src/metrics-api.mjs",
       "PROOF_MB_084.md"
     ]
+  },
+  {
+    "id": "MB-090",
+    "title": "Decisions UI: Typed components and FormData submission fix",
+    "state": "done",
+    "owner": "Coder-1",
+    "depends_on": [
+      "MB-085"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "src/decision-models.mjs",
+      "scripts/prove-mb-090.mjs",
+      "PROOF_MB_090.md"
+    ],
+    "completed_at": "2026-04-02",
+    "notes": "Implemented typed decision classification, unified the live response path onto the file-backed decision response writer, and verified DEC-001 through the direct /respond route via fixture-backed QA."
+  },
+  {
+    "id": "MB-091",
+    "title": "OLN: Large-scale ingestion harness (50+ pages)",
+    "state": "ready",
+    "owner": "Coder-3",
+    "depends_on": [
+      "MB-088"
+    ],
+    "artifacts": [
+      "scripts/run_bulk_ingest.py",
+      "PROOF_MB_091.md"
+    ]
+  },
+  {
+    "id": "MB-092",
+    "title": "Agilitas: Batch transcript processing service",
+    "state": "ready",
+    "owner": "Coder-4",
+    "depends_on": [
+      "MB-078"
+    ],
+    "artifacts": [
+      "services/agilitas-ingestor/batch_processor.py",
+      "PROOF_MB_092.md"
+    ]
   }
 ]

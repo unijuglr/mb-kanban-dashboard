@@ -5,6 +5,7 @@ import { findBySlug, loadDashboardModel } from '../src/app-data.mjs';
 import { allowedNextStatuses, createCardFromTemplate, transitionCardStatus } from '../src/card-writes.mjs';
 import { createDecisionFromTemplate } from '../src/decision-writes.mjs';
 import { appendDecisionResponse } from '../src/decision-response-writes.mjs';
+import { classifyDecisionType, latestDecisionResponse } from '../src/decision-models.mjs';
 import { appendUpdate } from '../src/update-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
 
@@ -1669,26 +1670,27 @@ function renderDecisions(model) {
           }
 
           function renderDecisionActionComposerClient(decision) {
-            const optionsList = Array.isArray(decision.optionsList) ? decision.optionsList : [];
+            const decisionType = decision.decisionType || { label: 'Nuanced', options: [], allowsBinary: false, allowsOptionSelection: false };
+            const optionsList = Array.isArray(decisionType.options) ? decisionType.options : [];
             const responses = Array.isArray(decision.responses) ? decision.responses : [];
             const responseMarkup = responses.length
               ? '<div class="stack" style="margin-top: 12px;">' + responses.slice().reverse().map((response) => '<article class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;"><strong>' + esc(response.outcome || response.selectedOption || 'Nuanced response') + '</strong><span class="tiny muted">' + esc(response.createdAt || '') + '</span></div><div class="tiny muted">' + esc(response.responder || 'MB Operator') + (response.selectedOption ? ' · Option: ' + esc(response.selectedOption) : '') + '</div>' + (response.notes ? '<p style="margin:8px 0 0;">' + esc(response.notes) + '</p>' : '<p class="muted tiny" style="margin:8px 0 0;">No notes added.</p>') + '</article>').join('') + '</div>'
               : '<p class="muted">No responses recorded yet. Use the controls above.</p>';
             return '<section class="panel">'
               + '<div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">'
-              + '<div><h3>Respond here</h3><p class="muted">This URL is actionable: approve, reject, choose an option, or leave nuanced notes.</p></div>'
+              + '<div><h3>Respond here</h3><p class="muted">Type: ' + esc(decisionType.label || 'Nuanced') + '. Notes are always available; controls only expose what this decision actually needs.</p></div>'
               + '<div class="chip" style="margin-right:0;">Action required</div>'
               + '</div>'
               + '<form data-decision-response-form="' + esc(decision.slug) + '" class="stack" style="margin-top:12px;">'
-              + '<div class="button-row">'
-              + '<button class="button" type="button" data-decision-outcome="approve">Yes / Approve</button>'
-              + '<button class="button" type="button" data-decision-outcome="reject">No / Reject</button>'
-              + '<button class="button" type="button" data-decision-outcome="note">Notes only</button>'
-              + '</div>'
+              + (decisionType.allowsBinary
+                  ? '<div class="button-row"><button class="button" type="button" data-decision-outcome="approve">Yes / Approve</button><button class="button" type="button" data-decision-outcome="reject">No / Reject</button><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>'
+                  : decisionType.allowsOptionSelection
+                    ? '<div class="button-row"><span class="chip" style="margin-right:0;">Choose an option below, then save</span><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>'
+                    : '<div class="button-row"><span class="chip" style="margin-right:0;">Nuanced response</span><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>')
               + '<input type="hidden" name="outcome" value="" />'
-              + (optionsList.length
-                  ? '<label class="stack"><span class="muted">Choose one of the recorded options</span><select name="selectedOption"><option value="">No option selected</option>' + optionsList.map((option) => '<option value="' + esc(option.title) + '">' + esc(option.title) + '</option>').join('') + '</select></label>'
-                  : '<p class="muted tiny">No structured options were parsed for this decision. Approve/reject/notes still work.</p>')
+              + (decisionType.allowsOptionSelection
+                  ? '<label class="stack"><span class="muted">Choose one of the recorded options</span><select name="selectedOption"><option value="">No option selected</option>' + optionsList.map((option) => '<option value="' + esc(option) + '">' + esc(option) + '</option>').join('') + '</select></label>'
+                  : '')
               + '<label class="stack"><span class="muted">Notes / nuance (always available)</span><textarea name="notes" placeholder="Why this call makes sense, caveats, partial approval, follow-up asks, etc."></textarea></label>'
               + '<label class="stack"><span class="muted">Responder</span><input name="responder" type="text" value="MB Operator" /></label>'
               + '<div class="button-row"><button class="button" type="submit">Save response</button></div>'
@@ -1976,7 +1978,8 @@ function renderDecisionSwimlane(projectName, decisions, selectedSlug) {
 }
 
 function renderDecisionActionComposer(decision, { compact = false } = {}) {
-  const optionsList = Array.isArray(decision.optionsList) ? decision.optionsList : [];
+  const decisionType = classifyDecisionType(decision);
+  const optionsList = Array.isArray(decisionType.options) ? decisionType.options : [];
   const responses = Array.isArray(decision.responses) ? decision.responses : [];
   const responseItems = responses.length
     ? `<div class="stack" style="margin-top: 12px;">${responses.slice().reverse().map((response) => `<article class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;"><strong>${escapeHtml(response.outcome || response.selectedOption || 'Nuanced response')}</strong><span class="tiny muted">${escapeHtml(response.createdAt || '')}</span></div><div class="tiny muted">${escapeHtml(response.responder || 'MB Operator')}${response.selectedOption ? ` · Option: ${escapeHtml(response.selectedOption)}` : ''}</div>${response.notes ? `<p style="margin:8px 0 0;">${escapeHtml(response.notes)}</p>` : '<p class="muted tiny" style="margin:8px 0 0;">No notes added.</p>'}</article>`).join('')}</div>`
@@ -1986,18 +1989,18 @@ function renderDecisionActionComposer(decision, { compact = false } = {}) {
     <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">
       <div>
         <h2>${compact ? 'Respond here' : 'Respond to this decision'}</h2>
-        <p class="muted">Direct operator controls: approve, reject, choose an option, or leave nuanced notes.</p>
+        <p class="muted">Type: ${escapeHtml(decisionType.label)}. Notes are always available; controls only expose what this decision actually needs.</p>
       </div>
       <div class="chip" style="margin-right:0;">Durably saved</div>
     </div>
     <form data-decision-response-form="${escapeHtml(decision.slug)}" class="stack" style="margin-top:12px;">
-      <div class="button-row">
+      ${decisionType.allowsBinary ? `<div class="button-row">
         <button class="button" type="button" data-decision-outcome="approve">Yes / Approve</button>
         <button class="button" type="button" data-decision-outcome="reject">No / Reject</button>
         <button class="button" type="button" data-decision-outcome="note">Notes only</button>
-      </div>
+      </div>` : decisionType.allowsOptionSelection ? `<div class="button-row"><span class="chip" style="margin-right:0;">Choose an option below, then save</span><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>` : `<div class="button-row"><span class="chip" style="margin-right:0;">Nuanced response</span><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>`}
       <input type="hidden" name="outcome" value="" />
-      ${optionsList.length ? `<label class="stack"><span class="muted">Choose one of the recorded options</span><select name="selectedOption"><option value="">No option selected</option>${optionsList.map((option) => `<option value="${escapeHtml(option.title)}">${escapeHtml(option.title)}</option>`).join('')}</select></label>` : '<p class="muted tiny">No structured options were parsed for this decision. Approve/reject/notes still work.</p>'}
+      ${decisionType.allowsOptionSelection ? `<label class="stack"><span class="muted">Choose one of the recorded options</span><select name="selectedOption"><option value="">No option selected</option>${optionsList.map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join('')}</select></label>` : ''}
       <label class="stack"><span class="muted">Notes / nuance (always available)</span><textarea name="notes" placeholder="Why this call makes sense, caveats, partial approval, follow-up asks, etc."></textarea></label>
       <label class="stack"><span class="muted">Responder</span><input name="responder" type="text" value="MB Operator" /></label>
       <div class="button-row">
@@ -2491,6 +2494,8 @@ function cardApiShape(card) {
 }
 
 function decisionApiShape(decision) {
+  const decisionType = classifyDecisionType(decision);
+  const responseHistory = Array.isArray(decision.responses) ? decision.responses : [];
   return {
     id: decision.id,
     slug: decision.slug,
@@ -2505,7 +2510,10 @@ function decisionApiShape(decision) {
     decision: decision.decision,
     consequences: decision.consequences,
     followUpTasks: decision.followUpTasks,
-    responses: decision.responses,
+    responses: responseHistory,
+    latestResponse: latestDecisionResponse(decision),
+    responseHistory,
+    decisionType,
     filePath: decision.filePath
   };
 }
@@ -2584,14 +2592,6 @@ function updateApiShape(update) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
   const model = loadDashboardModel(root);
-  model.decisions = model.decisions.map((decision) => {
-    const responseEnvelope = loadDecisionResponseEnvelope(root, decision.slug);
-    return {
-      ...decision,
-      latestResponse: responseEnvelope.latest,
-      responseHistory: responseEnvelope.responses
-    };
-  });
   const metricsLimit = Math.max(1, Math.min(200, Number(url.searchParams.get('limit') || 50)));
 
   if (req.method === 'POST' && url.pathname === '/api/cards') {
@@ -2638,9 +2638,21 @@ const server = http.createServer(async (req, res) => {
 
     try {
       const body = await readJsonBody(req);
-      const result = appendDecisionResponse(root, slug, body);
-      const refreshedEnvelope = loadDecisionResponseEnvelope(root, slug);
-      json(res, 201, { ok: true, ...result, latestResponse: refreshedEnvelope.latest, responseHistory: refreshedEnvelope.responses });
+      const result = appendDecisionResponse({
+        rootDir: root,
+        slug,
+        outcome: body.action || body.outcome,
+        selectedOption: body.option || body.selectedOption,
+        notes: body.note || body.notes,
+        responder: body.actor || body.responder
+      });
+      if (!result.ok) {
+        json(res, result.statusCode || 400, result);
+        return;
+      }
+      const refreshedModel = loadDashboardModel(root);
+      const refreshedDecision = findBySlug(refreshedModel.decisions, slug);
+      json(res, result.statusCode || 201, { ...result, decision: refreshedDecision ? decisionApiShape(refreshedDecision) : null });
     } catch (error) {
       json(res, 400, { ok: false, error: error.message });
     }
