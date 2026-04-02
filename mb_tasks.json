@@ -123,6 +123,21 @@
     ]
   },
   {
+    "id": "MB-028",
+    "title": "OLN Ingestor Parser Skeleton & Test Files",
+    "state": "in_progress",
+    "owner": "agent:main:subagent:1706bec3-da79-4846-8dee-0a0a816b79c5",
+    "depends_on": [
+      "MB-027"
+    ],
+    "artifacts": [
+      "services/oln-ingestor/parser.py",
+      "data/oln/samples/wookieepedia-test.xml",
+      "scripts/prove-mb-028.py",
+      "PROOF_MB_028.md"
+    ]
+  },
+  {
     "id": "MB-030",
     "title": "Board screen",
     "state": "done",
