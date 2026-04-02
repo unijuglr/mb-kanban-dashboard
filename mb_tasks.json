@@ -608,5 +608,18 @@
       "scripts/prove-mb-038.py",
       "PROOF_MB_038.md"
     ]
+  },
+  {
+    "id": "MB-070",
+    "title": "Implement Hourly Utilization Chart on Metrics Page",
+    "state": "ready",
+    "owner": "Coder-1",
+    "depends_on": [
+      "MB-020"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "src/metrics-api.mjs"
+    ]
   }
 ]
