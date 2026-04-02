@@ -1,6 +1,6 @@
 # MB-053 — Agilitas: Engineering: Observability & Token-Cost Controls
 
-Status: Ready
+Status: Done
 Priority: P2 medium
 Project: Agilitas Solutions
 Owner: Adam Goldband

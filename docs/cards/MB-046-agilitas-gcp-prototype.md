@@ -1,6 +1,6 @@
 # MB-046 — Agilitas: Infrastructure: GCP Demoable Prototype (Functional MVP)
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: Agilitas Solutions
 Owner: Adam Goldband

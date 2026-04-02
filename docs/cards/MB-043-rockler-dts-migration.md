@@ -1,6 +1,6 @@
 # MB-043 — Rockler: DTS: Migration Strategy
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: Rockler DTS
 Owner: Adam Goldband

@@ -1,6 +1,6 @@
 # MB-044 — Evaluation: Local Model Bake-off
 
-Status: Ready
+Status: Done
 Priority: P3 low
 Project: Model Bake-off
 Owner: Prime Sam

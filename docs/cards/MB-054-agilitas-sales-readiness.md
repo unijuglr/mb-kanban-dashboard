@@ -1,6 +1,6 @@
 # MB-054 — Agilitas: Sales: Demo Dataset & Readiness
 
-Status: Ready
+Status: Done
 Priority: P3 low
 Project: Agilitas Solutions
 Owner: Adam Goldband

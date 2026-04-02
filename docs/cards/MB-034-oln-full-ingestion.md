@@ -1,6 +1,6 @@
 # MB-034 — OLN: Operations: Full Ingestion Pipeline Run
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: OLN
 Owner: Prime Sam

@@ -1,6 +1,6 @@
 # MB-033 — OLN: Validation: Data Quality & Factual Consistency
 
-Status: Ready
+Status: Done
 Priority: P2 medium
 Project: OLN
 Owner: Prime Sam

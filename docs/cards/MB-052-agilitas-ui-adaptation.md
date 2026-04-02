@@ -1,6 +1,6 @@
 # MB-052 — Agilitas: UI: Adaptation from poc-ui & CMS
 
-Status: Ready
+Status: Done
 Priority: P2 medium
 Project: Agilitas Solutions
 Owner: Adam Goldband

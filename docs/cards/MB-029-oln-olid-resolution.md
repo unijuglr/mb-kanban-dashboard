@@ -1,6 +1,6 @@
 # MB-029 — OLN: Resolution: OLID Generation & Entity Linking
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: OLN
 Owner: Prime Sam

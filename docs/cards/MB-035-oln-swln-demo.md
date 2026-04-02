@@ -1,6 +1,6 @@
 # MB-035 — OLN: Demo: Star Wars Lore Network (SWLN) MVP
 
-Status: Ready
+Status: Done
 Priority: P2 medium
 Project: OLN
 Owner: Prime Sam

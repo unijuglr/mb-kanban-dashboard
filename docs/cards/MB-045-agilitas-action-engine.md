@@ -1,6 +1,6 @@
 # MB-045 — Agilitas: Actions & Outcomes: Inner/Outer Loop Engine
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: Agilitas Solutions
 Owner: Adam Goldband

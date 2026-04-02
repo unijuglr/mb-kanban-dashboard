@@ -1,6 +1,6 @@
 # MB-032 — OLN: Infrastructure: Motherbrain (Mac Studio) Setup
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: OLN
 Owner: Prime Sam

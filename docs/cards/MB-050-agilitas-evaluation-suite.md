@@ -1,6 +1,6 @@
 # MB-050 — Agilitas: Evaluation: Golden Dataset & Regression Testing
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: Agilitas Solutions
 Owner: Adam Goldband

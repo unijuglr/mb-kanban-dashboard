@@ -1,6 +1,6 @@
 # MB-003 — Verify active Ollama data path
 
-Status: Ready
+Status: Done
 Priority: P0 critical
 Owner: Prime Sam
 Created: 2026-03-30

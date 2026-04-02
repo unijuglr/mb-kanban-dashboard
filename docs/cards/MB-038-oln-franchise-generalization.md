@@ -1,6 +1,6 @@
 # MB-038 — OLN: Scale: Franchise Generalization (beyond Star Wars)
 
-Status: Ready
+Status: Done
 Priority: P3 low
 Project: OLN
 Owner: Prime Sam

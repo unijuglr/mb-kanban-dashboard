@@ -1,6 +1,6 @@
 # MB-041 — HellaThis: Relaunch Strategy: Fact-Driven Search
 
-Status: Ready
+Status: Done
 Priority: P2 medium
 Project: HellaThis
 Owner: Adam Goldband

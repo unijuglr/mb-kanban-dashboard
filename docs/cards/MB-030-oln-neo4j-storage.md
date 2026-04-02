@@ -1,6 +1,6 @@
 # MB-030 — OLN: Storage: Neo4j Graph Schema & Insertion
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: OLN
 Owner: Prime Sam

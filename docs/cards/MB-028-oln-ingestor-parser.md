@@ -1,6 +1,6 @@
 # MB-028 — OLN: Ingestion: Wikitext to Graph Parser (Node/Python)
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: OLN
 Owner: Prime Sam

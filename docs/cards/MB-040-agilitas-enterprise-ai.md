@@ -1,6 +1,6 @@
 # MB-040 — Agilitas: Engineering: Deterministic Scoring & Business Logic
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: Agilitas Solutions
 Owner: Adam Goldband

@@ -1,6 +1,6 @@
 # MB-036 — OLN: Scale: Incremental Updates & Delta Ingestion
 
-Status: In Progress
+Status: Done
 Priority: P3 low
 Project: OLN
 Owner: Prime Sam

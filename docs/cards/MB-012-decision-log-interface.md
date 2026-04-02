@@ -1,6 +1,6 @@
 # MB-012 — Create decision log interface
 
-Status: Ready
+Status: Done
 Priority: P1 important
 Owner: Prime Sam
 Created: 2026-03-30

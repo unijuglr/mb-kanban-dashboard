@@ -1,6 +1,6 @@
 # MB-051 — Agilitas: Deployment: Motherbrain Local Environment Setup
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: Agilitas Solutions
 Owner: Adam Goldband

@@ -1,6 +1,6 @@
 # MB-001 — Decide Motherbrain authority model
 
-Status: Ready
+Status: Done
 Priority: P0 critical
 Owner: Adam + Prime Sam
 Created: 2026-03-30

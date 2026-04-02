@@ -1,6 +1,6 @@
 # MB-031 — OLN: Orchestration: Temporal Worker for Ingestion Pipeline
 
-Status: Ready
+Status: Done
 Priority: P2 medium
 Project: OLN
 Owner: Prime Sam
