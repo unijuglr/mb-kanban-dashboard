@@ -11,10 +11,10 @@ services:
       - NEO4J_AUTH=neo4j/password # Default: user needs to change on first login or via env
       - NEO4J_PLUGINS=["apoc"]
     volumes:
-      - /Volumes/hellastuff/oln/neo4j/data:/data
-      - /Volumes/hellastuff/oln/neo4j/logs:/logs
-      - /Volumes/hellastuff/oln/neo4j/import:/var/lib/neo4j/import
-      - /Volumes/hellastuff/oln/neo4j/plugins:/plugins
+      - ${OLN_BASE_VOLUME:-/Volumes/hellastuff/oln}/neo4j/data:/data
+      - ${OLN_BASE_VOLUME:-/Volumes/hellastuff/oln}/neo4j/logs:/logs
+      - ${OLN_BASE_VOLUME:-/Volumes/hellastuff/oln}/neo4j/import:/var/lib/neo4j/import
+      - ${OLN_BASE_VOLUME:-/Volumes/hellastuff/oln}/neo4j/plugins:/plugins
     networks:
       - oln-network
     restart: unless-stopped
@@ -27,7 +27,7 @@ services:
       - POSTGRES_PASSWORD=temporal
       - POSTGRES_DB=temporal
     volumes:
-      - /Volumes/hellastuff/oln/temporal/postgres-data:/var/lib/postgresql/data
+      - ${OLN_BASE_VOLUME:-/Volumes/hellastuff/oln}/temporal/postgres-data:/var/lib/postgresql/data
     networks:
       - oln-network
     restart: unless-stopped

@@ -64,6 +64,12 @@ sed -n '1,220p' infra/motherbrain/setup.sh
 ```
 Pass condition: compose and setup script point at the same storage root you will actually use.
 
+If Motherbrain needs the alternate volume root, create an env file first:
+```bash
+cp infra/motherbrain/oln.env.example infra/motherbrain/oln.env
+# then edit OLN_BASE_VOLUME if needed
+```
+
 ### 5. Confirm Neo4j ports are free or acceptable
 ```bash
 lsof -i :7474
@@ -82,11 +88,11 @@ If the storage root in `setup.sh` is wrong, fix that before running it.
 ### 2. Start Neo4j stack
 From repo root:
 ```bash
-docker compose -f infra/motherbrain/docker-compose.yaml up -d neo4j
+docker compose --env-file infra/motherbrain/oln.env -f infra/motherbrain/docker-compose.yaml up -d neo4j
 ```
 Optional, not required for first ingest:
 ```bash
-docker compose -f infra/motherbrain/docker-compose.yaml up -d temporal temporal-postgresql temporal-ui
+docker compose --env-file infra/motherbrain/oln.env -f infra/motherbrain/docker-compose.yaml up -d temporal temporal-postgresql temporal-ui
 ```
 
 ### 3. Wait for Neo4j readiness
