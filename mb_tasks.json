@@ -442,6 +442,21 @@
     ]
   },
   {
+    "id": "MB-048",
+    "title": "Agilitas: Ingestion: Transcript Normalization Pipeline",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039"
+    ],
+    "artifacts": [
+      "services/agilitas_ingestor/normalizer.py",
+      "scripts/test_agilitas_ingestor.py",
+      "docs/agilitas/unified-schema.json",
+      "PROOF_MB_048.md"
+    ]
+  },
+  {
     "id": "MB-049",
     "title": "Agilitas: Security: PII Redaction Strategy (Presidio / GCP DLP)",
     "state": "done",
