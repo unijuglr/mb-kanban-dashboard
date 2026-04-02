@@ -891,14 +891,20 @@
   {
     "id": "MB-091",
     "title": "OLN: Large-scale ingestion harness (50+ pages)",
-    "state": "ready",
-    "owner": "Coder-3",
+    "state": "done",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-088"
     ],
     "artifacts": [
       "scripts/run_bulk_ingest.py",
       "PROOF_MB_091.md"
+    ],
+    "completed_at": "2026-04-02T22:25:00Z",
+    "notes": [
+      "Added scripts/run_bulk_ingest.py for chunked 50+ page OLN ingest into Neo4j.",
+      "Upgraded Neo4j batch_merge to use chunked UNWIND writes for better local performance.",
+      "Verified with a 60-page Wookieepedia MediaWiki XML subset and stable rerun counts."
     ]
   },
   {
