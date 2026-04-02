@@ -12,8 +12,9 @@ The primary focus has shifted to "Wave 2" (OLN, Agilitas, AI-Bitz) while maintai
 ## Active Swarm (Wave 2)
 - **MB-032 (OLN Infrastructure)**: [IN PROGRESS] 
   - **Branch**: `mb-032-oln-infra-setup`
-  - **Status**: Initialized infrastructure plan for Motherbrain (Mac Studio).
-  - **Next**: `docker-compose.yaml` for Neo4j, Temporal, and Redis on RAID volume.
+  - **Status**: Implemented `docker-compose.yaml` and `setup.sh`. Scripts pushed to GitHub and deployed to Motherbrain.
+  - **Action**: Awaiting permission fix for `docker.sock` on Motherbrain to trigger container start.
+  - **Next**: Run `setup.sh` on Motherbrain and start services.
 - **MB-027 (OLN Architecture)**: [DONE] 
   - Architecture delivered in `docs/oln/architecture.md`.
 

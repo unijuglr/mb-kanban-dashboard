@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HellaThis Search API Response",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string"
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "olid": {
+            "type": "string",
+            "pattern": "^olid:[a-zA-Z0-9_-]+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PERSON",
+              "ORGANIZATION",
+              "PRODUCT",
+              "CONCEPT",
+              "LOCATION"
+            ]
+          },
+          "facts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "predicate": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "source_id": {
+                        "type": "string"
+                      },
+                      "source_type": {
+                        "type": "string"
+                      },
+                      "uri": {
+                        "type": "string",
+                        "format": "uri"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ranked_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "entity_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

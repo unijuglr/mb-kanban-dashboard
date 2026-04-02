@@ -1,0 +1,63 @@
+[
+  {
+    "id": "synthetic-001",
+    "transcript": "I've been trying to set up the dashboard for three hours. It's so frustrating because the documentation doesn't mention how to connect to our internal CRM. We were considering switching to Salesforce because they have a built-in connector, but your tool's UI is just so much cleaner. If you guys had a simple API endpoint for CRM syncing, it would be a game-changer.",
+    "expected_extraction": {
+      "sentiment": "Negative",
+      "pain_points": [
+        "Difficulty setting up the dashboard",
+        "Incomplete documentation",
+        "Lack of internal CRM integration"
+      ],
+      "emotion": "Frustration",
+      "effort": "High",
+      "competitors": [
+        "Salesforce"
+      ],
+      "innovation": [
+        "API endpoint for CRM syncing"
+      ],
+      "summary": "User is frustrated by setup difficulties and lack of CRM integration, considering Salesforce as an alternative but prefers current UI."
+    }
+  },
+  {
+    "id": "synthetic-002",
+    "transcript": "The new reporting feature is actually pretty good. It saved me at least two hours this morning compared to our old manual process with Excel. I'd love it if we could export these reports directly to PDF though. Right now, I have to take screenshots for my weekly sync with the VP of Engineering.",
+    "expected_extraction": {
+      "sentiment": "Positive",
+      "pain_points": [
+        "Lack of PDF export for reports",
+        "Manual screenshot process for reporting"
+      ],
+      "emotion": "Satisfaction / Mild Inconvenience",
+      "effort": "Low (for reporting), Medium (for sharing)",
+      "competitors": [
+        "Excel"
+      ],
+      "innovation": [
+        "Direct PDF export for reports"
+      ],
+      "summary": "User is pleased with the new reporting feature's time-saving benefits but requests PDF export functionality for easier sharing."
+    }
+  },
+  {
+    "id": "synthetic-003",
+    "transcript": "I'm not sure I understand how the user permissions work. Every time I try to add a new team member, it says 'unauthorized' even though I'm an admin. Is this a bug or am I missing something? Slack handles this so much better with their workspace-level roles.",
+    "expected_extraction": {
+      "sentiment": "Neutral / Negative",
+      "pain_points": [
+        "Confusion over user permissions",
+        "Unexpected 'unauthorized' errors for admins"
+      ],
+      "emotion": "Confusion",
+      "effort": "Medium",
+      "competitors": [
+        "Slack"
+      ],
+      "innovation": [
+        "Simplified workspace-level roles (similar to Slack)"
+      ],
+      "summary": "An admin user is experiencing confusion and errors while managing team permissions, citing Slack's model as a better implementation."
+    }
+  }
+]
