@@ -446,5 +446,19 @@
       "docs/oln/swln-demo-guide.md",
       "PROOF_MB_035.md"
     ]
+  },
+  {
+    "id": "MB-037",
+    "title": "OLN: Analysis: Graph Relationship Density & Quality",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "docs/oln/graph-analysis-v1.md",
+      "scripts/prove-mb-037.py",
+      "PROOF_MB_037.md"
+    ]
   }
 ]
