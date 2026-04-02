@@ -845,6 +845,7 @@ function renderCardDetail(model, slug) {
         <article class="card"><div class="muted tiny">Status</div><div class="kpi" id="card-status">${escapeHtml(card.status)}</div></article>
         <article class="card"><div class="muted tiny">Priority</div><div class="kpi" id="card-priority">${escapeHtml(card.priority)}</div></article>
         <article class="card"><div class="muted tiny">Owner</div><div class="kpi" style="font-size: 1.1rem;" id="card-owner">${escapeHtml(card.owner)}</div></article>
+        <article class="card"><div class="muted tiny">Project</div><div class="kpi" style="font-size: 1.1rem;" id="card-project-name">${escapeHtml(card.project)}</div></article>
         <article class="card"><div class="muted tiny">Last updated</div><div class="kpi" style="font-size: 1.1rem;" id="card-updated-at">${escapeHtml(card.updatedAt)}</div></article>
       </section>
       <section class="grid stats meta-grid">
@@ -889,6 +890,7 @@ function renderCardDetail(model, slug) {
           const statusEl = document.getElementById('card-status');
           const priorityEl = document.getElementById('card-priority');
           const ownerEl = document.getElementById('card-owner');
+          const projectEl = document.getElementById('card-project-name');
           const updatedEl = document.getElementById('card-updated-at');
           const objectiveEl = document.getElementById('card-objective');
           const whyEl = document.getElementById('card-why');
@@ -1009,6 +1011,7 @@ function renderCardDetail(model, slug) {
             statusEl.textContent = cardData.status || 'Unknown';
             priorityEl.textContent = cardData.priority || 'Unknown';
             ownerEl.textContent = cardData.owner || 'Unknown';
+            projectEl.textContent = cardData.project || 'Unknown';
             assignedCoderEl.textContent = cardData.assignedCoder || 'Unknown';
             startTimeEl.textContent = cardData.startTime || 'Unknown';
             estimateEl.textContent = cardData.estimate || 'Unknown';
