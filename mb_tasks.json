@@ -392,5 +392,22 @@
       "docs/cards/MB-062-github-push-preparation.md",
       ".gitignore"
     ]
+  },
+  {
+    "id": "MB-063",
+    "title": "Agilitas: Containerization of services",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-039",
+      "MB-040",
+      "MB-045"
+    ],
+    "artifacts": [
+      "infra/agilitas/Dockerfile.agilitas-core-ai",
+      "infra/agilitas/docker-compose.yaml",
+      "scripts/prove-mb-063.py",
+      "PROOF_MB_063.md"
+    ]
   }
 ]

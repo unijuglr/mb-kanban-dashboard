@@ -1,0 +1,37 @@
+# Agilitas Services Docker Compose
+# Use this for local containerized development or staging
+
+services:
+  agilitas-core-ai:
+    build:
+      context: ../../services/agilitas-ai-core
+      dockerfile: ../../infra/agilitas/Dockerfile.agilitas-core-ai
+    container_name: agilitas-core-ai
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    volumes:
+      - ../../services/agilitas-ai-core:/app
+    # command: python extractor.py
+
+  agilitas-business-engine:
+    build:
+      context: ../../services/agilitas-business-engine
+      dockerfile: ../../infra/agilitas/Dockerfile.agilitas-core-ai # Reuse slim python base
+    container_name: agilitas-business-engine
+    volumes:
+      - ../../services/agilitas-business-engine:/app
+    # command: python scoring_engine.py
+
+  agilitas-action-engine:
+    build:
+      context: ../../services/agilitas-action-engine
+      dockerfile: ../../infra/agilitas/Dockerfile.agilitas-core-ai # Reuse slim python base
+    container_name: agilitas-action-engine
+    volumes:
+      - ../../services/agilitas-action-engine:/app
+    # command: python generator.py
+
+# Common network for Agilitas services
+networks:
+  default:
+    name: agilitas-network

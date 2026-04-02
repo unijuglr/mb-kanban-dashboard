@@ -1,0 +1,26 @@
+# Use a slim Python base image
+FROM python:3.12-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies if needed (e.g., for certain python libs)
+# RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements if they exist (otherwise we'll manually install for now)
+# COPY requirements.txt .
+# RUN pip install --no-cache-dir -r requirements.txt
+
+# For the skeleton, we'll just install common dependencies used in the services
+RUN pip install --no-cache-dir requests
+
+# Copy the service code
+# This expects the build context to be the project root or specifically the service dir
+# We'll set it up so we copy from the specific service directory
+COPY . .
+
+# Default environment variables
+ENV PYTHONUNBUFFERED=1
+
+# The command to run (will be overridden by docker-compose)
+CMD ["python", "extractor.py"]
