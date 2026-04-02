@@ -14,7 +14,7 @@ class AgilitasLLMClient:
         self.project_id = os.getenv("GCP_PROJECT_ID")
         self.location = os.getenv("GCP_LOCATION", "us-central1")
 
-    def call_ollama(self, prompt, model="llama3"):
+    def call_ollama(self, prompt, model="llama3.2:latest"):
         """
         Calls local Ollama instance via the MB tunnel (port 11435).
         """
@@ -24,7 +24,7 @@ class AgilitasLLMClient:
             "stream": False
         }
         try:
-            response = requests.post(self.ollama_endpoint, json=payload, timeout=30)
+            response = requests.post(self.ollama_endpoint, json=payload, timeout=60)
             response.raise_for_status()
             return response.json().get("response", "")
         except requests.exceptions.RequestException as e:
@@ -80,7 +80,7 @@ class AgilitasLLMClient:
         Unified completion method.
         """
         if provider == "ollama":
-            target_model = model if model else "llama3"
+            target_model = model if model else "llama3.2:latest"
             return self.call_ollama(prompt, model=target_model)
         elif provider == "vertex":
             target_model = model if model else "gemini-1.5-flash"
