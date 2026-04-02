@@ -3,17 +3,17 @@
     "Luke Skywalker": {
       "rev_id": "1003",
       "timestamp": "2026-04-02T12:00:00Z",
-      "last_ingested": "2026-04-02T06:20:59.722052"
+      "last_ingested": "2026-04-02T07:32:23.152911"
     },
     "Han Solo": {
       "rev_id": "1002",
       "timestamp": "2026-04-01T12:05:00Z",
-      "last_ingested": "2026-04-02T06:20:40.704743"
+      "last_ingested": "2026-04-02T07:32:23.111676"
     },
     "Leia Organa": {
       "rev_id": "1004",
       "timestamp": "2026-04-02T12:10:00Z",
-      "last_ingested": "2026-04-02T06:20:59.722359"
+      "last_ingested": "2026-04-02T07:32:23.153103"
     }
   }
 }

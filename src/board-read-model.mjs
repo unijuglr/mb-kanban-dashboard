@@ -19,8 +19,13 @@ function listMarkdownFiles(dirPath) {
 }
 
 function parseField(markdown, label) {
+  // Case-insensitive match for the label at the start of a line
   const match = markdown.match(new RegExp(`^${label}:\\s*(.+)$`, 'mi'));
-  return match ? match[1].trim() : 'Unknown';
+  if (match) return match[1].trim();
+
+  // Try parsing without the colon just in case
+  const matchNoColon = markdown.match(new RegExp(`^${label}\\s*[:\\s]\\s*(.+)$`, 'mi'));
+  return matchNoColon ? matchNoColon[1].trim() : 'Unknown';
 }
 
 function parseSection(markdown, name) {

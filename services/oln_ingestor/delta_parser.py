@@ -46,19 +46,34 @@ class DeltaParser:
         context = ET.iterparse(self.xml_path, events=('end',))
         
         for event, elem in context:
-            if elem.tag == f'{self.namespace}page':
-                title_node = elem.find(f'{self.namespace}title')
+            # Tag might have namespace prepended even if using iterparse
+            tag = elem.tag
+            if tag.endswith('page'):
+                title_node = elem.find(f'.//{self.namespace}title')
+                if title_node is None:
+                    # Try without namespace just in case
+                    title_node = elem.find('.//title')
+                
                 title = title_node.text if title_node is not None else "Untitled"
                 
-                revision = elem.find(f'{self.namespace}revision')
+                revision = elem.find(f'.//{self.namespace}revision')
+                if revision is None:
+                    revision = elem.find('.//revision')
+                
                 if revision is None:
                     elem.clear()
                     continue
                 
                 rev_id_node = revision.find(f'{self.namespace}id')
+                if rev_id_node is None:
+                    rev_id_node = revision.find('id')
+                
                 rev_id = rev_id_node.text if rev_id_node is not None else "0"
                 
                 timestamp_node = revision.find(f'{self.namespace}timestamp')
+                if timestamp_node is None:
+                    timestamp_node = revision.find('timestamp')
+                
                 timestamp = timestamp_node.text if timestamp_node is not None else ""
 
                 # Check if this revision is newer than what we have
@@ -66,6 +81,9 @@ class DeltaParser:
                 
                 if int(rev_id) > int(old_rev_id):
                     text_node = revision.find(f'{self.namespace}text')
+                    if text_node is None:
+                        text_node = revision.find('text')
+                    
                     text = text_node.text if text_node is not None else ""
                     
                     # Yield the transformed entity
@@ -119,6 +137,7 @@ class DeltaParser:
 
 if __name__ == "__main__":
     import sys
+    import json
     if len(sys.argv) > 1:
         xml_file = sys.argv[1]
         franchise = sys.argv[2] if len(sys.argv) > 2 else "star_wars"
@@ -127,4 +146,4 @@ if __name__ == "__main__":
         
         parser = DeltaParser(xml_file, state_path=state_file, franchise_key=franchise)
         for entity in parser.parse_deltas():
-            print(json.dumps(entity, indent=2))
+            print(json.dumps(entity))
