@@ -231,7 +231,8 @@ function renderMetricsScreen(model, metrics) {
     projectId: metrics?.projectId || 'mb-kanban-dashboard',
     summary: metrics?.summary || {},
     comparison,
-    timeline
+    timeline,
+    hourly: Array.isArray(metrics?.timeline) ? metrics.timeline : []
   }).replace(/</g, '\\u003c');
 
   return shell({
@@ -284,6 +285,12 @@ function renderMetricsScreen(model, metrics) {
           <div class="muted" id="metrics-filter-state">Showing full metrics comparison.</div>
         </div>
       </section>
+      <section class="panel">
+        <h2>Hourly Utilization</h2>
+        <div class="muted">Runs per hour (last 24-48 buckets) showing concurrent activity and overnight bursts.</div>
+        <div id="metrics-hourly-chart" style="margin-top: 20px; height: 180px; display: flex; align-items: end; gap: 4px; border-bottom: 1px solid #26304a; padding-bottom: 8px; overflow-x: auto;"></div>
+        <div id="metrics-hourly-labels" style="display: flex; gap: 4px; overflow-x: auto; margin-top: 8px;"></div>
+      </section>
       <section class="grid list">
         <article class="panel">
           <h2>Owner comparison</h2>
@@ -327,6 +334,8 @@ function renderMetricsScreen(model, metrics) {
           const generatedEl = document.getElementById('metrics-generated-at');
           const ownerListEl = document.getElementById('metrics-owner-comparison');
           const timelineEl = document.getElementById('metrics-timeline');
+          const hourlyChartEl = document.getElementById('metrics-hourly-chart');
+          const hourlyLabelsEl = document.getElementById('metrics-hourly-labels');
           const summaryEls = {
             days: document.querySelector('[data-summary="days"]'),
             owners: document.querySelector('[data-summary="owners"]'),
@@ -417,6 +426,31 @@ function renderMetricsScreen(model, metrics) {
             summaryEls.duration.textContent = formatDurationClient(avg);
           }
 
+          function renderHourly(timeline) {
+            if (!timeline || !timeline.length) {
+              hourlyChartEl.innerHTML = '<p class="muted">No hourly data available.</p>';
+              return;
+            }
+            // Timeline is DESC (newest first). Reverse for the chart (oldest to newest).
+            const data = [...timeline].reverse();
+            const maxRuns = data.reduce((max, row) => Math.max(max, Number(row.runs || 0)), 1);
+            
+            hourlyChartEl.innerHTML = data.map((row) => {
+              const height = Math.max(4, Math.round((Number(row.runs || 0) / maxRuns) * 100));
+              const color = Number(row.runs || 0) > 0 ? 'linear-gradient(0deg, #1e3a8a, #3b82f6)' : '#1a202c';
+              const hourLabel = row.day.includes(' ') ? row.day.split(' ')[1] : row.day.slice(-2);
+              const tooltip = row.day + ': ' + row.runs + ' run(s)';
+              return '<div title="' + esc(tooltip) + '" style="flex: 1; min-width: 20px; height: ' + height + '%; background: ' + color + '; border-radius: 4px 4px 0 0; transition: height 0.3s ease;"></div>';
+            }).join('');
+
+            hourlyLabelsEl.innerHTML = data.map((row, i) => {
+              // Only show every 3rd label to avoid clutter
+              const hourLabel = row.day.includes(' ') ? row.day.split(' ')[1] : row.day.slice(-2);
+              const labelText = (i % 3 === 0) ? hourLabel + 'h' : '';
+              return '<div style="flex: 1; min-width: 20px; text-align: center; font-size: 0.7rem; color: #98a3bb;">' + esc(labelText) + '</div>';
+            }).join('');
+          }
+
           function render(payload) {
             const allOwners = toOwnerRows(payload.comparison || []);
             const ownerFilter = ownerFilterEl.value;
@@ -444,6 +478,7 @@ function renderMetricsScreen(model, metrics) {
             timelineEl.innerHTML = timeline.length
               ? timeline.map((row, index) => timelineMarkup(row, timeline[index + 1] || null)).join('')
               : '<p class="muted">No timeline buckets available.</p>';
+            renderHourly(payload.timeline);
             applySummary(owners, timeline);
             generatedEl.textContent = 'Generated ' + (payload.generatedAt || new Date().toISOString());
             const active = [ownerFilter && 'owner', sortKey !== 'runs' && 'sort', windowValue !== '7' && 'window'].filter(Boolean);
@@ -903,6 +938,7 @@ function renderCardDetail(model, slug) {
           const artifactsRichEl = document.getElementById('card-artifacts-rich');
           const updateLogEl = document.getElementById('card-update-log');
           const assignedCoderEl = document.getElementById('card-assigned-coder');
+
           const startTimeEl = document.getElementById('card-start-time');
           const estimateEl = document.getElementById('card-estimate');
           const completionTimeEl = document.getElementById('card-completion-time');
@@ -1645,7 +1681,7 @@ function renderProjectView(model, projectName) {
           <h1>Project: ${escapeHtml(projectName)}</h1>
           <p>Dedicated project view showing swimlane for ${projectCards.length} card(s).</p>
         </div>
-        <a href="/board" class="button">← Back to Board</a>
+        <a href="/board" class="button" >← Back to Board</a>
       </section>
 
       <style>
@@ -1967,6 +2003,7 @@ http.createServer(async (req, res) => {
     try {
       const metrics = loadMetricsSnapshot({ limit: metricsLimit });
       json(res, 200, {
+
         generatedAt: new Date().toISOString(),
         dbPath: metrics.dbPath,
         projectId: metrics.projectId,

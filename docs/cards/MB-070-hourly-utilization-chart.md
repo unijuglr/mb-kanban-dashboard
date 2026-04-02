@@ -1,6 +1,6 @@
 # MB-070 — Implement Hourly Utilization Chart on Metrics Page
 
-Status: Ready
+Status: Done
 Priority: P1 high
 Project: Motherbrain
 Owner: Coder-1
@@ -19,11 +19,12 @@ The user needs to see when coders are active and how many tasks are being proces
 - Display "Runs per Hour" on the Y-axis and "Time" on the X-axis.
 
 ## Steps
-- [ ] Update `/metrics` template in `scripts/dev-server.mjs` to include a chart container.
-- [ ] Implement client-side logic to map timeline JSON to chart elements.
-- [ ] Ensure the chart updates when filters are applied.
-- [ ] Verify rendering against the backfilled overnight metrics.
+- [x] Update `/metrics` template in `scripts/dev-server.mjs` to include a chart container.
+- [x] Implement client-side logic to map timeline JSON to chart elements.
+- [x] Ensure the chart updates when filters are applied.
+- [x] Verify rendering against the backfilled overnight metrics.
 
 ## Artifacts
 - `scripts/dev-server.mjs`
 - `src/metrics-api.mjs`
+- `PROOF_MB_070.md`
