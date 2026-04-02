@@ -38,3 +38,10 @@
 - Re-ran `python3 scripts/qa_agilitas_pipeline.py`; QA is blocked on unavailable local Ollama at `127.0.0.1:11434`, so no false completion claim was made.
 - Spawned a focused cleanup sub-agent to repair `scripts/generate_demo_data.py`, which currently writes into an erroneous nested `projects/mb-kanban-dashboard/...` path when executed from repo root.
 - Pushing the current feature branch so completed work is not left stranded only on this machine.
+
+## 🌙 Overnight Swarm Notes (2026-04-02 12:24 PT pass)
+- Pushed `fix/demo-data-output-path` after committing the missing MB-084 artifacts (`docs(mb-084): add card and proof artifacts`), so the operator dashboard proof/card are now durable on GitHub rather than staged locally.
+- Re-verified `node scripts/prove-mb-085.mjs`; decision direct-route response flow still passes end-to-end.
+- Re-verified `python3 scripts/prove-mb-079.py`; Neo4j contract proof still passes.
+- Re-ran `python3 scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml`; live ingest remains blocked by `127.0.0.1:7474` refusing connections, so MB-079/MB-080 stay honestly non-done.
+- Spawned a focused coding sub-agent for MB-080 to turn the 2-page sample/executable-ingest work into a branch-backed, QA'd deliverable if the dependency chain allows it.

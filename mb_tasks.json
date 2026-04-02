@@ -887,5 +887,21 @@
       "scripts/prove-mb-085.mjs",
       "data/decision-responses.json"
     ]
+  },
+  {
+    "id": "MB-086",
+    "title": "OLN: Neo4j Motherbrain path selection and startup hardening",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-079"
+    ],
+    "artifacts": [
+      "infra/motherbrain/docker-compose.yaml",
+      "infra/motherbrain/setup.sh",
+      "infra/motherbrain/oln.env.example",
+      "docs/oln/neo4j-motherbrain-execution-tranche-2026-04-02.md",
+      "docs/cards/MB-086-oln-neo4j-motherbrain-path-selection-and-startup-hardening.md"
+    ]
   }
 ]
