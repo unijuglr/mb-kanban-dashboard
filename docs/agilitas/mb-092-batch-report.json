@@ -1,0 +1,139 @@
+{
+  "pipeline": [
+    "normalize",
+    "redact",
+    "extract"
+  ],
+  "provider": "ollama",
+  "model": "llama3.2:3b",
+  "ollama_endpoint": "http://127.0.0.1:18080/api/generate",
+  "started_at": "2026-04-02T22:19:56.875915+00:00",
+  "completed_at": "2026-04-02T22:19:56.888315+00:00",
+  "transcripts_requested": 3,
+  "transcripts_processed": 3,
+  "transcripts_failed": 0,
+  "results": [
+    {
+      "path": "/private/tmp/mb079-main-5diktr/data/agilitas/samples/zoom-sample.json",
+      "file_name": "zoom-sample.json",
+      "status": "success",
+      "input_format": "zoom_json",
+      "agent": "Adam",
+      "customer": "Client",
+      "normalized": {
+        "dateTime": "2026-04-02T10:00:00Z",
+        "agent": "Adam",
+        "customer": "Client",
+        "fullTranscript": "Adam: Hello, how can I help you today?\nClient: I'm having trouble with the dashboard.",
+        "customerTranscript": "I'm having trouble with the dashboard.",
+        "parts": [
+          {
+            "type": "Agent",
+            "text": "Hello, how can I help you today?"
+          },
+          {
+            "type": "Customer",
+            "text": "I'm having trouble with the dashboard."
+          }
+        ]
+      },
+      "redacted_transcript": "Adam: Hello, how can I help you today?\nClient: I'm having trouble with the dashboard.",
+      "extraction": {
+        "sentiment": "Negative",
+        "pain_points": [
+          "dashboard performance",
+          "missing integration"
+        ],
+        "emotion": "Frustration",
+        "effort": "High",
+        "competitors": [
+          "CompetitorX"
+        ],
+        "innovation": [
+          "Add direct export"
+        ],
+        "summary": "stubbed extraction for llama3.2:3b"
+      }
+    },
+    {
+      "path": "/private/tmp/mb079-main-5diktr/data/agilitas/samples/teams-sample.vtt",
+      "file_name": "teams-sample.vtt",
+      "status": "success",
+      "input_format": "teams_vtt",
+      "agent": "Adam",
+      "customer": "Client",
+      "normalized": {
+        "dateTime": "2026-04-02T15:19:56.885293",
+        "agent": "Adam",
+        "customer": "Client",
+        "fullTranscript": "Adam: Welcome to the meeting.\nClient: Thanks for having me. I wanted to discuss the new features.",
+        "customerTranscript": "Thanks for having me. I wanted to discuss the new features.",
+        "parts": [
+          {
+            "type": "Agent",
+            "text": "Welcome to the meeting."
+          },
+          {
+            "type": "Customer",
+            "text": "Thanks for having me. I wanted to discuss the new features."
+          }
+        ]
+      },
+      "redacted_transcript": "Adam: Welcome to the meeting.\nClient: Thanks for having me. I wanted to discuss the new features.",
+      "extraction": {
+        "sentiment": "Negative",
+        "pain_points": [
+          "dashboard performance",
+          "missing integration"
+        ],
+        "emotion": "Frustration",
+        "effort": "High",
+        "competitors": [
+          "CompetitorX"
+        ],
+        "innovation": [
+          "Add direct export"
+        ],
+        "summary": "stubbed extraction for llama3.2:3b"
+      }
+    },
+    {
+      "path": "/private/tmp/mb079-main-5diktr/data/demo/transcript_retail.txt",
+      "file_name": "transcript_retail.txt",
+      "status": "success",
+      "input_format": "plain_text",
+      "agent": null,
+      "customer": null,
+      "normalized": {
+        "dateTime": "2026-04-02T22:19:56.887053+00:00",
+        "agent": null,
+        "customer": null,
+        "fullTranscript": "AE: Thanks for joining today. How has onboarding been going for your store team?\nCustomer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nCustomer: We lost two afternoons on setup, and support responses felt slow when we asked for help.\nCustomer: My email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up.\nCustomer: We are comparing this against CompetitorCo because their setup looked easier.\nCustomer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nAE: Understood. Anything else causing friction?\nCustomer: Mostly frustration. It feels like too much effort for something we expected to be simple.\nAE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up.\n",
+        "customerTranscript": "AE: Thanks for joining today. How has onboarding been going for your store team?\nCustomer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nCustomer: We lost two afternoons on setup, and support responses felt slow when we asked for help.\nCustomer: My email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up.\nCustomer: We are comparing this against CompetitorCo because their setup looked easier.\nCustomer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nAE: Understood. Anything else causing friction?\nCustomer: Mostly frustration. It feels like too much effort for something we expected to be simple.\nAE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up.\n",
+        "parts": [
+          {
+            "type": "Customer",
+            "text": "AE: Thanks for joining today. How has onboarding been going for your store team?\nCustomer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nCustomer: We lost two afternoons on setup, and support responses felt slow when we asked for help.\nCustomer: My email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up.\nCustomer: We are comparing this against CompetitorCo because their setup looked easier.\nCustomer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nAE: Understood. Anything else causing friction?\nCustomer: Mostly frustration. It feels like too much effort for something we expected to be simple.\nAE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up.\n"
+          }
+        ]
+      },
+      "redacted_transcript": "AE: Thanks for joining today. How has onboarding been going for your store team?\nCustomer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nCustomer: We lost two afternoons on setup, and support responses felt slow when we asked for help.\nCustomer: My email is <EMAIL_ADDRESS> and my cell is <PHONE_NUMBER> if someone needs to follow up.\nCustomer: We are comparing this against CompetitorCo because their setup looked easier.\nCustomer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nAE: Understood. Anything else causing friction?\nCustomer: Mostly frustration. It feels like too much effort for something we expected to be simple.\nAE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up.\n",
+      "extraction": {
+        "sentiment": "Negative",
+        "pain_points": [
+          "dashboard performance",
+          "missing integration"
+        ],
+        "emotion": "Frustration",
+        "effort": "High",
+        "competitors": [
+          "CompetitorX"
+        ],
+        "innovation": [
+          "Add direct export"
+        ],
+        "summary": "stubbed extraction for llama3.2:3b"
+      }
+    }
+  ]
+}

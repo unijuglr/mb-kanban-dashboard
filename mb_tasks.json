@@ -794,5 +794,21 @@
       "scripts/prove-mb-085.mjs",
       "data/decision-responses.json"
     ]
+  },
+  {
+    "id": "MB-092",
+    "title": "Agilitas: Batch transcript processing service",
+    "state": "done",
+    "owner": "Coder-4",
+    "depends_on": [
+      "MB-078"
+    ],
+    "artifacts": [
+      "services/agilitas-ingestor/batch_processor.py",
+      "docs/agilitas/mb-092-batch-report.json",
+      "PROOF_MB_092.md"
+    ],
+    "completed_at": "2026-04-02",
+    "notes": "Batch processor added for multi-file normalize/redact/extract runs with JSON summary reporting and corrected local Ollama endpoint usage."
   }
 ]

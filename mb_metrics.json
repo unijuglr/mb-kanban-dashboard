@@ -1,15 +1,16 @@
 {
-  "updated_at": "2026-03-31T22:41:00Z",
+  "updated_at": "2026-04-02T22:22:00Z",
   "active_coders": 4,
   "idle_coders_without_next_task": 0,
   "management_failures_since_last_iteration": 0,
   "notes": [
     "Continuing immediate reassignment after completions.",
-    "One leftover local file (src/decision-writes.mjs) remains to be resolved under GitHub discipline."
+    "One leftover local file (src/decision-writes.mjs) remains to be resolved under GitHub discipline.",
+    "MB-092 complete: batch transcript processor now handles multi-file normalize/redact/extract runs with JSON summary output on local Ollama."
   ],
   "dispatch_wave": "wave-8",
   "tasks": {
-    "Coder-4": "Commit/push or resolve remaining local file",
+    "Coder-4": "MB-092 complete and pushed to main",
     "Coder-5": "MB-053",
     "Coder-1": "MB-061 prep / review cleanup planning",
     "Coder-2": "MB-043"
