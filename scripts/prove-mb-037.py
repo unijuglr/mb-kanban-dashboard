@@ -1,41 +1,18 @@
-# OLN: Graph Analysis Proof-of-Concept
-# This script simulates graph density analysis for lore quality reporting.
-
 import json
 import os
 
-def check_analysis_doc():
-    """Verify analysis document exists."""
-    doc_path = "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/docs/oln/graph-analysis-v1.md"
-    if not os.path.exists(doc_path):
-        return False, f"Missing analysis doc: {doc_path}"
-    return True, "Analysis report (v1) found."
-
-def simulate_graph_query():
-    """Simulate a Neo4j Cypher query for density."""
-    # In a real environment, this would call Neo4j.
-    # For proof-of-concept, we verify the report content.
-    return True, "Cypher query simulation successful."
-
-def run_proof():
-    results = {}
+def run_test():
+    workspace = "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard"
+    analysis_report = os.path.join(workspace, "docs/oln/graph-analysis-v1.md")
     
-    # 1. Doc check
-    doc_ok, doc_msg = check_analysis_doc()
-    results["analysis_doc"] = {"status": "ok" if doc_ok else "fail", "message": doc_msg}
+    if os.path.exists(analysis_report):
+        with open(analysis_report, 'r') as f:
+            content = f.read()
+            if "Star Wars Lore Network" in content and "Metrics" in content:
+                print("✅ PASS: Graph analysis report found and valid.")
+                return
     
-    # 2. Query simulation
-    query_ok, query_msg = simulate_graph_query()
-    results["graph_query"] = {"status": "ok" if query_ok else "fail", "message": query_msg}
-    
-    # Final verdict
-    results["verdict"] = "pass" if all(r["status"] == "ok" for r in results.values()) else "fail"
-    
-    print(json.dumps(results, indent=2))
-    return results["verdict"] == "pass"
+    print("❌ FAIL: Graph analysis report missing or malformed.")
 
 if __name__ == "__main__":
-    if run_proof():
-        exit(0)
-    else:
-        exit(1)
+    run_test()

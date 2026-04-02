@@ -27,13 +27,44 @@
     "id": "MB-036",
     "title": "OLN: Scale: Incremental Updates & Delta Ingestion",
     "state": "done",
-    "owner": "Prime Sam",
+    "owner": "MB-Sam",
     "depends_on": [
       "MB-034"
     ],
     "artifacts": [
       "services/oln_ingestor/delta_parser.py",
+      "scripts/prove-mb-036.py",
       "PROOF_MB_036.md"
+    ]
+  },
+  {
+    "id": "MB-037",
+    "title": "OLN: Analysis: Graph Relationship Density & Quality",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "docs/oln/graph-analysis-v1.md",
+      "scripts/prove-mb-037.py",
+      "PROOF_MB_037.md"
+    ]
+  },
+  {
+    "id": "MB-038",
+    "title": "OLN: Franchise Generalization",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-028"
+    ],
+    "artifacts": [
+      "services/oln_ingestor/lore_config.yaml",
+      "data/oln/samples/memory-alpha-test.xml",
+      "docs/oln/franchise-agnostic-design.md",
+      "scripts/prove-mb-038.py",
+      "PROOF_MB_038.md"
     ]
   },
   {
@@ -519,7 +550,7 @@
     "id": "MB-037",
     "title": "OLN: Analysis: Graph Relationship Density & Quality",
     "state": "done",
-    "owner": "Prime Sam",
+    "owner": "MB-Sam",
     "depends_on": [
       "MB-034"
     ],
@@ -549,7 +580,7 @@
     "id": "MB-038",
     "title": "OLN: Franchise Generalization",
     "state": "done",
-    "owner": "Prime Sam",
+    "owner": "MB-Sam",
     "depends_on": [
       "MB-028"
     ],
@@ -557,6 +588,7 @@
       "services/oln_ingestor/lore_config.yaml",
       "data/oln/samples/memory-alpha-test.xml",
       "docs/oln/franchise-agnostic-design.md",
+      "scripts/prove-mb-038.py",
       "PROOF_MB_038.md"
     ]
   }

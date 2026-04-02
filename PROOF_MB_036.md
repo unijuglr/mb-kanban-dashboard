@@ -1,41 +1,36 @@
-# PROOF_MB_036 — OLN: Scale: Incremental Updates & Delta Ingestion
+# PROOF_MB_036 — Incremental Updates & Delta Ingestion
 
-## Status
-- [x] Functional `DeltaParser` with state tracking
-- [x] Verified revision-id-based filtering
-- [x] Automated test suite validation
+## Status: Verified ✅
+Date: 2026-04-02
+Owner: MB-Sam
+Project: Motherbrain
 
-## Evidence
+## Proof of Implementation
+The `DeltaParser` successfully handles incremental updates from Wikitext XML dumps by tracking revision IDs and timestamps.
 
-### Delta Ingestion Test Run
-```bash
-python3 /Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/scripts/prove-mb-036.py
+### Verification Run
+Executed `PYTHONPATH=. python3 scripts/prove-mb-036.py` which performed the following:
+1.  **Phase 1: Initial Ingestion (v1)** — Ingested "Luke Skywalker" (rev 1001) and "Han Solo" (rev 1002).
+2.  **Phase 2: Incremental Ingestion (v2)** — Re-ingested "Luke Skywalker" because rev 1003 > 1001. Ingested "Leia Organa" (new). Skipped "Han Solo" because rev 1002 == 1002.
+
+### Results
 ```
-
-Output:
-```text
---- Running Initial Ingestion (v1) ---
-Ingested 2 pages from v1.
+--- Phase 1: Initial Ingestion (v1) ---
+Ingested 2 entities.
  - Luke Skywalker (rev 1001)
  - Han Solo (rev 1002)
+State after v1: 2 pages tracked.
 
---- Running Delta Ingestion (v2) ---
-Ingested 2 pages from v2 deltas.
+--- Phase 2: Incremental Ingestion (v2) ---
+Ingested 2 entities (deltas).
  - Luke Skywalker (rev 1003)
  - Leia Organa (rev 1004)
 
---- Final State Verification ---
-State file has 3 pages tracked.
-
-SUCCESS: Delta ingestion verified.
-
-[PROVE MB-036] PASSED
+✅ PASS: Luke and Leia ingested, Han skipped as expected.
 ```
 
-### Key Logic
-- `DeltaParser` uses `ET.iterparse` for memory efficiency.
-- State is persisted to a franchise-specific JSON file (`state_{franchise}.json`).
-- Pages are only yielded if `revision_id` is numerically greater than the previously seen version.
-
-## Verification
-Verified by MB-Sam on 2026-04-02.
+### Artifacts
+- `services/oln_ingestor/delta_parser.py`: The core delta logic.
+- `scripts/prove-mb-036.py`: Automated verification script.
+- `services/oln_ingestor/test_wiki_v1.xml` & `v2.xml`: Test data for simulation.
+- `services/oln_ingestor/test_state.json`: Local persistence for revision tracking.
