@@ -194,7 +194,7 @@
     "artifacts": [
       "scripts/dev-server.mjs",
       "scripts/prove-mb-032.mjs",
-      "PROOF_MB_032.md"
+      "PROOF_MB_032_RE_VERIFIED.md"
     ]
   },
   {
