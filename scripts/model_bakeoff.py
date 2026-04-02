@@ -5,8 +5,8 @@ import subprocess
 from datetime import datetime
 
 # Configuration
-OLLAMA_BASE_URL = "http://localhost:11434" # Assumes running ON Motherbrain
-MODELS = ["llama3.2:latest", "deepseek-coder-v2:16b", "qwen2.5-coder:14b"]
+OLLAMA_BASE_URL = "http://127.0.0.1:11435" # Assumes running via laptop tunnel
+MODELS = ["llama3.2:latest", "deepseek-coder-v2:16b", "qwen2.5-coder:14b", "deepseek-r1:32b"]
 BENCHMARK_FILE = "docs/eval/model-performance-report.md"
 
 BENCHMARK_TASKS = [
@@ -31,26 +31,33 @@ BENCHMARK_TASKS = [
 ]
 
 def run_query(model, prompt):
-    url = f"{OLLAMA_BASE_URL}/api/generate"
+    # Use SSH to run the curl command on Motherbrain directly
+    url = "http://localhost:11434/api/generate"
     payload = {
         "model": model,
         "prompt": prompt,
         "stream": False
     }
     
-    cmd = [
-        "curl", "-s", "-X", "POST", url,
-        "-H", "Content-Type: application/json",
-        "-d", json.dumps(payload)
-    ]
+    # We use a file on the remote side to avoid escaping hell
+    temp_file = f"/tmp/ollama_req_{int(time.time())}.json"
+    ssh_setup = ["ssh", "darthg@motherbrain.local", f"cat > {temp_file}"]
     
     start_time = time.time()
     try:
-        process = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+        # Write payload to remote file
+        subprocess.run(ssh_setup, input=json.dumps(payload), text=True, check=True)
+        
+        # Run curl using that file
+        ssh_curl = [
+            "ssh", "darthg@motherbrain.local",
+            f"curl -s -X POST {url} -H 'Content-Type: application/json' -d @{temp_file} && rm {temp_file}"
+        ]
+        process = subprocess.run(ssh_curl, capture_output=True, text=True, timeout=300)
         end_time = time.time()
         
         if process.returncode != 0:
-             return {"error": f"Curl failed: {process.stderr}"}
+             return {"error": f"SSH/Curl failed: {process.stderr}"}
              
         data = json.loads(process.stdout)
         duration = end_time - start_time
