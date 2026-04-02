@@ -154,17 +154,17 @@
   },
   {
     "id": "MB-030",
-    "title": "Board screen",
+    "title": "OLN-Storage: Neo4j Graph Schema & Insertion",
     "state": "done",
-    "owner": "Coder-3",
+    "owner": "Prime Sam",
     "depends_on": [
-      "MB-021"
+      "MB-029"
     ],
     "artifacts": [
-      "scripts/dev-server.mjs",
-      "scripts/prove-mb-030.mjs",
-      "PROOF_MB_030.md",
-      "README.md"
+      "infra/neo4j/schema.cypher",
+      "src/oln/storage/neo4j_client/client.py",
+      "scripts/prove-mb-030.py",
+      "PROOF_MB_030_RE_VERIFIED.md"
     ]
   },
   {
