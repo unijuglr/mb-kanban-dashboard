@@ -7,9 +7,19 @@ from typing import List, Dict, Any, Optional
 # so we'll ensure we handle the structure.
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src')))
+import importlib.util
 
-from agilitas.schemas.models import TranscriptData, TranscriptPart, TranscriptPartType
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# agilitas/schemas/models.py is in src/
+models_path = os.path.abspath(os.path.join(current_dir, '../../src/agilitas/schemas/models.py'))
+
+spec = importlib.util.spec_from_file_location("agilitas_models", models_path)
+models_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(models_module)
+
+TranscriptData = models_module.TranscriptData
+TranscriptPart = models_module.TranscriptPart
+TranscriptPartType = models_module.TranscriptPartType
 
 class AgilitasNormalizer:
     """
