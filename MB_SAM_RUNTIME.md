@@ -39,6 +39,13 @@
 - Spawned a focused cleanup sub-agent to repair `scripts/generate_demo_data.py`, which currently writes into an erroneous nested `projects/mb-kanban-dashboard/...` path when executed from repo root.
 - Pushing the current feature branch so completed work is not left stranded only on this machine.
 
+## 🌙 Overnight Swarm Notes (2026-04-02 03:07 PT pass)
+- **Agilitas (MB-054):** Repaired `scripts/generate_demo_data.py` and `services/agilitas-ai-core/llm_client.py` to use `llama3.2:3b` via the local Ollama tunnel (Port 11435).
+- **QA:** Successfully regenerated 3 synthetic demo transcripts (Retail, SaaS, Industrial) using the local Motherbrain-host model.
+- **Push:** Committed and pushed repaired scripts and new data to branch `feat/mb-054-demo-data-regeneration`.
+- **Proof:** Added `PROOF_MB_054_REGENERATED.md` with verification details.
+- **Next:** Motherbrain-local service reality for OLN (Tranche 1/2) still requires live Neo4j boot on the host.
+
 ## 🌙 Overnight Swarm Notes (2026-04-02 12:24 PT pass)
 - Pushed `fix/demo-data-output-path` after committing the missing MB-084 artifacts (`docs(mb-084): add card and proof artifacts`), so the operator dashboard proof/card are now durable on GitHub rather than staged locally.
 - Re-verified `node scripts/prove-mb-085.mjs`; decision direct-route response flow still passes end-to-end.
