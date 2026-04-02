@@ -1,0 +1,16 @@
+{
+  "decisions": {
+    "dec-001": {
+      "responses": [
+        {
+          "id": "resp-1775156069853-3eofye",
+          "action": "approve",
+          "option": "Option B",
+          "note": "live port 4187 verification",
+          "actor": "Adam",
+          "createdAt": "2026-04-02T18:54:29.853Z"
+        }
+      ]
+    }
+  }
+}
