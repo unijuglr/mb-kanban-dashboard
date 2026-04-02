@@ -14,7 +14,10 @@ def load_client_manually():
 
 def test_ollama_path():
     """
-    Test the Ollama connection through the MB tunnel.
+    Test the Ollama connection for the current execution context.
+
+    Default expectation: Motherbrain-local Ollama on 127.0.0.1:11434.
+    Laptop-tunnel runs should export OLLAMA_HOST=http://127.0.0.1:11435 first.
     """
     try:
         AgilitasLLMClient = load_client_manually()

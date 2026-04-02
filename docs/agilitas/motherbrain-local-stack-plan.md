@@ -145,7 +145,9 @@ A local transcript fixture enters from one of these paths:
 ## Motherbrain Environment Requirements
 ### Required
 - Python environment that can import the Agilitas modules
-- local Ollama reachable from Motherbrain or from Adam’s laptop via the existing tunnel model
+- local Ollama reachable from the execution context
+  - Motherbrain-local default: `http://127.0.0.1:11434`
+  - Adam laptop via SSH tunnel override: `OLLAMA_HOST=http://127.0.0.1:11435`
 - at least one local Ollama model pulled, preferably `llama3.2:latest`
 - writable local output directory for proof artifacts
 
@@ -155,14 +157,13 @@ A local transcript fixture enters from one of these paths:
 - a canonical synthetic transcript fixture with embedded PII test tokens
 
 ## Known Risks / Blockers
-1. **Current transcript fixture looks unhealthy**
-   - `data/demo/transcript_retail.txt` currently appears to contain an Ollama error string rather than a usable transcript
-   - implementation should either repair that asset or introduce a clean synthetic fixture
+1. **Transcript fixture must stay honest**
+   - `data/demo/transcript_retail.txt` should remain a usable checked-in synthetic transcript, not a captured runtime error string
 
 2. **Endpoint mismatch risk**
-   - `services/agilitas-ai-core/llm_client.py` targets `http://127.0.0.1:11435/api/generate`
-   - `infra/agilitas/docker-compose.yaml` references `host.docker.internal:11434`
-   - v1 should standardize on one local path; for Motherbrain-local direct execution, avoid Docker and make the runner prove the chosen endpoint explicitly
+   - `services/agilitas-ai-core/llm_client.py` should default to Motherbrain-local `http://127.0.0.1:11434/api/generate`
+   - laptop-tunnel runs should explicitly set `OLLAMA_HOST=http://127.0.0.1:11435`
+   - `infra/agilitas/docker-compose.yaml` using `host.docker.internal:11434` is acceptable for the containerized path, but the first local demo proof should avoid Docker and prove the direct host path explicitly
 
 3. **Normalization gap for plain text**
    - the normalizer currently supports Zoom JSON and Teams VTT, not raw txt
