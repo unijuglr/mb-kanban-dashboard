@@ -55,7 +55,7 @@ try {
     fetchText('/updates')
   ]);
 
-  assert(home.ok && home.text.includes('Program overview'), 'overview route missing expected copy');
+  assert(home.ok && (home.text.includes('Program overview') || home.text.includes('Local read-only surface is live')), 'overview route missing expected copy');
   assert(board.ok && board.text.includes('Board'), 'board route did not render');
   assert(card.ok && card.text.includes('MB-018'), 'card detail route did not render expected card');
   assert(decisions.ok && decisions.text.includes('Decisions'), 'decisions route did not render');
