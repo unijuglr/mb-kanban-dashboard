@@ -1,41 +1,31 @@
-# MB-SAM-RUNTIME: Overnight Swarm Manager Update (2026-04-01 20:00 PT)
+# MB-SAM-RUNTIME: Overnight Swarm Manager Update (2026-04-02 02:00 PT)
 
 ## Summary
-The Motherbrain project ecosystem is currently in a "Wave 1" completion state.
-The primary focus has shifted to "Wave 2" (OLN, Agilitas, AI-Bitz) while maintaining Wave 1 stability.
+The swarm has completed a major wave of "Wave 2" (OLN & Agilitas) infrastructure and logic components.
 
-## Recently Completed (Wave 1)
-- **MB-060/061/062**: Fully completed. Wave 1 code is merged to `main` and pushed.
-- **Cleanup**: Stale `proof:mb-020` scripts have been reconciled.
-- **Persistence**: Metrics, Write paths, and Template-based card/decision creation are live.
+## Recently Completed
+- **MB-030 (OLN: Neo4j Graph Storage)**: Implemented Neo4j schema (`infra/neo4j/schema.cypher`) and `Neo4jClient` (`src/oln/storage/neo4j-client/client.py`). Verified with `scripts/prove-mb-030.py`.
+- **MB-031 (OLN: Temporal Orchestration)**: Developed `LoreIngestionWorkflow` (`src/oln/orchestration/temporal/workflow.py`) and worker config (`infra/temporal/worker-config.yaml`). Verified with `scripts/prove-mb-031.py`.
+- **MB-045 (Agilitas: Action Engine)**: Built the `AgilitasActionEngine` (`services/agilitas-action-engine/generator.py`) for Inner/Outer loop classification. Verified with `scripts/prove-mb-045.py`.
 
 ## Active Swarm (Wave 2)
-- **MB-032 (OLN Infrastructure)**: [IN PROGRESS] 
-  - **Branch**: `mb-032-oln-infra-setup`
-  - **Status**: Implemented `docker-compose.yaml` and `setup.sh`. Scripts pushed to GitHub and deployed to Motherbrain.
+- **MB-032 (OLN Infrastructure)**: 
+  - **Status**: Implemented `docker-compose.yaml` and `setup.sh`.
   - **Action**: Awaiting permission fix for `docker.sock` on Motherbrain to trigger container start.
-  - **Next**: Run `setup.sh` on Motherbrain and start services.
-- **MB-039 (Agilitas Core AI)**: [DONE]
-  - Delivered `docs/agilitas/ai-strategy.md`, `data/agilitas/golden-dataset-v1.json`, and `services/agilitas-ai-core/extractor.py`.
-- **MB-028 (OLN Ingestor)**: [DONE]
-  - Delivered `services/oln_ingestor/parser.py`, `data/oln/samples/wookieepedia-test.xml`, and `scripts/prove-mb-028.py`.
-- **MB-041 (HellaThis Relaunch)**: [DONE]
-  - Delivered `docs/hellathis/relaunch-vision.md` and `src/hellathis/search-api/response-schema.json`.
-- **MB-027 (OLN Architecture)**: [DONE] 
-  - Architecture delivered in `docs/oln/architecture.md`.
+- **MB-046 (Agilitas: GCP Prototype)**: 
+  - **Status**: Ready for containerization.
+  - **Next**: Create Dockerfiles for Core AI, Business, and Action engines.
 
 ## QA & Proof Status
-- **Wave 1 Proofs**: All passing (`mb-011` through `mb-053`).
 - **Wave 2 Proofs**: 
-  - `PROOF_MB_028.md`: PASS (Parser skeleton logic verified).
-  - `PROOF_MB_039.md`: PASS (Strategy and extraction schema verified).
-  - `PROOF_MB_041.md`: PASS (Relaunch vision and API schema verified).
+  - `PROOF_MB_030.md`: PASS (Graph schema/client verified).
+  - `PROOF_MB_031.md`: PASS (Temporal orchestration logic verified).
+  - `PROOF_MB_045.md`: PASS (Action engine loop classification verified).
 
 ## Blockers & Notes
-- **DTS Work**: Explicitly excluded per policy.
-- **Motherbrain Storage**: `/Volumes/hellastuff 1` confirmed as primary 31TB RAID target for OLN.
-- **Cost Discipline**: All work using local or existing free-tier services.
+- **DTS Work**: Explicitly excluded.
+- **Motherbrain RAID**: All OLN storage logic correctly targets `/Volumes/hellastuff 1`.
 
 ## Next Meaningful Update
 - **Target**: Thursday, April 2nd, 2026 — 09:00 AM PT
-- **Goal**: Initial `docker-compose` setup on Motherbrain.
+- **Goal**: Initial `docker-compose` setup on Motherbrain (pending permissions) and Agilitas containerization.
