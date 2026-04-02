@@ -316,7 +316,7 @@
   {
     "id": "MB-061",
     "title": "Repo cleanup for review",
-    "state": "active",
+    "state": "done",
     "owner": "MB-Sam",
     "depends_on": [
       "MB-060"
@@ -328,11 +328,13 @@
   {
     "id": "MB-062",
     "title": "GitHub push preparation",
-    "state": "pending",
-    "owner": "Coder-1",
+    "state": "active",
+    "owner": "MB-Sam",
     "depends_on": [
       "MB-061"
     ],
-    "artifacts": []
+    "artifacts": [
+      "docs/cards/MB-062-github-push-preparation.md"
+    ]
   }
 ]
