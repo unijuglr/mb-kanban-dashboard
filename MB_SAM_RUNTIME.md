@@ -43,5 +43,6 @@
 - Pushed `fix/demo-data-output-path` after committing the missing MB-084 artifacts (`docs(mb-084): add card and proof artifacts`), so the operator dashboard proof/card are now durable on GitHub rather than staged locally.
 - Re-verified `node scripts/prove-mb-085.mjs`; decision direct-route response flow still passes end-to-end.
 - Re-verified `python3 scripts/prove-mb-079.py`; Neo4j contract proof still passes.
-- Re-ran `python3 scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml`; live ingest remains blocked by `127.0.0.1:7474` refusing connections, so MB-079/MB-080 stay honestly non-done.
-- Spawned a focused coding sub-agent for MB-080 to turn the 2-page sample/executable-ingest work into a branch-backed, QA'd deliverable if the dependency chain allows it.
+- Re-ran `python3 scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml`; live ingest remains blocked by `127.0.0.1:7474` refusing connections, so MB-079 stays honestly non-done.
+- Spawned a focused coding sub-agent for MB-080, then committed and pushed the resulting branch-backed proof artifacts after QA.
+- MB-080 is now done at the repo-prep layer: `feat/mb-080-two-page-ingest-proof` contains the missing card, `scripts/prove-mb-080.py`, and `PROOF_MB_080.md`, with offline contract proof passing and live Neo4j probe failing honestly due to connection refusal.
