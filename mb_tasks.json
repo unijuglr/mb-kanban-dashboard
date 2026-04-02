@@ -11,6 +11,37 @@
     ]
   },
   {
+    "id": "MB-023",
+    "title": "Build Motherbrain Kanban UI MVP",
+    "state": "ready",
+    "owner": "Coder-1",
+    "depends_on": [
+      "MB-013",
+      "MB-020"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs"
+    ]
+  },
+  {
+    "id": "MB-036",
+    "title": "OLN: Scale: Incremental Updates & Delta Ingestion",
+    "state": "ready",
+    "owner": "Coder-2",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": []
+  },
+  {
+    "id": "MB-044",
+    "title": "Evaluation: Local Model Bake-off",
+    "state": "ready",
+    "owner": "Coder-3",
+    "depends_on": [],
+    "artifacts": []
+  },
+  {
     "id": "MB-003",
     "title": "Create MB metrics wiring baseline",
     "state": "done",
