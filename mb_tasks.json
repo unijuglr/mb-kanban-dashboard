@@ -763,5 +763,20 @@
     ],
     "completed_at": "2026-04-02",
     "notes": "Added stale pidfile cleanup, healthy-process adoption, startup wait/health verification, and explicit port-conflict failure diagnostics for local dev scripts."
+  },
+  {
+    "id": "MB-084",
+    "title": "Dashboard: active work / next-up operations screen",
+    "state": "done",
+    "owner": "Coder-6",
+    "depends_on": [
+      "MB-070",
+      "MB-081"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "src/metrics-api.mjs",
+      "PROOF_MB_084.md"
+    ]
   }
 ]

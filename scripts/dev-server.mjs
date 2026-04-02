@@ -135,7 +135,157 @@ function formatDecimal(value, digits = 1) {
   return number.toFixed(digits);
 }
 
+function parseIsoDate(value) {
+  if (!value || typeof value !== 'string') return null;
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00Z` : value;
+  const timestamp = Date.parse(normalized);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function formatRelativeTimeFromNow(value, now = Date.now()) {
+  const timestamp = typeof value === 'number' ? value : parseIsoDate(value);
+  if (!timestamp) return 'unknown';
+  const deltaMs = Math.max(0, now - timestamp);
+  const minutes = Math.round(deltaMs / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  return `${days}d ago`;
+}
+
+function parsePriorityRank(value) {
+  const match = String(value || '').match(/P(\d+)/i);
+  return match ? Number(match[1]) : 99;
+}
+
+function summarizeFreshness(updatedAt, now = Date.now()) {
+  const timestamp = parseIsoDate(updatedAt);
+  if (!timestamp) {
+    return {
+      label: 'Freshness unknown',
+      tone: 'warn',
+      detail: 'No machine-parseable timestamp on the card or run record.'
+    };
+  }
+
+  const ageMs = Math.max(0, now - timestamp);
+  if (ageMs <= 30 * 60 * 1000) {
+    return { label: `Fresh · ${formatRelativeTimeFromNow(timestamp, now)}`, tone: 'good', detail: 'Updated within the last 30 minutes.' };
+  }
+  if (ageMs <= 4 * 60 * 60 * 1000) {
+    return { label: `Aging · ${formatRelativeTimeFromNow(timestamp, now)}`, tone: 'ok', detail: 'Recent enough to be useful, but not live.' };
+  }
+  if (ageMs <= 24 * 60 * 60 * 1000) {
+    return { label: `Stale today · ${formatRelativeTimeFromNow(timestamp, now)}`, tone: 'warn', detail: 'Same-day signal, but treat ETA as rough.' };
+  }
+  return { label: `Stale · ${formatRelativeTimeFromNow(timestamp, now)}`, tone: 'bad', detail: 'Older than a day. Likely drifted from reality.' };
+}
+
+function buildOperationsSnapshot(model, metrics) {
+  const now = Date.now();
+  const recentRuns = Array.isArray(metrics?.recentRuns) ? metrics.recentRuns : [];
+  const readyCards = model.cards
+    .filter((card) => card.status === 'Ready')
+    .sort((left, right) => {
+      const priorityDiff = parsePriorityRank(left.priority) - parsePriorityRank(right.priority);
+      if (priorityDiff !== 0) return priorityDiff;
+      return String(left.id).localeCompare(String(right.id));
+    });
+
+  const explicitActive = model.cards
+    .filter((card) => ['In Progress', 'Review'].includes(card.status))
+    .map((card) => ({
+      kind: 'card',
+      card,
+      id: card.id,
+      title: card.title,
+      agent: card.assignedCoder !== 'Unknown' ? card.assignedCoder : (card.owner !== 'Unknown' ? card.owner : 'Unassigned'),
+      status: card.status,
+      eta: card.estimate !== 'Unknown' ? card.estimate : 'Unknown — no card estimate recorded',
+      updatedAt: card.updatedAt !== 'Unknown' ? card.updatedAt : null,
+      freshness: summarizeFreshness(card.updatedAt, now),
+      confidence: card.updatedAt && card.updatedAt !== 'Unknown' ? 'Medium' : 'Low',
+      source: 'Board card metadata',
+      detail: card.summary,
+      nextMeaningfulUpdate: card.estimate !== 'Unknown'
+        ? card.estimate
+        : 'Unknown — needs manual progress update on the card'
+    }));
+
+  const recentByOwner = [];
+  const seenOwners = new Set();
+  for (const run of recentRuns) {
+    const owner = run.metadata?.owner || run.role || 'Unknown';
+    if (seenOwners.has(owner)) continue;
+    seenOwners.add(owner);
+    recentByOwner.push(run);
+  }
+
+  const inferredActive = explicitActive.length
+    ? []
+    : recentByOwner.slice(0, 4).map((run) => ({
+      kind: 'inferred-run',
+      id: run.task_id || run.run_id,
+      title: run.task_id ? `${run.task_id} — recent completed run` : (run.label || run.run_id),
+      agent: run.metadata?.owner || run.role || 'Unknown',
+      status: `Inferred from last completed run (${run.status || 'unknown'})`,
+      eta: 'Unknown — no live heartbeat, only last recorded completion',
+      updatedAt: run.ended_at || run.started_at,
+      freshness: summarizeFreshness(run.ended_at || run.started_at, now),
+      confidence: 'Low',
+      source: 'SQLite metrics run log',
+      detail: `${run.task_id || run.label || run.run_id} finished ${formatRelativeTimeFromNow(run.ended_at || run.started_at, now)} in ${formatDuration(run.duration_ms)}.`,
+      nextMeaningfulUpdate: 'When that agent posts another run or updates a card'
+    }));
+
+  const agents = [...new Set([
+    ...explicitActive.map((item) => item.agent),
+    ...recentByOwner.map((run) => run.metadata?.owner || run.role || 'Unknown'),
+    ...readyCards.map((card) => card.assignedCoder !== 'Unknown' ? card.assignedCoder : (card.owner !== 'Unknown' ? card.owner : 'Unassigned'))
+  ])].filter(Boolean).sort((a, b) => String(a).localeCompare(String(b)));
+
+  const queueByAgent = agents.map((agent) => {
+    const queued = readyCards
+      .filter((card) => {
+        const cardAgent = card.assignedCoder !== 'Unknown' ? card.assignedCoder : (card.owner !== 'Unknown' ? card.owner : 'Unassigned');
+        return cardAgent === agent;
+      })
+      .slice(0, 3)
+      .map((card) => ({
+        id: card.id,
+        title: card.title,
+        priority: card.priority,
+        summary: card.summary,
+        updatedAt: card.updatedAt,
+        freshness: summarizeFreshness(card.updatedAt, now)
+      }));
+
+    const latestRun = recentByOwner.find((run) => (run.metadata?.owner || run.role || 'Unknown') === agent) || null;
+
+    return {
+      agent,
+      queued,
+      latestRun,
+      active: explicitActive.find((item) => item.agent === agent) || null
+    };
+  });
+
+  return {
+    generatedAt: new Date(now).toISOString(),
+    active: explicitActive.length ? explicitActive : inferredActive,
+    activeMode: explicitActive.length ? 'explicit' : 'inferred',
+    queueByAgent,
+    readyCount: readyCards.length,
+    honestyNote: explicitActive.length
+      ? 'Active work comes from cards explicitly marked In Progress/Review. Freshness still depends on the last card update.'
+      : 'No cards are currently marked In Progress, so this screen falls back to the latest completed runs in the local metrics DB. That is useful, but not live.'
+  };
+}
+
 function renderOverview(model, metrics) {
+  const operations = buildOperationsSnapshot(model, metrics);
   const summary = metrics?.summary || {};
   const byStatus = Array.isArray(metrics?.byStatus) ? metrics.byStatus : [];
   const byOwner = Array.isArray(metrics?.byOwner) ? metrics.byOwner : [];
@@ -150,6 +300,12 @@ function renderOverview(model, metrics) {
     ? `${model.summary.blockedCount} blocked card(s)`
     : 'No blocked cards right now';
   const topOwner = byOwner[0];
+  const toneColor = {
+    good: '#22c55e',
+    ok: '#60a5fa',
+    warn: '#f59e0b',
+    bad: '#ef4444'
+  };
 
   return shell({
     title: 'Overview',
@@ -157,10 +313,80 @@ function renderOverview(model, metrics) {
     body: `
       <section class="hero">
         <div>
-          <h1>Program overview</h1>
-          <p>Repo-backed board state plus first-party metrics from the SQLite run log.</p>
+          <h1>Operator dashboard</h1>
+          <p>Truth-first ops view: active work, likely owner, next useful update window, and queued-next cards per agent.</p>
         </div>
         <div class="muted">Generated ${escapeHtml(model.generatedAt)}</div>
+      </section>
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">
+          <div>
+            <h2>What is active right now</h2>
+            <p class="muted" style="margin:0;">${escapeHtml(operations.honestyNote)}</p>
+          </div>
+          <div class="chip">Mode: ${escapeHtml(operations.activeMode === 'explicit' ? 'explicit board state' : 'inferred from local run log')}</div>
+        </div>
+        <div class="stack" style="margin-top:16px;">
+          ${operations.active.length ? operations.active.map((item) => `
+            <article class="card-item">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap;">
+                <div>
+                  <strong>${escapeHtml(item.id)} — ${escapeHtml(item.title)}</strong>
+                  <div class="tiny muted" style="margin-top:6px;">${escapeHtml(item.detail)}</div>
+                </div>
+                <div class="chip">${escapeHtml(item.status)}</div>
+              </div>
+              <div class="grid stats" style="margin-top:12px;grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+                <div><div class="tiny muted">Agent</div><div>${escapeHtml(item.agent)}</div></div>
+                <div><div class="tiny muted">Next meaningful update</div><div>${escapeHtml(item.nextMeaningfulUpdate)}</div></div>
+                <div><div class="tiny muted">ETA confidence</div><div>${escapeHtml(item.confidence)}</div></div>
+                <div><div class="tiny muted">Source</div><div>${escapeHtml(item.source)}</div></div>
+              </div>
+              <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <span class="chip" style="border-color:${toneColor[item.freshness.tone] || '#334466'}; color:${toneColor[item.freshness.tone] || '#c2d7ff'};">${escapeHtml(item.freshness.label)}</span>
+                <span class="tiny muted">${escapeHtml(item.freshness.detail)}</span>
+              </div>
+            </article>
+          `).join('') : '<p class="muted">No active work signal found locally.</p>'}
+        </div>
+      </section>
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">
+          <div>
+            <h2>Queued next by agent</h2>
+            <p class="muted" style="margin:0;">Only cards in <code>Ready</code> are treated as queued-next. Unassigned work is called out instead of being magically assigned.</p>
+          </div>
+          <div class="chip">${operations.readyCount} ready card(s)</div>
+        </div>
+        <div class="grid list" style="margin-top:16px;">
+          ${operations.queueByAgent.map((entry) => `
+            <article class="card">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;">
+                <div>
+                  <strong>${escapeHtml(entry.agent)}</strong>
+                  <div class="tiny muted" style="margin-top:6px;">${entry.active ? `Currently tied to ${escapeHtml(entry.active.id)}.` : 'No explicit in-progress card.'}</div>
+                </div>
+                <div class="chip">${entry.queued.length} queued</div>
+              </div>
+              <div class="stack" style="margin-top:14px;">
+                ${entry.queued.length ? entry.queued.map((card) => `
+                  <div class="card-item">
+                    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;">
+                      <div>
+                        <a href="/cards/${encodeURIComponent(card.id.toLowerCase())}"><strong>${escapeHtml(card.id)}</strong></a>
+                        <div class="tiny muted" style="margin-top:6px;">${escapeHtml(card.title)}</div>
+                      </div>
+                      <div class="chip">${escapeHtml(card.priority || 'No priority')}</div>
+                    </div>
+                    <div class="tiny muted" style="margin-top:8px;">${escapeHtml(card.summary)}</div>
+                    <div class="tiny muted" style="margin-top:8px;">${escapeHtml(card.freshness.label)}</div>
+                  </div>
+                `).join('') : '<div class="card-item"><span class="muted">No ready work explicitly queued for this agent.</span></div>'}
+              </div>
+              ${entry.latestRun ? `<div class="tiny muted" style="margin-top:14px;">Last local run: ${escapeHtml(entry.latestRun.task_id || entry.latestRun.run_id)} finished ${escapeHtml(formatRelativeTimeFromNow(entry.latestRun.ended_at || entry.latestRun.started_at))}.</div>` : '<div class="tiny muted" style="margin-top:14px;">No local run history found for this agent.</div>'}
+            </article>
+          `).join('')}
+        </div>
       </section>
       <section class="grid stats">
         <article class="card"><div class="muted">Open cards</div><div class="kpi">${model.summary.cardCount}</div><div class="tiny muted">${model.summary.activeCount} in progress · ${model.summary.doneCount} done</div></article>
