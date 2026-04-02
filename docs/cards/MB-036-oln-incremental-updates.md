@@ -1,6 +1,6 @@
 # MB-036 — OLN: Scale: Incremental Updates & Delta Ingestion
 
-Status: Ready
+Status: In Progress
 Priority: P3 low
 Project: OLN
 Owner: Prime Sam
@@ -19,12 +19,13 @@ Lore changes. Wookieepedia is updated daily. Our pipeline must be able to proces
 - Handling of "tombstoning" or merging of previously existing nodes.
 
 ## Steps
-- [ ] Implement a "delta" parser for Wookieepedia's incremental XML dumps.
+- [x] Implement a "delta" parser for Wookieepedia's incremental XML dumps.
 - [ ] Update the Temporal pipeline to support "UpdateNode" operations.
-- [ ] Implement a tracking layer for page revision history in Firestore.
+- [x] Implement a tracking layer for page revision history (local state JSON for now).
 
 ## Blockers
 - MB-034 (Ingestion)
 
 ## Artifacts
-- `src/oln/ingestion/delta-manager/`
+- `src/oln/ingestion/delta-manager/` (local: `services/oln_ingestor/delta_parser.py`)
+- `PROOF_MB_036.md`
