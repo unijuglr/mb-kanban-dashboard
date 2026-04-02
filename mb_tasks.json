@@ -418,5 +418,47 @@
       "scripts/simulate_ingestion.py",
       "PROOF_MB_034.md"
     ]
+  },
+  {
+    "id": "MB-046",
+    "title": "Agilitas: Infrastructure: GCP Demoable Prototype (Functional MVP)",
+    "state": "done",
+    "owner": "Adam Goldband",
+    "depends_on": [
+      "MB-063"
+    ],
+    "artifacts": [
+      "infra/gcp-deployment/cloud-run-deploy.sh",
+      "scripts/prove-mb-046.py",
+      "PROOF_MB_046.md"
+    ]
+  },
+  {
+    "id": "MB-035",
+    "title": "OLN: Demo: Star Wars Lore Network (SWLN) MVP",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "src/oln/demo/swln-api/api.py",
+      "docs/oln/swln-demo-guide.md",
+      "PROOF_MB_035.md"
+    ]
+  },
+  {
+    "id": "MB-037",
+    "title": "OLN: Analysis: Graph Relationship Density & Quality",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "docs/oln/graph-analysis-v1.md",
+      "scripts/prove-mb-037.py",
+      "PROOF_MB_037.md"
+    ]
   }
 ]
