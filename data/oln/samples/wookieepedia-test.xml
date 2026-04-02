@@ -1,0 +1,36 @@
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/">
+  <page>
+    <title>Luke Skywalker</title>
+    <ns>0</ns>
+    <id>1</id>
+    <revision>
+      <id>100</id>
+      <timestamp>2024-01-01T00:00:00Z</timestamp>
+      <text xml:space="preserve">
+{{Character
+|name=Luke Skywalker
+|homeworld=[[Tatooine]]
+|species=[[Human]]
+}}
+Luke Skywalker was a legendary [[Jedi Master]] who fought in the [[Galactic Civil War]].
+      </text>
+    </revision>
+  </page>
+  <page>
+    <title>Tatooine</title>
+    <ns>0</ns>
+    <id>2</id>
+    <revision>
+      <id>200</id>
+      <timestamp>2024-01-01T00:00:00Z</timestamp>
+      <text xml:space="preserve">
+{{Planet
+|name=Tatooine
+|region=[[Outer Rim Territories]]
+|sector=[[Arkanis sector]]
+}}
+Tatooine was a desert world in the [[Outer Rim]].
+      </text>
+    </revision>
+  </page>
+</mediawiki>
