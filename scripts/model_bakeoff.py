@@ -5,8 +5,8 @@ import subprocess
 from datetime import datetime
 
 # Configuration
-OLLAMA_BASE_URL = "http://localhost:11434" # Assumes running ON Motherbrain
-MODELS = ["llama3.2:latest", "deepseek-coder-v2:16b", "qwen2.5-coder:14b"]
+OLLAMA_BASE_URL = "http://localhost:11435" # Tunnel from Laptop to Motherbrain
+MODELS = ["llama3.2:latest", "deepseek-coder-v2:16b", "qwen2.5-coder:14b", "deepseek-r1:32b"]
 BENCHMARK_FILE = "docs/eval/model-performance-report.md"
 
 BENCHMARK_TASKS = [

@@ -26,20 +26,27 @@
   {
     "id": "MB-036",
     "title": "OLN: Scale: Incremental Updates & Delta Ingestion",
-    "state": "ready",
-    "owner": "Coder-2",
+    "state": "done",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-034"
     ],
-    "artifacts": []
+    "artifacts": [
+      "services/oln_ingestor/delta_parser.py",
+      "PROOF_MB_036.md"
+    ]
   },
   {
     "id": "MB-044",
     "title": "Evaluation: Local Model Bake-off",
-    "state": "ready",
-    "owner": "Coder-3",
+    "state": "done",
+    "owner": "Prime Sam",
     "depends_on": [],
-    "artifacts": []
+    "artifacts": [
+      "scripts/model_bakeoff.py",
+      "docs/eval/model-performance-report.md",
+      "PROOF_MB_044.md"
+    ]
   },
   {
     "id": "MB-003",

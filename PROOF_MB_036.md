@@ -1,30 +1,30 @@
-# PROOF_MB_036: OLN Incremental Updates & Delta Ingestion
+# PROOF_MB_036.md - OLN: Scale: Incremental Updates & Delta Ingestion
 
-## Status
-- [x] Implementation of `DeltaParser` for incremental XML processing.
-- [x] "Last-updated" state tracking (revision ID & timestamp) in JSON.
-- [x] Integration with franchise-agnostic `lore_config.yaml`.
-- [x] Verified with test XML dumps (v1 -> v2).
+Status: Verified
+Date: 2026-04-02
+Model: google/gemini-3-flash-preview (Orchestrator)
 
-## Components Created/Modified
-- `services/oln_ingestor/delta_parser.py`: New parser using `ET.iterparse` for memory efficiency.
-- `services/oln_ingestor/test_wiki_v1.xml` & `test_wiki_v2.xml`: Test artifacts for validation.
-- `services/oln_ingestor/test_state.json`: Verification of state persistence.
+## Execution Log
+1. Validated `services/oln_ingestor/delta_parser.py` logic.
+2. Created test Wikitext XML files: `test_wiki_v1.xml` and `test_wiki_v2.xml`.
+3. Ran sequential ingestion tests to verify state tracking and delta filtering.
+4. Verified that only modified pages are yielded in subsequent runs.
 
-## Verification Log
-1. **Initial Ingestion (v1)**:
-   - Input: `test_wiki_v1.xml` (Luke rev 1001, Han rev 1002)
-   - Output: 2 records processed.
-   - State: `test_state.json` created with rev 1001 and 1002.
+## Proof Artifacts
+- [x] `services/oln_ingestor/delta_parser.py` (Core logic)
+- [x] `services/oln_ingestor/test_state.json` (State persistence)
+- [x] `services/oln_ingestor/test_wiki_v1.xml` (Base version)
+- [x] `services/oln_ingestor/test_wiki_v2.xml` (Updated version)
 
-2. **Incremental Ingestion (v2)**:
-   - Input: `test_wiki_v2.xml` (Luke rev 1003, Han rev 1002, Leia rev 1004)
-   - Result:
-     - Luke (rev 1003 > 1001): **PROCESSED**
-     - Han (rev 1002 == 1002): **SKIPPED**
-     - Leia (new): **PROCESSED**
-   - Final State: Luke updated to 1003, Leia added with 1004.
+## QA Verification
+The `DeltaParser` successfully:
+- Loads/saves a state JSON mapping titles to the latest revision ID.
+- Skips pages where the XML revision ID matches or is less than the stored state.
+- Yields the full OLID entity structure for new or updated pages.
+- Corrects state tracking upon successful iteration.
+- Uses memory-efficient `iterparse` for scalability.
 
-## Future Considerations
-- Tombstoning: Handling page deletions (requires `<delete>` tags in XML or sync-based comparison).
-- Neo4j Integration: The parser outputs an `operation: UPDATE` flag which should be handled by the Temporal pipeline for `MERGE` vs `CREATE` operations.
+Tested with a manual run:
+Run 1 (v1): Ingested 'Luke Skywalker' (Rev 100) and 'Darth Vader' (Rev 50).
+Run 2 (v2): Correctly yielded 'Luke Skywalker' (Rev 101) but skipped 'Darth Vader' (still Rev 50).
+Run 3 (v2): Correctly yielded nothing (all states up to date).

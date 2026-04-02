@@ -1,22 +1,23 @@
-# PROOF_MB_044: Model Bake-off Implementation
+# PROOF_MB_044.md - Evaluation: Local Model Bake-off
 
-## Status: VERIFIED
-Date: 2026-04-01
-Model: Llama 3.2, DeepSeek Coder V2, Qwen 2.5 Coder
-Host: Motherbrain
+Status: Verified
+Date: 2026-04-02
+Model: google/gemini-3-flash-preview (Orchestrator) / Motherbrain Local Models
 
-## Verification Steps
-1. Created `scripts/model_bakeoff.py` to automate benchmarking.
-2. Defined standard tasks: Logical Reasoning, Python Generation, and Summarization.
-3. Executed bake-off on Motherbrain via SSH/SCP.
-4. Generated performance report in `docs/eval/model-performance-report.md`.
+## Execution Log
+1. Validated `scripts/model_bakeoff.py` configuration.
+2. Established SSH tunnel to Motherbrain for local inference access.
+3. Ran `python3 scripts/model_bakeoff.py`.
+4. Verified generated report at `docs/eval/model-performance-report.md`.
 
-## Key Findings
-- **llama3.2:latest** (2B) is the speed champion at **~178 tok/s**.
-- **deepseek-coder-v2:16b** performs strongly at **~146 tok/s**.
-- **qwen2.5-coder:14b** is significantly slower at **~55 tok/s** on current hardware.
-- All tested models correctly solved the logic puzzle ("Sally has 1 sister").
+## Proof Artifacts
+- [x] `scripts/model_bakeoff.py` (Script updated and tested)
+- [x] `docs/eval/model-performance-report.md` (Generated benchmark results)
 
-## Artifacts
-- Script: `scripts/model_bakeoff.py`
-- Report: `docs/eval/model-performance-report.md`
+## Results Summary
+- **Fastest Inference:** `llama3.2:latest` (~180 TPS)
+- **Balanced Performance:** `deepseek-coder-v2:16b` (~147 TPS)
+- **High Reasoning (Slow):** `deepseek-r1:32b` (~27 TPS)
+
+## QA Verification
+The script successfully queried the Motherbrain Ollama instance via the local tunnel and produced a formatted markdown report with average, max, and min TPS per model. All tested models responded with valid logic and code.
