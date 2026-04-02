@@ -1,37 +1,43 @@
-# MB-Sam Runtime
+# MB_SAM_RUNTIME.md — Runtime notes for MB-Sam
 
-## Mission
-Operate the MB workstream without requiring Prime Sam to manually decide every next step.
+Status: In Progress
+Priority: P1 high
+Owner: Prime Sam
+Project: Motherbrain
+Assigned Coder: Prime Sam
+Start Time: 2026-04-01 22:39
+Estimate: 2h
+Completion Time: Unknown
+Created: 2026-04-01
+Last Updated: 2026-04-01
 
-## Inputs
-- `mb_tasks.json`
-- `docs/metrics-baseline.md`
-- repo working tree
-- proof files
+## Objective
+Record runtime notes, state, and decisions for the overnight MB-Sam swarm manager pass.
 
-## Required loop
-1. read task state
-2. identify ready tasks whose dependencies are done
-3. assign only unowned/ready work
-4. require artifact + proof for completion
-5. update task state
-6. recommend next work
+## Why It Matters
+Ensures continuity across sessions and provides a durable log of autonomous activity.
 
-## Completion rule
-A task is not done unless:
-- artifact exists
-- proof file exists
-- task state updated
+## Scope
+- Runtime state tracking.
+- Task identification and assignment.
+- QA and commit status.
 
-## Current Status (2026-04-02 03:00 PT)
-- Wave 1 functionality complete (Board, Metrics, Decisions, Updates, Writes).
-- MB-060 (E2E QA) and MB-061 (Cleanup) are functionally complete.
-- MB-062 (GitHub Push Prep) completed.
-- MB-063 (Agilitas Containerization) completed; merged to `feat/mb-032-oln-infra-re-verify`.
-- Wave 2 OLN/Agilitas core components (Resolution, Neo4j, Parser) re-verified with new tests.
-- Re-verified MB-032 (Decisions UI) and MB-030 (Neo4j OLN) with standalone proofs.
-- Next primary action: Wave 2 Infrastructure Deployment (MB-032) on Motherbrain.
+## Out of Scope
+- Direct DTS work.
 
-## Next focus
-- MB-032 (Infrastructure Motherbrain)
-- Wave 2 Planning (Agilitas, HellaThis, Ai-Bitz execution)
+## Steps
+- [x] Initial repo/task state inspection.
+- [x] Fix critical UI bug in card creation (assignedCoder reference error).
+- [ ] Implement MB-034: Full Ingestion Pipeline Run.
+- [ ] Implement MB-035: SWLN Demo API.
+- [ ] Final summary and reporting.
+
+## Blockers
+- None currently.
+
+## Artifacts
+- `MB_SAM_RUNTIME.md`
+- `PROOF_MB_SAM_003.md` (to be created)
+
+## Update Log
+- 2026-04-01 — Pass started. Identified and fixed a bug in `card-writes.mjs` preventing card creation via UI.

@@ -50,24 +50,29 @@ function cardFileName(id, title) {
   return `${id}-${titleSlug}.md`;
 }
 
-function cardTemplate({
-  id,
-  title,
-  status,
-  priority,
-  owner,
-  project,
-  created,
-  lastUpdated,
-  objective,
-  whyItMatters,
-  scope,
-  outOfScope,
-  steps,
-  blockers,
-  artifacts,
-  updateLog
-}) {
+function cardTemplate(data) {
+  const {
+    id,
+    title,
+    status,
+    priority,
+    owner,
+    project,
+    assignedCoder,
+    startTime,
+    estimate,
+    completionTime,
+    created,
+    lastUpdated,
+    objective,
+    whyItMatters,
+    scope,
+    outOfScope,
+    steps,
+    blockers,
+    artifacts,
+    updateLog
+  } = data;
   return `# ${id} — ${title}
 
 Status: ${status}

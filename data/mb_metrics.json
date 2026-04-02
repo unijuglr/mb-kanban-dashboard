@@ -1,0 +1,100 @@
+[
+  {
+    "run_id": "MB-034-1775108413",
+    "total_records": 15,
+    "total_duration": 0.20595097541809082,
+    "timestamp": "2026-04-01T22:40:13.473665",
+    "items": [
+      {
+        "title": "Luke Skywalker",
+        "status": "SUCCESS",
+        "duration": 0.20538020133972168,
+        "timestamp": "2026-04-01T22:40:13.473513"
+      },
+      {
+        "title": "Leia Organa",
+        "status": "SUCCESS",
+        "duration": 0.20542001724243164,
+        "timestamp": "2026-04-01T22:40:13.473538"
+      },
+      {
+        "title": "Han Solo",
+        "status": "SUCCESS",
+        "duration": 0.20542073249816895,
+        "timestamp": "2026-04-01T22:40:13.473543"
+      },
+      {
+        "title": "Chewbacca",
+        "status": "SUCCESS",
+        "duration": 0.20542430877685547,
+        "timestamp": "2026-04-01T22:40:13.473549"
+      },
+      {
+        "title": "C-3PO",
+        "status": "SUCCESS",
+        "duration": 0.20542502403259277,
+        "timestamp": "2026-04-01T22:40:13.473553"
+      },
+      {
+        "title": "R2-D2",
+        "status": "SUCCESS",
+        "duration": 0.20542693138122559,
+        "timestamp": "2026-04-01T22:40:13.473558"
+      },
+      {
+        "title": "Obi-Wan Kenobi",
+        "status": "SUCCESS",
+        "duration": 0.2054281234741211,
+        "timestamp": "2026-04-01T22:40:13.473562"
+      },
+      {
+        "title": "Yoda",
+        "status": "SUCCESS",
+        "duration": 0.2054290771484375,
+        "timestamp": "2026-04-01T22:40:13.473567"
+      },
+      {
+        "title": "Darth Vader",
+        "status": "SUCCESS",
+        "duration": 0.2054300308227539,
+        "timestamp": "2026-04-01T22:40:13.473570"
+      },
+      {
+        "title": "Sheev Palpatine",
+        "status": "SUCCESS",
+        "duration": 0.20543169975280762,
+        "timestamp": "2026-04-01T22:40:13.473575"
+      },
+      {
+        "title": "Boba Fett",
+        "status": "SUCCESS",
+        "duration": 0.20543289184570312,
+        "timestamp": "2026-04-01T22:40:13.473579"
+      },
+      {
+        "title": "Lando Calrissian",
+        "status": "SUCCESS",
+        "duration": 0.20543432235717773,
+        "timestamp": "2026-04-01T22:40:13.473583"
+      },
+      {
+        "title": "Ahsoka Tano",
+        "status": "SUCCESS",
+        "duration": 0.20543503761291504,
+        "timestamp": "2026-04-01T22:40:13.473587"
+      },
+      {
+        "title": "Ezra Bridger",
+        "status": "SUCCESS",
+        "duration": 0.20543622970581055,
+        "timestamp": "2026-04-01T22:40:13.473591"
+      },
+      {
+        "title": "Kanan Jarrus",
+        "status": "SUCCESS",
+        "duration": 0.20543694496154785,
+        "timestamp": "2026-04-01T22:40:13.473595"
+      }
+    ]
+  }
+]

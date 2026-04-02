@@ -402,5 +402,21 @@
       "scripts/prove-mb-063.py",
       "PROOF_MB_063.md"
     ]
+  },
+  {
+    "id": "MB-034",
+    "title": "OLN: Full Ingestion Pipeline Run",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-031",
+      "MB-032"
+    ],
+    "artifacts": [
+      "docs/oln/ingestion-report.md",
+      "data/mb_metrics.json",
+      "scripts/simulate_ingestion.py",
+      "PROOF_MB_034.md"
+    ]
   }
 ]
