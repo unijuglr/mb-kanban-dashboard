@@ -460,5 +460,20 @@
       "scripts/prove-mb-037.py",
       "PROOF_MB_037.md"
     ]
+  },
+  {
+    "id": "MB-038",
+    "title": "OLN: Franchise Generalization",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-028"
+    ],
+    "artifacts": [
+      "services/oln_ingestor/lore_config.yaml",
+      "data/oln/samples/memory-alpha-test.xml",
+      "docs/oln/franchise-agnostic-design.md",
+      "PROOF_MB_038.md"
+    ]
   }
 ]
