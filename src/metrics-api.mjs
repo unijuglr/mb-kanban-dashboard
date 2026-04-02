@@ -98,7 +98,7 @@ recent_rows = conn.execute(
 timeline_rows = conn.execute(
     """
     SELECT
-      substr(started_at, 1, 10) AS day,
+      substr(started_at, 1, 13) AS day,
       COUNT(*) AS runs,
       SUM(CASE WHEN status IN ('done','verified','completed') THEN 1 ELSE 0 END) AS successful_runs,
       COALESCE(AVG(duration_ms), 0) AS avg_duration_ms,
@@ -106,7 +106,7 @@ timeline_rows = conn.execute(
       COALESCE(SUM(token_total), 0) AS total_tokens
     FROM agent_runs
     WHERE project_id = ?
-    GROUP BY substr(started_at, 1, 10)
+    GROUP BY substr(started_at, 1, 13)
     ORDER BY day DESC
     LIMIT ?
     """,
