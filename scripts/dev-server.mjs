@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { findBySlug, loadDashboardModel } from '../src/app-data.mjs';
 import { allowedNextStatuses, createCardFromTemplate, transitionCardStatus } from '../src/card-writes.mjs';
 import { createDecisionFromTemplate } from '../src/decision-writes.mjs';
+import { appendDecisionResponse, loadDecisionResponseEnvelope } from '../src/decision-response-store.mjs';
 import { appendUpdate } from '../src/update-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
 
@@ -134,7 +135,157 @@ function formatDecimal(value, digits = 1) {
   return number.toFixed(digits);
 }
 
+function parseIsoDate(value) {
+  if (!value || typeof value !== 'string') return null;
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00Z` : value;
+  const timestamp = Date.parse(normalized);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function formatRelativeTimeFromNow(value, now = Date.now()) {
+  const timestamp = typeof value === 'number' ? value : parseIsoDate(value);
+  if (!timestamp) return 'unknown';
+  const deltaMs = Math.max(0, now - timestamp);
+  const minutes = Math.round(deltaMs / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  return `${days}d ago`;
+}
+
+function parsePriorityRank(value) {
+  const match = String(value || '').match(/P(\d+)/i);
+  return match ? Number(match[1]) : 99;
+}
+
+function summarizeFreshness(updatedAt, now = Date.now()) {
+  const timestamp = parseIsoDate(updatedAt);
+  if (!timestamp) {
+    return {
+      label: 'Freshness unknown',
+      tone: 'warn',
+      detail: 'No machine-parseable timestamp on the card or run record.'
+    };
+  }
+
+  const ageMs = Math.max(0, now - timestamp);
+  if (ageMs <= 30 * 60 * 1000) {
+    return { label: `Fresh · ${formatRelativeTimeFromNow(timestamp, now)}`, tone: 'good', detail: 'Updated within the last 30 minutes.' };
+  }
+  if (ageMs <= 4 * 60 * 60 * 1000) {
+    return { label: `Aging · ${formatRelativeTimeFromNow(timestamp, now)}`, tone: 'ok', detail: 'Recent enough to be useful, but not live.' };
+  }
+  if (ageMs <= 24 * 60 * 60 * 1000) {
+    return { label: `Stale today · ${formatRelativeTimeFromNow(timestamp, now)}`, tone: 'warn', detail: 'Same-day signal, but treat ETA as rough.' };
+  }
+  return { label: `Stale · ${formatRelativeTimeFromNow(timestamp, now)}`, tone: 'bad', detail: 'Older than a day. Likely drifted from reality.' };
+}
+
+function buildOperationsSnapshot(model, metrics) {
+  const now = Date.now();
+  const recentRuns = Array.isArray(metrics?.recentRuns) ? metrics.recentRuns : [];
+  const readyCards = model.cards
+    .filter((card) => card.status === 'Ready')
+    .sort((left, right) => {
+      const priorityDiff = parsePriorityRank(left.priority) - parsePriorityRank(right.priority);
+      if (priorityDiff !== 0) return priorityDiff;
+      return String(left.id).localeCompare(String(right.id));
+    });
+
+  const explicitActive = model.cards
+    .filter((card) => ['In Progress', 'Review'].includes(card.status))
+    .map((card) => ({
+      kind: 'card',
+      card,
+      id: card.id,
+      title: card.title,
+      agent: card.assignedCoder !== 'Unknown' ? card.assignedCoder : (card.owner !== 'Unknown' ? card.owner : 'Unassigned'),
+      status: card.status,
+      eta: card.estimate !== 'Unknown' ? card.estimate : 'Unknown — no card estimate recorded',
+      updatedAt: card.updatedAt !== 'Unknown' ? card.updatedAt : null,
+      freshness: summarizeFreshness(card.updatedAt, now),
+      confidence: card.updatedAt && card.updatedAt !== 'Unknown' ? 'Medium' : 'Low',
+      source: 'Board card metadata',
+      detail: card.summary,
+      nextMeaningfulUpdate: card.estimate !== 'Unknown'
+        ? card.estimate
+        : 'Unknown — needs manual progress update on the card'
+    }));
+
+  const recentByOwner = [];
+  const seenOwners = new Set();
+  for (const run of recentRuns) {
+    const owner = run.metadata?.owner || run.role || 'Unknown';
+    if (seenOwners.has(owner)) continue;
+    seenOwners.add(owner);
+    recentByOwner.push(run);
+  }
+
+  const inferredActive = explicitActive.length
+    ? []
+    : recentByOwner.slice(0, 4).map((run) => ({
+      kind: 'inferred-run',
+      id: run.task_id || run.run_id,
+      title: run.task_id ? `${run.task_id} — recent completed run` : (run.label || run.run_id),
+      agent: run.metadata?.owner || run.role || 'Unknown',
+      status: `Inferred from last completed run (${run.status || 'unknown'})`,
+      eta: 'Unknown — no live heartbeat, only last recorded completion',
+      updatedAt: run.ended_at || run.started_at,
+      freshness: summarizeFreshness(run.ended_at || run.started_at, now),
+      confidence: 'Low',
+      source: 'SQLite metrics run log',
+      detail: `${run.task_id || run.label || run.run_id} finished ${formatRelativeTimeFromNow(run.ended_at || run.started_at, now)} in ${formatDuration(run.duration_ms)}.`,
+      nextMeaningfulUpdate: 'When that agent posts another run or updates a card'
+    }));
+
+  const agents = [...new Set([
+    ...explicitActive.map((item) => item.agent),
+    ...recentByOwner.map((run) => run.metadata?.owner || run.role || 'Unknown'),
+    ...readyCards.map((card) => card.assignedCoder !== 'Unknown' ? card.assignedCoder : (card.owner !== 'Unknown' ? card.owner : 'Unassigned'))
+  ])].filter(Boolean).sort((a, b) => String(a).localeCompare(String(b)));
+
+  const queueByAgent = agents.map((agent) => {
+    const queued = readyCards
+      .filter((card) => {
+        const cardAgent = card.assignedCoder !== 'Unknown' ? card.assignedCoder : (card.owner !== 'Unknown' ? card.owner : 'Unassigned');
+        return cardAgent === agent;
+      })
+      .slice(0, 3)
+      .map((card) => ({
+        id: card.id,
+        title: card.title,
+        priority: card.priority,
+        summary: card.summary,
+        updatedAt: card.updatedAt,
+        freshness: summarizeFreshness(card.updatedAt, now)
+      }));
+
+    const latestRun = recentByOwner.find((run) => (run.metadata?.owner || run.role || 'Unknown') === agent) || null;
+
+    return {
+      agent,
+      queued,
+      latestRun,
+      active: explicitActive.find((item) => item.agent === agent) || null
+    };
+  });
+
+  return {
+    generatedAt: new Date(now).toISOString(),
+    active: explicitActive.length ? explicitActive : inferredActive,
+    activeMode: explicitActive.length ? 'explicit' : 'inferred',
+    queueByAgent,
+    readyCount: readyCards.length,
+    honestyNote: explicitActive.length
+      ? 'Active work comes from cards explicitly marked In Progress/Review. Freshness still depends on the last card update.'
+      : 'No cards are currently marked In Progress, so this screen falls back to the latest completed runs in the local metrics DB. That is useful, but not live.'
+  };
+}
+
 function renderOverview(model, metrics) {
+  const operations = buildOperationsSnapshot(model, metrics);
   const summary = metrics?.summary || {};
   const byStatus = Array.isArray(metrics?.byStatus) ? metrics.byStatus : [];
   const byOwner = Array.isArray(metrics?.byOwner) ? metrics.byOwner : [];
@@ -149,6 +300,12 @@ function renderOverview(model, metrics) {
     ? `${model.summary.blockedCount} blocked card(s)`
     : 'No blocked cards right now';
   const topOwner = byOwner[0];
+  const toneColor = {
+    good: '#22c55e',
+    ok: '#60a5fa',
+    warn: '#f59e0b',
+    bad: '#ef4444'
+  };
 
   return shell({
     title: 'Overview',
@@ -156,10 +313,80 @@ function renderOverview(model, metrics) {
     body: `
       <section class="hero">
         <div>
-          <h1>Program overview</h1>
-          <p>Repo-backed board state plus first-party metrics from the SQLite run log.</p>
+          <h1>Operator dashboard</h1>
+          <p>Truth-first ops view: active work, likely owner, next useful update window, and queued-next cards per agent.</p>
         </div>
         <div class="muted">Generated ${escapeHtml(model.generatedAt)}</div>
+      </section>
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">
+          <div>
+            <h2>What is active right now</h2>
+            <p class="muted" style="margin:0;">${escapeHtml(operations.honestyNote)}</p>
+          </div>
+          <div class="chip">Mode: ${escapeHtml(operations.activeMode === 'explicit' ? 'explicit board state' : 'inferred from local run log')}</div>
+        </div>
+        <div class="stack" style="margin-top:16px;">
+          ${operations.active.length ? operations.active.map((item) => `
+            <article class="card-item">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap;">
+                <div>
+                  <strong>${escapeHtml(item.id)} — ${escapeHtml(item.title)}</strong>
+                  <div class="tiny muted" style="margin-top:6px;">${escapeHtml(item.detail)}</div>
+                </div>
+                <div class="chip">${escapeHtml(item.status)}</div>
+              </div>
+              <div class="grid stats" style="margin-top:12px;grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+                <div><div class="tiny muted">Agent</div><div>${escapeHtml(item.agent)}</div></div>
+                <div><div class="tiny muted">Next meaningful update</div><div>${escapeHtml(item.nextMeaningfulUpdate)}</div></div>
+                <div><div class="tiny muted">ETA confidence</div><div>${escapeHtml(item.confidence)}</div></div>
+                <div><div class="tiny muted">Source</div><div>${escapeHtml(item.source)}</div></div>
+              </div>
+              <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <span class="chip" style="border-color:${toneColor[item.freshness.tone] || '#334466'}; color:${toneColor[item.freshness.tone] || '#c2d7ff'};">${escapeHtml(item.freshness.label)}</span>
+                <span class="tiny muted">${escapeHtml(item.freshness.detail)}</span>
+              </div>
+            </article>
+          `).join('') : '<p class="muted">No active work signal found locally.</p>'}
+        </div>
+      </section>
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">
+          <div>
+            <h2>Queued next by agent</h2>
+            <p class="muted" style="margin:0;">Only cards in <code>Ready</code> are treated as queued-next. Unassigned work is called out instead of being magically assigned.</p>
+          </div>
+          <div class="chip">${operations.readyCount} ready card(s)</div>
+        </div>
+        <div class="grid list" style="margin-top:16px;">
+          ${operations.queueByAgent.map((entry) => `
+            <article class="card">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;">
+                <div>
+                  <strong>${escapeHtml(entry.agent)}</strong>
+                  <div class="tiny muted" style="margin-top:6px;">${entry.active ? `Currently tied to ${escapeHtml(entry.active.id)}.` : 'No explicit in-progress card.'}</div>
+                </div>
+                <div class="chip">${entry.queued.length} queued</div>
+              </div>
+              <div class="stack" style="margin-top:14px;">
+                ${entry.queued.length ? entry.queued.map((card) => `
+                  <div class="card-item">
+                    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;">
+                      <div>
+                        <a href="/cards/${encodeURIComponent(card.id.toLowerCase())}"><strong>${escapeHtml(card.id)}</strong></a>
+                        <div class="tiny muted" style="margin-top:6px;">${escapeHtml(card.title)}</div>
+                      </div>
+                      <div class="chip">${escapeHtml(card.priority || 'No priority')}</div>
+                    </div>
+                    <div class="tiny muted" style="margin-top:8px;">${escapeHtml(card.summary)}</div>
+                    <div class="tiny muted" style="margin-top:8px;">${escapeHtml(card.freshness.label)}</div>
+                  </div>
+                `).join('') : '<div class="card-item"><span class="muted">No ready work explicitly queued for this agent.</span></div>'}
+              </div>
+              ${entry.latestRun ? `<div class="tiny muted" style="margin-top:14px;">Last local run: ${escapeHtml(entry.latestRun.task_id || entry.latestRun.run_id)} finished ${escapeHtml(formatRelativeTimeFromNow(entry.latestRun.ended_at || entry.latestRun.started_at))}.</div>` : '<div class="tiny muted" style="margin-top:14px;">No local run history found for this agent.</div>'}
+            </article>
+          `).join('')}
+        </div>
       </section>
       <section class="grid stats">
         <article class="card"><div class="muted">Open cards</div><div class="kpi">${model.summary.cardCount}</div><div class="tiny muted">${model.summary.activeCount} in progress · ${model.summary.doneCount} done</div></article>
@@ -1347,6 +1574,43 @@ function renderDecisions(model) {
             return value.split(/\\n\\s*\\n/).map((block) => '<p>' + esc(block).replace(/\\n/g, '<br />') + '</p>').join('');
           }
 
+          function extractOptions(decision) {
+            const raw = String(decision?.options || '');
+            const titled = Array.from(raw.matchAll(/^###\\s+(.+)$/gm)).map((match) => match[1].trim()).filter(Boolean);
+            if (titled.length) return titled;
+            return raw.split('\\n').map((line) => line.match(/^\\s*-\\s+(.*)$/)).filter(Boolean).map((match) => match[1].trim()).filter(Boolean);
+          }
+
+          function responseHistoryMarkup(decision) {
+            const history = Array.isArray(decision.responseHistory) ? decision.responseHistory : [];
+            if (!history.length) return '<p class="muted">No responses recorded yet.</p>';
+            return history.slice().reverse().map((entry) => '<article class="card">'
+              + '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;"><strong>' + esc(entry.action) + '</strong><span class="tiny muted">' + esc(entry.createdAt) + ' · ' + esc(entry.actor || 'operator') + '</span></div>'
+              + (entry.option ? '<div class="tiny" style="margin-top:8px;">Option: ' + esc(entry.option) + '</div>' : '')
+              + (entry.note ? '<p style="margin:8px 0 0;">' + esc(entry.note) + '</p>' : '<p class="muted" style="margin:8px 0 0;">No note recorded.</p>')
+              + '</article>').join('');
+          }
+
+          function actionPanelMarkup(decision) {
+            const options = extractOptions(decision);
+            const latest = decision.latestResponse || null;
+            return '<section class="panel" style="margin-top:16px;">'
+              + '<div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap;">'
+              + '<div><h3>Respond now</h3><p class="muted">Approve/reject here, add notes, save, refresh, and keep the trail visible.</p></div>'
+              + (latest ? '<div class="chip" style="margin-right:0;">Latest: ' + esc(latest.action) + (latest.option ? ' · ' + esc(latest.option) : '') + '</div>' : '<div class="chip" style="margin-right:0;">No response yet</div>')
+              + '</div>'
+              + '<form id="decision-response-form" class="stack" style="margin-top:12px;">'
+              + '<div class="button-row"><button class="button" type="button" data-decision-action="approve">Approve</button><button class="button" type="button" data-decision-action="reject">Reject</button></div>'
+              + '<input type="hidden" name="action" value="' + esc(latest?.action || '') + '" />'
+              + '<label class="stack"><span class="muted">Operator</span><input name="actor" type="text" value="Adam" /></label>'
+              + (options.length ? '<label class="stack"><span class="muted">Option selected</span><select name="option"><option value="">No specific option</option>' + options.map((option) => '<option value="' + esc(option) + '"' + (latest?.option === option ? ' selected' : '') + '>' + esc(option) + '</option>').join('') + '</select></label>' : '<input type="hidden" name="option" value="" />')
+              + '<label class="stack"><span class="muted">Notes</span><textarea name="note" placeholder="Why this call, constraints, follow-up, operator context...">' + esc(latest?.note || '') + '</textarea></label>'
+              + '<div class="button-row" style="align-items:center;"><button class="button" id="decision-response-submit" type="submit">Save response</button><span class="muted tiny" id="decision-response-result">Choose approve/reject, add note or option, then save.</span></div>'
+              + '</form>'
+              + '<div class="stack" style="margin-top:16px;"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;"><h3 style="margin:0;">Response history</h3><span class="muted tiny">' + ((decision.responseHistory || []).length) + ' entr' + (((decision.responseHistory || []).length) === 1 ? 'y' : 'ies') + '</span></div><div id="decision-response-history">' + responseHistoryMarkup(decision) + '</div></div>'
+              + '</section>';
+          }
+
           function matches(decision) {
             const search = normalized(searchEl.value).trim();
             const status = statusEl.value;
@@ -1397,7 +1661,8 @@ function renderDecisions(model) {
               + '<section class="panel"><h3>Options considered</h3><pre>' + esc(decision.options || 'Not available.') + '</pre></section>'
               + '<section class="panel"><h3>Consequences</h3><pre>' + esc(decision.consequences || 'Not available.') + '</pre></section>'
               + '<section class="panel"><h3>Follow-up tasks</h3><pre>' + esc(decision.followUpTasks || 'None listed.') + '</pre></section>'
-              + '</div>';
+              + '</div>'
+              + actionPanelMarkup(decision);
           }
 
           function openDrawerWith(data, message) {
@@ -1466,6 +1731,38 @@ function renderDecisions(model) {
             }
           }
 
+          async function submitDecisionResponse(event) {
+            event.preventDefault();
+            const selected = (payload?.items || []).find((item) => item.slug === selectedSlug);
+            const form = event.currentTarget;
+            const submit = document.getElementById('decision-response-submit');
+            const result = document.getElementById('decision-response-result');
+            if (!selected) {
+              if (result) result.textContent = 'No decision selected.';
+              return;
+            }
+            submit.disabled = true;
+            result.textContent = 'Saving response…';
+            try {
+              const response = await fetch('/api/decisions/' + encodeURIComponent(selected.slug) + '/responses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
+              });
+              const body = await response.json();
+              if (!response.ok || !body.ok) throw new Error(body.error || 'Failed to save response');
+              const refreshed = await (await fetch('/api/decisions')).json();
+              payload = refreshed;
+              render();
+              const resultAfter = document.getElementById('decision-response-result');
+              if (resultAfter) resultAfter.textContent = 'Response saved. Refresh-safe history updated.';
+            } catch (error) {
+              result.textContent = error.message;
+            } finally {
+              submit.disabled = false;
+            }
+          }
+
           function render() {
             const filtered = (payload?.items || []).filter(matches);
             const selected = filtered.find((d) => d.slug === selectedSlug) || filtered[0] || null;
@@ -1528,6 +1825,18 @@ function renderDecisions(model) {
               if (article) { selectedSlug = article.getAttribute('data-slug'); render(); }
             });
             detailEl.addEventListener('click', (event) => {
+              const actionButton = event.target.closest('[data-decision-action]');
+              if (actionButton) {
+                const form = document.getElementById('decision-response-form');
+                if (form) {
+                  form.elements.action.value = actionButton.getAttribute('data-decision-action') || '';
+                  Array.from(detailEl.querySelectorAll('[data-decision-action]')).forEach((el) => el.style.borderColor = '#334466');
+                  actionButton.style.borderColor = '#4f8cff';
+                  const result = document.getElementById('decision-response-result');
+                  if (result) result.textContent = 'Action selected: ' + form.elements.action.value + '.';
+                }
+                return;
+              }
               const followup = event.target.closest('[data-record-followup]');
               const duplicate = event.target.closest('[data-duplicate-decision]');
               const sourceSlug = followup?.getAttribute('data-record-followup') || duplicate?.getAttribute('data-duplicate-decision');
@@ -1544,6 +1853,9 @@ function renderDecisions(model) {
                 context: source.context || '',
                 decision: followup ? 'Follow-up to ' + source.id + ': ' : source.decision || ''
               }, followup ? 'Follow-up decision draft loaded.' : 'Template copied from ' + source.id + '.');
+            });
+            detailEl.addEventListener('submit', (event) => {
+              if (event.target && event.target.id === 'decision-response-form') submitDecisionResponse(event);
             });
             render();
           }
@@ -1606,6 +1918,7 @@ function renderDecisionSwimlane(projectName, decisions, selectedSlug) {
 function renderDecisionDetail(model, slug) {
   const decision = findBySlug(model.decisions, slug);
   if (!decision) return notFound('/decisions', 'Decision not found');
+  const decisionData = JSON.stringify(decisionApiShape(decision)).replace(/</g, '\\u003c');
   return shell({
     title: decision.id,
     currentPath: '/decisions',
@@ -1614,13 +1927,51 @@ function renderDecisionDetail(model, slug) {
         <div><h1>${escapeHtml(decision.id)} — ${escapeHtml(decision.title)}</h1><p>${escapeHtml(decision.status)} · ${escapeHtml(decision.date)} · ${escapeHtml(decision.owner)}</p></div>
         <a href="/decisions">← Back to decisions</a>
       </section>
+      ${decisionActionPanelMarkup(decision)}
       <section class="grid list">
         <article class="panel"><h2>Context</h2>${paragraphize(decision.context)}</article>
         <article class="panel"><h2>Options considered</h2><pre>${escapeHtml(decision.options || 'Not available.')}</pre></article>
         <article class="panel"><h2>Decision</h2>${paragraphize(decision.decision)}</article>
         <article class="panel"><h2>Consequences</h2><pre>${escapeHtml(decision.consequences || 'Not available.')}</pre></article>
         <article class="panel"><h2>Follow-up tasks</h2><pre>${escapeHtml(decision.followUpTasks || 'None listed.')}</pre></article>
-      </section>`
+      </section>
+      <script id="decision-detail-data" type="application/json">${decisionData}</script>
+      <script>
+        (() => {
+          const decision = JSON.parse(document.getElementById('decision-detail-data').textContent);
+          const form = document.getElementById('decision-response-form');
+          const resultEl = document.getElementById('decision-response-result');
+          const submitEl = document.getElementById('decision-response-submit');
+          if (!form) return;
+          Array.from(document.querySelectorAll('[data-decision-action]')).forEach((button) => {
+            button.addEventListener('click', () => {
+              form.elements.action.value = button.getAttribute('data-decision-action') || '';
+              Array.from(document.querySelectorAll('[data-decision-action]')).forEach((el) => el.style.borderColor = '#334466');
+              button.style.borderColor = '#4f8cff';
+              resultEl.textContent = 'Action selected: ' + form.elements.action.value + '.';
+            });
+          });
+          form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            submitEl.disabled = true;
+            resultEl.textContent = 'Saving response…';
+            try {
+              const response = await fetch('/api/decisions/' + encodeURIComponent(decision.slug) + '/responses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
+              });
+              const result = await response.json();
+              if (!response.ok || !result.ok) throw new Error(result.error || 'Failed to save response');
+              window.location.reload();
+            } catch (error) {
+              resultEl.textContent = error.message;
+            } finally {
+              submitEl.disabled = false;
+            }
+          });
+        })();
+      </script>`
   });
 }
 
@@ -2056,8 +2407,65 @@ function decisionApiShape(decision) {
     decision: decision.decision,
     consequences: decision.consequences,
     followUpTasks: decision.followUpTasks,
+    latestResponse: decision.latestResponse || null,
+    responseHistory: Array.isArray(decision.responseHistory) ? decision.responseHistory : [],
     filePath: decision.filePath
   };
+}
+
+function listDecisionOptions(decision) {
+  const raw = String(decision?.options || '');
+  const titled = [...raw.matchAll(/^###\s+(.+)$/gm)].map((match) => match[1].trim()).filter(Boolean);
+  if (titled.length) return titled;
+  return raw
+    .split('\n')
+    .map((line) => line.match(/^\s*-\s+(.*)$/))
+    .filter(Boolean)
+    .map((match) => match[1].trim())
+    .filter(Boolean);
+}
+
+function decisionActionPanelMarkup(decision, { compact = false } = {}) {
+  const options = listDecisionOptions(decision);
+  const latest = decision.latestResponse;
+  const history = Array.isArray(decision.responseHistory) ? decision.responseHistory : [];
+  return `<article class="panel" id="decision-action-panel">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap;">
+      <div>
+        <h3 style="margin-bottom:6px;">Respond now</h3>
+        <p class="muted">Approve or reject on the real route, capture notes, and keep a visible response trail.</p>
+      </div>
+      ${latest ? `<div class="chip" style="margin-right:0;">Latest: ${escapeHtml(latest.action)}${latest.option ? ` · ${escapeHtml(latest.option)}` : ''}</div>` : '<div class="chip" style="margin-right:0;">No response yet</div>'}
+    </div>
+    <form id="decision-response-form" class="stack" style="margin-top:12px;">
+      <div class="button-row">
+        <button class="button" type="button" data-decision-action="approve">Approve</button>
+        <button class="button" type="button" data-decision-action="reject">Reject</button>
+      </div>
+      <input type="hidden" name="action" value="${escapeHtml(latest?.action || '')}" />
+      <label class="stack">
+        <span class="muted">Operator</span>
+        <input name="actor" type="text" value="Adam" />
+      </label>
+      ${options.length ? `<label class="stack"><span class="muted">Option selected</span><select name="option"><option value="">No specific option</option>${options.map((option) => `<option value="${escapeHtml(option)}"${latest?.option === option ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select></label>` : '<input type="hidden" name="option" value="" />'}
+      <label class="stack">
+        <span class="muted">Notes</span>
+        <textarea name="note" placeholder="Why this call, constraints, follow-up, objections, operator context...">${escapeHtml(latest?.note || '')}</textarea>
+      </label>
+      <div class="button-row" style="align-items:center;">
+        <button class="button" id="decision-response-submit" type="submit">Save response</button>
+        <span class="muted tiny" id="decision-response-result">Choose approve/reject, add note or option, then save.</span>
+      </div>
+    </form>
+    <section class="stack" style="margin-top:16px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+        <h3 style="margin:0;">Response history</h3>
+        <span class="muted tiny">${history.length} entr${history.length === 1 ? 'y' : 'ies'}</span>
+      </div>
+      <div id="decision-response-history">${history.length ? history.slice().reverse().map((entry) => `<article class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;"><strong>${escapeHtml(entry.action)}</strong><span class="tiny muted">${escapeHtml(entry.createdAt)} · ${escapeHtml(entry.actor || 'operator')}</span></div>${entry.option ? `<div class="tiny" style="margin-top:8px;">Option: ${escapeHtml(entry.option)}</div>` : ''}${entry.note ? `<p style="margin:8px 0 0;">${escapeHtml(entry.note)}</p>` : '<p class="muted" style="margin:8px 0 0;">No note recorded.</p>'}</article>`).join('') : '<p class="muted">No responses recorded yet.</p>'}</div>
+    </section>
+    ${compact ? '' : '<p class="muted tiny" style="margin-top:10px;">This response log is file-backed, so refresh survives.</p>'}
+  </article>`;
 }
 
 function updateApiShape(update) {
@@ -2079,6 +2487,14 @@ function updateApiShape(update) {
 http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
   const model = loadDashboardModel(root);
+  model.decisions = model.decisions.map((decision) => {
+    const responseEnvelope = loadDecisionResponseEnvelope(root, decision.slug);
+    return {
+      ...decision,
+      latestResponse: responseEnvelope.latest,
+      responseHistory: responseEnvelope.responses
+    };
+  });
   const metricsLimit = Math.max(1, Math.min(200, Number(url.searchParams.get('limit') || 50)));
 
   if (req.method === 'POST' && url.pathname === '/api/cards') {
@@ -2109,6 +2525,25 @@ http.createServer(async (req, res) => {
       } else {
         json(res, result.statusCode || 400, result);
       }
+    } catch (error) {
+      json(res, 400, { ok: false, error: error.message });
+    }
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname.startsWith('/api/decisions/') && url.pathname.endsWith('/responses')) {
+    const slug = decodeURIComponent(url.pathname.slice('/api/decisions/'.length, -'/responses'.length));
+    const decision = findBySlug(model.decisions, slug);
+    if (!decision) {
+      json(res, 404, { ok: false, error: 'Decision not found' });
+      return;
+    }
+
+    try {
+      const body = await readJsonBody(req);
+      const result = appendDecisionResponse(root, slug, body);
+      const refreshedEnvelope = loadDecisionResponseEnvelope(root, slug);
+      json(res, 201, { ok: true, ...result, latestResponse: refreshedEnvelope.latest, responseHistory: refreshedEnvelope.responses });
     } catch (error) {
       json(res, 400, { ok: false, error: error.message });
     }
