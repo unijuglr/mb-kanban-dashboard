@@ -23,12 +23,13 @@ A task is not done unless:
 - proof file exists
 - task state updated
 
-## Current Status (2026-04-02 02:00 PT)
+## Current Status (2026-04-02 03:00 PT)
 - Wave 1 functionality complete (Board, Metrics, Decisions, Updates, Writes).
 - MB-060 (E2E QA) and MB-061 (Cleanup) are functionally complete.
 - MB-062 (GitHub Push Prep) completed.
-- MB-063 (Agilitas Containerization) completed; pushed to branch `feat/mb-063-agilitas-containers`.
-- Main branch is up to date with Wave 1 + recent Wave 2 features (OLN Resolution, Neo4j, Temporal).
+- MB-063 (Agilitas Containerization) completed; merged to `feat/mb-032-oln-infra-re-verify`.
+- Wave 2 OLN/Agilitas core components (Resolution, Neo4j, Parser) re-verified with new tests.
+- Re-verified MB-032 (Decisions UI) and MB-030 (Neo4j OLN) with standalone proofs.
 - Next primary action: Wave 2 Infrastructure Deployment (MB-032) on Motherbrain.
 
 ## Next focus
