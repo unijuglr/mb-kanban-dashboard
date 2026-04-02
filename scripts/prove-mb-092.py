@@ -43,6 +43,15 @@ def main() -> int:
         assert report['resultCounts']['ok'] == 3, report
         assert report['deterministicOfflineFriendly'] is True, report
 
+        report['batchId'] = 'mb-092-proof-batch'
+        report['processedAt'] = '2026-04-02T00:00:00Z'
+        for item in report['results']:
+            item['output_path'] = '<temp-output>'
+            normalized = item.get('normalized') or {}
+            if item['format'] in {'teams_vtt', 'plain_text'} and normalized.get('dateTime'):
+                normalized['dateTime'] = '2026-04-02T00:00:00Z'
+        REPORT_PATH.write_text(json.dumps(report, indent=2) + '\n')
+
         formats = {item['format'] for item in report['results']}
         assert formats == {'zoom_json', 'teams_vtt', 'plain_text'}, formats
 
