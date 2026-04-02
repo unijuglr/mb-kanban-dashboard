@@ -871,6 +871,7 @@ function renderCardDetail(model, slug) {
             <p class="muted tiny" id="card-status-result"></p>
           </article>
           <article class="panel"><h2>Summary</h2><p id="card-summary">${escapeHtml(card.summary || 'No summary yet.')}</p></article>
+          <article class="panel"><h2>Project Decisions</h2><div id="card-related-decisions"><p class="muted">Loading related decisions...</p></div></article>
           <article class="panel"><h2>Blockers</h2><pre id="card-blockers">${escapeHtml(card.blockers || 'None listed.')}</pre></article>
           <article class="panel"><h2>Artifacts</h2><div id="card-artifacts-rich">${escapeHtml(card.artifacts || 'None listed.')}</div></article>
           <article class="panel"><h2>Update log</h2><pre id="card-update-log">${escapeHtml(card.updateLog || 'No updates yet.')}</pre></article>
@@ -1029,6 +1030,19 @@ function renderCardDetail(model, slug) {
             apiLinkEl.setAttribute('href', apiPath);
             renderActions(cardData);
             statusResultEl.textContent = flashMessage || '';
+            const relatedDecisionsEl = document.getElementById('card-related-decisions');
+            if (relatedDecisionsEl) {
+              fetch('/api/decisions').then(res => res.json()).then(data => {
+                const projectDecisions = (data.items || []).filter(d => d.project === cardData.project);
+                if (projectDecisions.length) {
+                  relatedDecisionsEl.innerHTML = '<ul style="padding-left: 1.5rem; margin: 0;">' + projectDecisions.map(d => '<li><a href="/decisions?selected=' + encodeURIComponent(d.slug) + '">' + esc(d.id) + ' — ' + esc(d.title) + '</a></li>').join('') + '</ul>';
+                } else {
+                  relatedDecisionsEl.innerHTML = '<p class="muted">No decisions recorded for this project.</p>';
+                }
+              }).catch(() => {
+                relatedDecisionsEl.innerHTML = '<p class="muted">Failed to load decisions.</p>';
+              });
+            }
           }
 
           async function loadCard() {
