@@ -125,8 +125,8 @@
   {
     "id": "MB-028",
     "title": "OLN Ingestor Parser Skeleton & Test Files",
-    "state": "in_progress",
-    "owner": "agent:main:subagent:1706bec3-da79-4846-8dee-0a0a816b79c5",
+    "state": "done",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-027"
     ],
@@ -200,7 +200,7 @@
   {
     "id": "MB-039",
     "title": "Agilitas Core AI Architecture & Evaluation Baseline",
-    "state": "in_progress",
+    "state": "done",
     "owner": "Prime Sam",
     "depends_on": [],
     "artifacts": [
