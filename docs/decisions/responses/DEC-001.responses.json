@@ -1,0 +1,22 @@
+[
+  {
+    "id": "dec-001-resp-1",
+    "decisionId": "DEC-001",
+    "decisionSlug": "dec-001",
+    "createdAt": "2026-04-02T17:42:37.654Z",
+    "responder": "MB-082 proof",
+    "outcome": "approve",
+    "selectedOption": "Option B",
+    "notes": "Local proof response for MB-082."
+  },
+  {
+    "id": "dec-001-resp-2",
+    "decisionId": "DEC-001",
+    "decisionSlug": "dec-001",
+    "createdAt": "2026-04-02T17:44:04.536Z",
+    "responder": "MB-082 verify",
+    "outcome": "note",
+    "selectedOption": "",
+    "notes": "Second local verification for MB-082."
+  }
+]

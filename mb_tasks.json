@@ -824,13 +824,12 @@
     "artifacts": [
       "src/oln/storage/neo4j-client/",
       "PROOF_MB_079.md"
-    ],
-    "notes": "Code and contract proof exist on feat/mb-047-agilitas-migration-refresh and prove-mb-079 passes. Keep state non-done until live Neo4j-backed ingest proof succeeds against a reachable local instance."
+    ]
   },
   {
     "id": "MB-080",
     "title": "OLN: create 2-page local sample corpus and executable ingest proof",
-    "state": "done",
+    "state": "ready",
     "owner": "Coder-4",
     "depends_on": [
       "MB-079"
@@ -839,9 +838,7 @@
       "data/oln/samples/wookieepedia-test.xml",
       "scripts/prove-mb-080.py",
       "PROOF_MB_080.md"
-    ],
-    "completed_at": "2026-04-02",
-    "notes": "Repo-side MB-080 proof is complete: the 2-page corpus is confirmed, the executable proof script validates parse plus Neo4j HTTP contract locally, and live Neo4j reachability is reported honestly instead of being simulated. Live graph proof remains separate under MB-088."
+    ]
   },
   {
     "id": "MB-081",
@@ -872,53 +869,6 @@
       "scripts/dev-server.mjs",
       "src/metrics-api.mjs",
       "PROOF_MB_084.md"
-    ]
-  },
-  {
-    "id": "MB-085",
-    "title": "Decisions UI: fix direct-route actionable response flow end-to-end",
-    "state": "done",
-    "owner": "Coder-1",
-    "depends_on": [
-      "MB-082"
-    ],
-    "artifacts": [
-      "scripts/dev-server.mjs",
-      "PROOF_MB_085.md",
-      "src/decision-response-store.mjs",
-      "scripts/prove-mb-085.mjs",
-      "data/decision-responses.json"
-    ]
-  },
-  {
-    "id": "MB-086",
-    "title": "OLN: Neo4j Motherbrain path selection and startup hardening",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-079"
-    ],
-    "artifacts": [
-      "infra/motherbrain/docker-compose.yaml",
-      "infra/motherbrain/setup.sh",
-      "infra/motherbrain/oln.env.example",
-      "docs/oln/neo4j-motherbrain-execution-tranche-2026-04-02.md",
-      "docs/cards/MB-086-oln-neo4j-motherbrain-path-selection-and-startup-hardening.md"
-    ]
-  },
-  {
-    "id": "MB-089",
-    "title": "3D Graph Explorer: MVP visualization for Neo4j nodes",
-    "state": "ready",
-    "owner": "Coder-2",
-    "depends_on": [
-      "MB-087",
-      "MB-088"
-    ],
-    "artifacts": [
-      "src/graph-explorer/",
-      "scripts/dev-server.mjs",
-      "PROOF_MB_089.md"
     ]
   }
 ]

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { findBySlug, loadDashboardModel } from '../src/app-data.mjs';
 import { allowedNextStatuses, createCardFromTemplate, transitionCardStatus } from '../src/card-writes.mjs';
 import { createDecisionFromTemplate } from '../src/decision-writes.mjs';
-import { appendDecisionResponse, loadDecisionResponseEnvelope } from '../src/decision-response-store.mjs';
+import { appendDecisionResponse } from '../src/decision-response-writes.mjs';
 import { appendUpdate } from '../src/update-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
 
@@ -1657,6 +1657,7 @@ function renderDecisions(model) {
               + '<button class="button" type="button" data-record-followup="' + esc(decision.slug) + '">Record follow-up decision</button>'
               + '<button class="button" type="button" data-duplicate-decision="' + esc(decision.slug) + '">Use as template</button>'
               + '</div>'
+              + renderDecisionActionComposerClient(decision)
               + '<div class="grid list" style="margin-top: 16px;">'
               + '<section class="panel"><h3>Context</h3>' + paragraphizeClient(decision.context) + '</section>'
               + '<section class="panel"><h3>Decision</h3>' + paragraphizeClient(decision.decision) + '</section>'
@@ -1665,6 +1666,63 @@ function renderDecisions(model) {
               + '<section class="panel"><h3>Follow-up tasks</h3><pre>' + esc(decision.followUpTasks || 'None listed.') + '</pre></section>'
               + '</div>'
               + actionPanelMarkup(decision);
+          }
+
+          function renderDecisionActionComposerClient(decision) {
+            const optionsList = Array.isArray(decision.optionsList) ? decision.optionsList : [];
+            const responses = Array.isArray(decision.responses) ? decision.responses : [];
+            const responseMarkup = responses.length
+              ? '<div class="stack" style="margin-top: 12px;">' + responses.slice().reverse().map((response) => '<article class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;"><strong>' + esc(response.outcome || response.selectedOption || 'Nuanced response') + '</strong><span class="tiny muted">' + esc(response.createdAt || '') + '</span></div><div class="tiny muted">' + esc(response.responder || 'MB Operator') + (response.selectedOption ? ' · Option: ' + esc(response.selectedOption) : '') + '</div>' + (response.notes ? '<p style="margin:8px 0 0;">' + esc(response.notes) + '</p>' : '<p class="muted tiny" style="margin:8px 0 0;">No notes added.</p>') + '</article>').join('') + '</div>'
+              : '<p class="muted">No responses recorded yet. Use the controls above.</p>';
+            return '<section class="panel">'
+              + '<div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">'
+              + '<div><h3>Respond here</h3><p class="muted">This URL is actionable: approve, reject, choose an option, or leave nuanced notes.</p></div>'
+              + '<div class="chip" style="margin-right:0;">Action required</div>'
+              + '</div>'
+              + '<form data-decision-response-form="' + esc(decision.slug) + '" class="stack" style="margin-top:12px;">'
+              + '<div class="button-row">'
+              + '<button class="button" type="button" data-decision-outcome="approve">Yes / Approve</button>'
+              + '<button class="button" type="button" data-decision-outcome="reject">No / Reject</button>'
+              + '<button class="button" type="button" data-decision-outcome="note">Notes only</button>'
+              + '</div>'
+              + '<input type="hidden" name="outcome" value="" />'
+              + (optionsList.length
+                  ? '<label class="stack"><span class="muted">Choose one of the recorded options</span><select name="selectedOption"><option value="">No option selected</option>' + optionsList.map((option) => '<option value="' + esc(option.title) + '">' + esc(option.title) + '</option>').join('') + '</select></label>'
+                  : '<p class="muted tiny">No structured options were parsed for this decision. Approve/reject/notes still work.</p>')
+              + '<label class="stack"><span class="muted">Notes / nuance (always available)</span><textarea name="notes" placeholder="Why this call makes sense, caveats, partial approval, follow-up asks, etc."></textarea></label>'
+              + '<label class="stack"><span class="muted">Responder</span><input name="responder" type="text" value="MB Operator" /></label>'
+              + '<div class="button-row"><button class="button" type="submit">Save response</button></div>'
+              + '<p class="muted tiny" data-decision-response-result>Saved responses write to docs/decisions/responses/' + esc(decision.id) + '.responses.json.</p>'
+              + '</form>'
+              + '<div style="margin-top:16px;"><h3 style="margin-bottom:8px;">Recorded responses</h3>' + responseMarkup + '</div>'
+              + '</section>';
+          }
+
+          async function submitDecisionResponse(decision, form) {
+            const resultEl = form.querySelector('[data-decision-response-result]');
+            const buttons = Array.from(form.querySelectorAll('button'));
+            buttons.forEach((button) => { button.disabled = true; });
+            if (resultEl) resultEl.textContent = 'Saving response…';
+            const formData = new FormData(form);
+            const body = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
+            try {
+              const response = await fetch('/api/decisions/' + encodeURIComponent(decision.slug) + '/respond', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+              });
+              const result = await response.json();
+              if (!response.ok || !result.ok) throw new Error(result.error || 'Failed to save response');
+              const refreshed = await (await fetch('/api/decisions')).json();
+              payload = refreshed;
+              selectedSlug = decision.slug;
+              render();
+              detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+              if (resultEl) resultEl.textContent = error.message;
+            } finally {
+              buttons.forEach((button) => { button.disabled = false; });
+            }
           }
 
           function openDrawerWith(data, message) {
@@ -1827,18 +1885,13 @@ function renderDecisions(model) {
               if (article) { selectedSlug = article.getAttribute('data-slug'); render(); }
             });
             detailEl.addEventListener('click', (event) => {
-              const actionButton = event.target.closest('[data-decision-action]');
-              if (actionButton) {
-                const form = document.getElementById('decision-response-form');
-                if (form) {
-                  form.elements.action.value = actionButton.getAttribute('data-decision-action') || '';
-                  Array.from(detailEl.querySelectorAll('[data-decision-action]')).forEach((el) => el.style.borderColor = '#334466');
-                  actionButton.style.borderColor = '#4f8cff';
-                  const result = document.getElementById('decision-response-result');
-                  if (result) result.textContent = 'Action selected: ' + form.elements.action.value + '.';
-                }
-                return;
+              const outcomeButton = event.target.closest('[data-decision-outcome]');
+              if (outcomeButton) {
+                const form = outcomeButton.closest('form');
+                const outcomeInput = form?.elements?.namedItem('outcome');
+                if (outcomeInput) outcomeInput.value = outcomeButton.getAttribute('data-decision-outcome') || '';
               }
+
               const followup = event.target.closest('[data-record-followup]');
               const duplicate = event.target.closest('[data-duplicate-decision]');
               const sourceSlug = followup?.getAttribute('data-record-followup') || duplicate?.getAttribute('data-duplicate-decision');
@@ -1857,7 +1910,12 @@ function renderDecisions(model) {
               }, followup ? 'Follow-up decision draft loaded.' : 'Template copied from ' + source.id + '.');
             });
             detailEl.addEventListener('submit', (event) => {
-              if (event.target && event.target.id === 'decision-response-form') submitDecisionResponse(event);
+              const form = event.target.closest('[data-decision-response-form]');
+              if (!form) return;
+              event.preventDefault();
+              const decision = (payload?.items || []).find((item) => item.slug === selectedSlug);
+              if (!decision) return;
+              submitDecisionResponse(decision, form);
             });
             render();
           }
@@ -1917,6 +1975,43 @@ function renderDecisionSwimlane(projectName, decisions, selectedSlug) {
   </div>`;
 }
 
+function renderDecisionActionComposer(decision, { compact = false } = {}) {
+  const optionsList = Array.isArray(decision.optionsList) ? decision.optionsList : [];
+  const responses = Array.isArray(decision.responses) ? decision.responses : [];
+  const responseItems = responses.length
+    ? `<div class="stack" style="margin-top: 12px;">${responses.slice().reverse().map((response) => `<article class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;"><strong>${escapeHtml(response.outcome || response.selectedOption || 'Nuanced response')}</strong><span class="tiny muted">${escapeHtml(response.createdAt || '')}</span></div><div class="tiny muted">${escapeHtml(response.responder || 'MB Operator')}${response.selectedOption ? ` · Option: ${escapeHtml(response.selectedOption)}` : ''}</div>${response.notes ? `<p style="margin:8px 0 0;">${escapeHtml(response.notes)}</p>` : '<p class="muted tiny" style="margin:8px 0 0;">No notes added.</p>'}</article>`).join('')}</div>`
+    : '<p class="muted">No responses recorded yet. Use the controls above.</p>';
+
+  return `<section class="panel">
+    <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">
+      <div>
+        <h2>${compact ? 'Respond here' : 'Respond to this decision'}</h2>
+        <p class="muted">Direct operator controls: approve, reject, choose an option, or leave nuanced notes.</p>
+      </div>
+      <div class="chip" style="margin-right:0;">Durably saved</div>
+    </div>
+    <form data-decision-response-form="${escapeHtml(decision.slug)}" class="stack" style="margin-top:12px;">
+      <div class="button-row">
+        <button class="button" type="button" data-decision-outcome="approve">Yes / Approve</button>
+        <button class="button" type="button" data-decision-outcome="reject">No / Reject</button>
+        <button class="button" type="button" data-decision-outcome="note">Notes only</button>
+      </div>
+      <input type="hidden" name="outcome" value="" />
+      ${optionsList.length ? `<label class="stack"><span class="muted">Choose one of the recorded options</span><select name="selectedOption"><option value="">No option selected</option>${optionsList.map((option) => `<option value="${escapeHtml(option.title)}">${escapeHtml(option.title)}</option>`).join('')}</select></label>` : '<p class="muted tiny">No structured options were parsed for this decision. Approve/reject/notes still work.</p>'}
+      <label class="stack"><span class="muted">Notes / nuance (always available)</span><textarea name="notes" placeholder="Why this call makes sense, caveats, partial approval, follow-up asks, etc."></textarea></label>
+      <label class="stack"><span class="muted">Responder</span><input name="responder" type="text" value="MB Operator" /></label>
+      <div class="button-row">
+        <button class="button" type="submit">Save response</button>
+      </div>
+      <p class="muted tiny" data-decision-response-result>Saved responses write to <code>docs/decisions/responses/${escapeHtml(decision.id)}.responses.json</code>.</p>
+    </form>
+    <div style="margin-top:16px;">
+      <h3 style="margin-bottom:8px;">Recorded responses</h3>
+      ${responseItems}
+    </div>
+  </section>`;
+}
+
 function renderDecisionDetail(model, slug) {
   const decision = findBySlug(model.decisions, slug);
   if (!decision) return notFound('/decisions', 'Decision not found');
@@ -1929,7 +2024,7 @@ function renderDecisionDetail(model, slug) {
         <div><h1>${escapeHtml(decision.id)} — ${escapeHtml(decision.title)}</h1><p>${escapeHtml(decision.status)} · ${escapeHtml(decision.date)} · ${escapeHtml(decision.owner)}</p></div>
         <a href="/decisions">← Back to decisions</a>
       </section>
-      ${decisionActionPanelMarkup(decision)}
+      ${renderDecisionActionComposer(decision)}
       <section class="grid list">
         <article class="panel"><h2>Context</h2>${paragraphize(decision.context)}</article>
         <article class="panel"><h2>Options considered</h2><pre>${escapeHtml(decision.options || 'Not available.')}</pre></article>
@@ -1937,39 +2032,39 @@ function renderDecisionDetail(model, slug) {
         <article class="panel"><h2>Consequences</h2><pre>${escapeHtml(decision.consequences || 'Not available.')}</pre></article>
         <article class="panel"><h2>Follow-up tasks</h2><pre>${escapeHtml(decision.followUpTasks || 'None listed.')}</pre></article>
       </section>
-      <script id="decision-detail-data" type="application/json">${decisionData}</script>
       <script>
         (() => {
-          const decision = JSON.parse(document.getElementById('decision-detail-data').textContent);
-          const form = document.getElementById('decision-response-form');
-          const resultEl = document.getElementById('decision-response-result');
-          const submitEl = document.getElementById('decision-response-submit');
+          const form = document.querySelector('[data-decision-response-form]');
           if (!form) return;
-          Array.from(document.querySelectorAll('[data-decision-action]')).forEach((button) => {
+          const outcomeButtons = Array.from(form.querySelectorAll('[data-decision-outcome]'));
+          const outcomeInput = form.elements.namedItem('outcome');
+          const resultEl = form.querySelector('[data-decision-response-result]');
+
+          outcomeButtons.forEach((button) => {
             button.addEventListener('click', () => {
-              form.elements.action.value = button.getAttribute('data-decision-action') || '';
-              Array.from(document.querySelectorAll('[data-decision-action]')).forEach((el) => el.style.borderColor = '#334466');
-              button.style.borderColor = '#4f8cff';
-              resultEl.textContent = 'Action selected: ' + form.elements.action.value + '.';
+              if (outcomeInput) outcomeInput.value = button.getAttribute('data-decision-outcome') || '';
             });
           });
+
           form.addEventListener('submit', async (event) => {
             event.preventDefault();
-            submitEl.disabled = true;
-            resultEl.textContent = 'Saving response…';
+            const buttons = Array.from(form.querySelectorAll('button'));
+            buttons.forEach((button) => { button.disabled = true; });
+            if (resultEl) resultEl.textContent = 'Saving response…';
+            const formData = new FormData(form);
+            const body = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
             try {
-              const response = await fetch('/api/decisions/' + encodeURIComponent(decision.slug) + '/responses', {
+              const response = await fetch('/api/decisions/${encodeURIComponent(decision.slug)}/respond', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
+                body: JSON.stringify(body)
               });
               const result = await response.json();
               if (!response.ok || !result.ok) throw new Error(result.error || 'Failed to save response');
               window.location.reload();
             } catch (error) {
-              resultEl.textContent = error.message;
-            } finally {
-              submitEl.disabled = false;
+              if (resultEl) resultEl.textContent = error.message;
+              buttons.forEach((button) => { button.disabled = false; });
             }
           });
         })();
@@ -2406,11 +2501,11 @@ function decisionApiShape(decision) {
     project: decision.project,
     context: decision.context,
     options: decision.options,
+    optionsList: decision.optionsList,
     decision: decision.decision,
     consequences: decision.consequences,
     followUpTasks: decision.followUpTasks,
-    latestResponse: decision.latestResponse || null,
-    responseHistory: Array.isArray(decision.responseHistory) ? decision.responseHistory : [],
+    responses: decision.responses,
     filePath: decision.filePath
   };
 }
@@ -2570,6 +2665,32 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && url.pathname.startsWith('/api/decisions/') && url.pathname.endsWith('/respond')) {
+    const slug = decodeURIComponent(url.pathname.slice('/api/decisions/'.length, -'/respond'.length));
+
+    try {
+      const body = await readJsonBody(req);
+      const result = appendDecisionResponse({
+        rootDir: root,
+        slug,
+        outcome: body.outcome,
+        selectedOption: body.selectedOption,
+        notes: body.notes,
+        responder: body.responder
+      });
+      if (!result.ok) {
+        json(res, result.statusCode || 400, result);
+        return;
+      }
+      const refreshedModel = loadDashboardModel(root);
+      const decision = findBySlug(refreshedModel.decisions, result.slug);
+      json(res, result.statusCode || 201, { ...result, decision: decision ? decisionApiShape(decision) : null });
+    } catch (error) {
+      json(res, 400, { ok: false, error: error.message });
+    }
+    return;
+  }
+
   if (req.method === 'POST' && url.pathname === '/api/updates') {
     try {
       const body = await readJsonBody(req);
@@ -2609,6 +2730,7 @@ const server = http.createServer(async (req, res) => {
         '/api/decisions',
         'POST /api/decisions',
         '/api/decisions/:id',
+        'POST /api/decisions/:id/respond',
         '/api/updates',
         '/api/updates/:id',
         '/api/metrics/summary',
