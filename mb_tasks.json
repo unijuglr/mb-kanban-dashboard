@@ -183,6 +183,19 @@
     ]
   },
   {
+    "id": "MB-039",
+    "title": "Agilitas Core AI Architecture & Evaluation Baseline",
+    "state": "in_progress",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/agilitas/ai-strategy.md",
+      "data/agilitas/golden-dataset-v1.json",
+      "services/agilitas-ai-core/extractor.py",
+      "PROOF_MB_039.md"
+    ]
+  },
+  {
     "id": "MB-040",
     "title": "Metrics backfill/import for MB work",
     "state": "done",
