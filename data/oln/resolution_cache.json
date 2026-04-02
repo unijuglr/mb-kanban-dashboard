@@ -10,6 +10,14 @@
     "oln-sw-ahsoka-tano": {
       "canonical_name": "Ahsoka Tano",
       "franchise": "SW"
+    },
+    "oln-star-wars-luke-skywalker": {
+      "canonical_name": "Luke Skywalker",
+      "franchise": "star_wars"
+    },
+    "oln-star-wars-tatooine": {
+      "canonical_name": "Tatooine",
+      "franchise": "star_wars"
     }
   }
 }
