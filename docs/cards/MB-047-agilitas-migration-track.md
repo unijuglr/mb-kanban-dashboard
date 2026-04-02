@@ -20,8 +20,8 @@ Extract and migrate logic from the AgilitasTranscriptAnalyzer (.NET) and related
 - Migrating/Refining the SQL initial scripts into the new data store (Cloud SQL / Neo4j).
 
 ## Steps
-- [ ] Document the core logic of `Agilitas.Data` and `Agilitas.FileProcessor.Function`.
-- [ ] Port C# schema models to TypeScript/Python equivalents.
+- [x] Document the core logic of `Agilitas.Data` and `Agilitas.FileProcessor.Function`.
+- [x] Port C# schema models to TypeScript/Python equivalents.
 - [ ] Extract the SQL initial scripts and prepare them for migration to the new DB.
 - [ ] Map existing .NET/OCI features to the new GCP-hosted AI-Core.
 
