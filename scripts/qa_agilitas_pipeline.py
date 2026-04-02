@@ -9,7 +9,7 @@ project_root = os.path.abspath(os.path.join(current_dir, '..'))
 sys.path.insert(0, project_root)
 
 def qa_agilitas_extraction():
-    print("Starting QA of Agilitas Core AI Extraction Pipeline...")
+    print("Starting QA of Agilitas Core AI Extraction Pipeline (with PII Redaction)...")
     
     # Import service with hyphen in name
     module_path = os.path.join(project_root, 'services', 'agilitas-ai-core', 'extractor.py')
@@ -19,13 +19,13 @@ def qa_agilitas_extraction():
     
     AgilitasExtractor = extractor_module.AgilitasExtractor
     
-    # Initialize extractor (local mode)
-    extractor = AgilitasExtractor(use_cloud=False)
+    # Initialize extractor (local mode + PII redaction)
+    extractor = AgilitasExtractor(use_cloud=False, redact_pii=True)
     
-    # Test Transcript
-    test_transcript = "I've been trying to use the new dashboard for our retail client, but it's very slow. Also, we really need a direct export to Shopify, which CompetitorX already has. The sentiment analysis is cool though."
+    # Test Transcript with PII (John Doe, 123-456-7890)
+    test_transcript = "My name is John Doe and my phone is 123-456-7890. I've been trying to use the new dashboard for our retail client, but it's very slow. Also, we really need a direct export to Shopify, which CompetitorX already has. The sentiment analysis is cool though."
     
-    print(f"Testing Extraction for: {test_transcript[:50]}...")
+    print(f"Testing Extraction and Redaction for: {test_transcript[:50]}...")
     
     result = extractor.extract_dimensions(test_transcript)
     
@@ -41,6 +41,15 @@ def qa_agilitas_extraction():
     if "error" in result:
         print(f"\n❌ QA Failed: {result['error']}")
         return False
+
+    # Check for PII leakage in the summary
+    if "John Doe" in str(result) or "123-456-7890" in str(result):
+        print("\n❌ QA Failed: PII leaked into extraction result!")
+        # If extraction mentions <PERSON> it's okay, but not the raw data
+        if "John Doe" in str(result) or "123-456-7890" in str(result):
+             return False
+    
+    print("\n✅ PII Check Passed: No raw John Doe or phone number in results.")
 
     missing = [d for d in required_dimensions if d not in result]
     

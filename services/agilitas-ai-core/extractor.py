@@ -10,8 +10,9 @@ class AgilitasExtractor:
     cloud-scale (Vertex AI) and local (Ollama) AI models.
     """
     
-    def __init__(self, use_cloud: bool = False):
+    def __init__(self, use_cloud: bool = False, redact_pii: bool = True):
         self.use_cloud = use_cloud
+        self.redact_pii = redact_pii
         
         # Load LLM client from current directory
         import importlib.util
@@ -24,11 +25,30 @@ class AgilitasExtractor:
         
         self.client = client_module.AgilitasLLMClient()
 
+        # Load PII Redactor
+        if self.redact_pii:
+            redactor_path = os.path.join(current_dir, 'redaction', 'presidio_redactor.py')
+            if os.path.exists(redactor_path):
+                r_spec = importlib.util.spec_from_file_location("agilitas_redactor", redactor_path)
+                r_module = importlib.util.module_from_spec(r_spec)
+                r_spec.loader.exec_module(r_module)
+                self.redactor = r_module.get_redactor()
+            else:
+                self.redactor = None
+        else:
+            self.redactor = None
+
     def extract_dimensions(self, transcript: str) -> Dict[str, Any]:
         """
         Processes a raw transcript and returns an extraction based on the
         7-dimension Agilitas schema.
         """
+        # 1. Redact PII first if enabled
+        processed_transcript = transcript
+        if self.redactor:
+            processed_transcript = self.redactor.redact(transcript)
+
+        # 2. Build Prompt
         prompt = f"""
         Extract the following 7 dimensions from the transcript below in JSON format:
         1. sentiment: Overall tone (Positive, Neutral, Negative)
@@ -40,16 +60,18 @@ class AgilitasExtractor:
         7. summary: Concise recap
 
         Transcript:
-        {transcript}
+        {processed_transcript}
         
         Return ONLY valid JSON.
         """
 
+        # 3. Call LLM
         if self.use_cloud:
             response = self.client.complete(prompt, provider="vertex")
         else:
             response = self.client.complete(prompt, provider="ollama")
         
+        # 4. Parse Result
         try:
             # Clean up response if it has markdown blocks
             clean_response = response.strip()
