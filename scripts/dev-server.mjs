@@ -1048,7 +1048,7 @@ function renderBoard(model) {
             event.preventDefault();
             createSubmitEl.disabled = true;
             createResultEl.textContent = 'Creating card…';
-            const formData = new FormData(createFormEl);
+            const formData = new FormData(event.currentTarget);
             const data = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
 
             try {
@@ -1766,7 +1766,7 @@ function renderDecisions(model) {
             event.preventDefault();
             createSubmitEl.disabled = true;
             createResultEl.textContent = 'Creating decision…';
-            const formData = new FormData(createFormEl);
+            const formData = new FormData(event.currentTarget);
             const data = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
 
             try {
@@ -2054,7 +2054,7 @@ function renderDecisionDetail(model, slug) {
             const buttons = Array.from(form.querySelectorAll('button'));
             buttons.forEach((button) => { button.disabled = true; });
             if (resultEl) resultEl.textContent = 'Saving response…';
-            const formData = new FormData(form);
+            const formData = new FormData(event.currentTarget);
             const body = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
             try {
               const response = await fetch('/api/decisions/${encodeURIComponent(decision.slug)}/respond', {
@@ -2509,6 +2509,7 @@ function decisionApiShape(decision) {
     optionsList: decision.optionsList,
     decision: decision.decision,
     consequences: decision.consequences,
+    type: classifyDecisionType(decision),
     followUpTasks: decision.followUpTasks,
     responses: responseHistory,
     latestResponse: latestDecisionResponse(decision),
