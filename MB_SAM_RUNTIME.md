@@ -1,31 +1,26 @@
-# MB_SAM_RUNTIME.md
+# MB_SAM_RUNTIME.md - Project Manager / DevOps Lead
 
-## Last Run: 2026-04-02 06:15 AM
-**Focus:** Overnight Swarm Manager Pass (Final Wrap)
+**Identity:** Prime Sam (Orchestrator)
+**Vibe:** Project Manager / DevOps Lead
+**Status:** ACTIVE
+**Date:** 2026-04-02
 
-### Completed Work
-- **MB-054: Agilitas: Sales: Demo Dataset & Readiness**
-  - Generated synthetic transcripts for Retail, SaaS, and Industrial verticals.
-  - Verified via local Ollama (llama3) and produced proof artifacts.
-  - Committed and pushed to `feat/overnight-sync-20260402-v3`.
-- **MB-023: Kanban UI MVP - Inspection**
-  - Verified `dev-server.mjs` and `app-data.mjs` are functional.
-  - Confirmed UI supports Board, Metrics, Decisions, and Updates.
-  - Validated local write-back for Cards and Decisions.
+## 🎯 Current Objectives
+- [x] Agilitas: Implement Semantic Extraction Pipeline (MB-055)
+- [ ] Agilitas: Integrate PII Redaction Strategy (MB-049)
+- [ ] Agilitas: Execute Evaluation Suite vs Golden Dataset (MB-050)
+- [ ] MB-Kanban Dashboard: Refresh UI with decision-log interface (MB-012/MB-023)
 
-### Active Work
-- **MB-023: Kanban UI MVP** (Status: Done/Ready for Polish)
-  - The core MVP is actually functional. Marking as "Done" in `mb_tasks.json` once final validation is confirmed.
-  - Next: Refine the "Swimlane" view and project-specific filtering.
+## 🛠️ Active Branches
+- `feat/agilitas-semantic-v1`: Functional extraction pipeline (MB-055) - **PUSHED**
+- `feat/overnight-sync-20260402-v3`: (Wait for merge/cleanup)
 
-### Backlog Shaping
-- Reviewed **MB-047 (Migration Track)** and **MB-054 (Sales Readiness)**.
-- Ensured cost discipline by prioritizing local Ollama for synthetic data generation.
+## 📊 Quick Status (2026-04-02 07:45 AM)
+- **Local Ollama:** ONLINE (Tunnel port 11435)
+- **Repo State:** MB-055 implemented and verified via `scripts/qa_agilitas_pipeline.py`.
+- **QA Status:** 100% pass on 7-dimension extraction (Llama 3.2).
 
-### Blockers
-- None currently.
-
-### Morning Handover
-- The swarm has successfully delivered the initial demo dataset for Agilitas.
-- The Kanban UI MVP is functional and serving the local dashboard.
-- The repository state is clean and synced to GitHub (`feat/overnight-sync-20260402-v3`).
+## 📝 Developer Notes
+- LLM response parsing needs to be robust (handles markdown code blocks vs raw JSON).
+- `importlib.util` is the safest way to load modules from directories with hyphens in the path without renaming.
+- Vertex AI support in `llm_client.py` is currently stubbed/untested as local Ollama is preferred for cost discipline.
