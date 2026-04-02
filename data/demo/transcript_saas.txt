@@ -1,0 +1,1 @@
+Ollama Error: 404 Client Error: Not Found for url: http://127.0.0.1:11435/api/generate

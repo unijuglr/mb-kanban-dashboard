@@ -415,6 +415,23 @@
     ]
   },
   {
+    "id": "MB-054",
+    "title": "Agilitas: Sales: Demo Dataset & Readiness",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039",
+      "MB-044"
+    ],
+    "artifacts": [
+      "scripts/generate_demo_data.py",
+      "data/demo/transcript_retail.txt",
+      "data/demo/transcript_saas.txt",
+      "data/demo/transcript_industrial.txt",
+      "PROOF_MB_054.md"
+    ]
+  },
+  {
     "id": "MB-060",
     "title": "End-to-end QA pass",
     "state": "done",
