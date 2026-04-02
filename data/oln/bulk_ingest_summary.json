@@ -1,0 +1,35 @@
+{
+  "sample": "data/oln/samples/wookieepedia-bulk-subset.xml",
+  "primary_pages_parsed": 60,
+  "primary_entities_written": 60,
+  "entity_nodes_present": 16012,
+  "mentions_relationships_present": 47079,
+  "primary_links_processed": 47085,
+  "batch_size": 20,
+  "batch_count": 3,
+  "parse_seconds": 0.1173,
+  "write_seconds": 4.0356,
+  "total_seconds": 4.4018,
+  "primary_entities_per_second": 13.63,
+  "batches": [
+    {
+      "batch": 1,
+      "primary_entities": 20,
+      "links": 16587,
+      "duration_seconds": 2.4505
+    },
+    {
+      "batch": 2,
+      "primary_entities": 20,
+      "links": 11890,
+      "duration_seconds": 0.8955
+    },
+    {
+      "batch": 3,
+      "primary_entities": 20,
+      "links": 18608,
+      "duration_seconds": 0.6894
+    }
+  ],
+  "failures": 0
+}

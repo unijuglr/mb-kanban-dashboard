@@ -789,10 +789,36 @@
     ],
     "artifacts": [
       "scripts/dev-server.mjs",
+<<<<<<< HEAD
       "PROOF_MB_085.md",
       "src/decision-response-store.mjs",
       "scripts/prove-mb-085.mjs",
       "data/decision-responses.json"
+=======
+      "src/decision-models.mjs",
+      "scripts/prove-mb-090.mjs",
+      "PROOF_MB_090.md"
+    ],
+    "completed_at": "2026-04-02",
+    "notes": "Implemented typed decision classification, unified the live response path onto the file-backed decision response writer, and verified DEC-001 through the direct /respond route via fixture-backed QA."
+  },
+  {
+    "id": "MB-091",
+    "title": "OLN: Large-scale ingestion harness (50+ pages)",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-088"
+    ],
+    "artifacts": [
+      "scripts/run_bulk_ingest.py",
+      "PROOF_MB_091.md"
+    ],
+    "completed_at": "2026-04-02T22:25:00Z",
+    "notes": [
+      "Added scripts/run_bulk_ingest.py for chunked 50+ page OLN ingest into Neo4j.",
+      "Upgraded Neo4j batch_merge to use chunked UNWIND writes for better local performance.",
+      "Verified with a 60-page Wookieepedia MediaWiki XML subset and stable rerun counts."
     ]
   },
   {

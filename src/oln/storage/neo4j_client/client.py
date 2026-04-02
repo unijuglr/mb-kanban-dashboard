@@ -166,10 +166,74 @@ class Neo4jClient:
         )
         return True
 
-    def batch_merge(self, entities: List[Dict[str, Any]]) -> int:
+    def batch_merge(self, entities: List[Dict[str, Any]], chunk_size: int = 100) -> int:
+        if not entities:
+            return 0
+
+        normalized_entities: List[Dict[str, Any]] = []
+        now_ms = int(time.time() * 1000)
         for entity in entities:
-            self.merge_entity(entity)
-        return len(entities)
+            metadata = entity.get("metadata") or {}
+            links = []
+            seen_links = set()
+            for link in metadata.get("links", []):
+                normalized_link = self._normalize_link_title(str(link))
+                if normalized_link not in seen_links:
+                    seen_links.add(normalized_link)
+                    links.append(
+                        {
+                            "title": normalized_link,
+                            "olid": self._normalize_olid(normalized_link),
+                        }
+                    )
+
+            normalized_entities.append(
+                {
+                    "olid": entity.get("olid") or self._normalize_olid(entity.get("title")),
+                    "title": entity.get("title") or "Untitled",
+                    "type": entity.get("type") or "Entity",
+                    "source": metadata.get("source"),
+                    "franchise": metadata.get("franchise"),
+                    "raw_text_snippet": entity.get("raw_text_snippet"),
+                    "links": links,
+                }
+            )
+
+        cypher = """
+        UNWIND $entities AS entity
+        MERGE (e:Entity {olid: entity.olid})
+        ON CREATE SET e.created_at = $now_ms
+        SET e.title = entity.title,
+            e.type = entity.type,
+            e.source = entity.source,
+            e.franchise = entity.franchise,
+            e.raw_text_snippet = entity.raw_text_snippet,
+            e.last_updated = $now_ms
+        WITH e, entity,
+             CASE WHEN size(entity.links) = 0 THEN [null] ELSE entity.links END AS link_rows
+        UNWIND link_rows AS link
+        FOREACH (_ IN CASE WHEN link IS NULL THEN [] ELSE [1] END |
+            MERGE (target:Entity {olid: link.olid})
+            ON CREATE SET target.created_at = $now_ms
+            SET target.title = coalesce(target.title, link.title),
+                target.type = coalesce(target.type, 'LinkedEntity'),
+                target.source = coalesce(target.source, entity.source),
+                target.franchise = coalesce(target.franchise, entity.franchise),
+                target.last_updated = $now_ms
+            MERGE (e)-[:MENTIONS]->(target)
+        )
+        RETURN count(DISTINCT e) AS merged_entities
+        """
+
+        merged = 0
+        for start in range(0, len(normalized_entities), max(1, chunk_size)):
+            chunk = normalized_entities[start : start + max(1, chunk_size)]
+            rows = self.query(cypher, {"entities": chunk, "now_ms": now_ms})
+            if rows:
+                merged += int(rows[0].get("merged_entities", 0))
+            else:
+                merged += len(chunk)
+        return merged
 
     def clear_entities(self) -> bool:
         self.query("MATCH (n:Entity) DETACH DELETE n RETURN count(n) AS deleted")

@@ -96,5 +96,40 @@
         "timestamp": "2026-04-01T22:40:13.473595"
       }
     ]
+  },
+  {
+    "run_id": "MB-091-bulk-ingest-60",
+    "task": "MB-091",
+    "total_records": 60,
+    "total_duration": 4.4018,
+    "timestamp": "2026-04-02T22:24:00Z",
+    "items": [
+      {
+        "title": "bulk-ingest-first-run",
+        "status": "SUCCESS",
+        "duration": 4.4018,
+        "timestamp": "2026-04-02T22:24:00Z",
+        "details": {
+          "entity_nodes_present": 16012,
+          "mentions_relationships_present": 47079,
+          "primary_links_processed": 47085,
+          "batch_count": 3,
+          "batch_size": 20
+        }
+      },
+      {
+        "title": "bulk-ingest-rerun-idempotence",
+        "status": "SUCCESS",
+        "duration": 1.3903,
+        "timestamp": "2026-04-02T22:25:00Z",
+        "details": {
+          "entity_nodes_present": 16012,
+          "mentions_relationships_present": 47079,
+          "primary_links_processed": 47085,
+          "batch_count": 3,
+          "batch_size": 20
+        }
+      }
+    ]
   }
 ]
