@@ -328,13 +328,14 @@
   {
     "id": "MB-062",
     "title": "GitHub push preparation",
-    "state": "active",
+    "state": "done",
     "owner": "MB-Sam",
     "depends_on": [
       "MB-061"
     ],
     "artifacts": [
-      "docs/cards/MB-062-github-push-preparation.md"
+      "docs/cards/MB-062-github-push-preparation.md",
+      ".gitignore"
     ]
   }
 ]
