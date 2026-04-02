@@ -1,1 +1,8 @@
-Ollama Error: 404 Client Error: Not Found for url: http://127.0.0.1:11435/api/generate
+AE: Thanks for joining. How has onboarding been going?
+Customer: Honestly, it has been rough. My team still can't find the inventory sync settings.
+Customer: We lost two afternoons on this and support responses felt slow.
+Customer: My email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up.
+Customer: We're comparing this against CompetitorCo because their setup looked easier.
+Customer: If the product had a guided checklist and a clearer handoff between setup steps, we'd probably stay.
+AE: Understood. Anything else?
+Customer: Mostly frustration. It feels like too much effort for something we expected to be simple.

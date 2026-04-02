@@ -1,6 +1,9 @@
 import requests
 import os
 import json
+import socket
+from urllib.parse import urlparse
+
 
 class AgilitasLLMClient:
     """
@@ -9,10 +12,65 @@ class AgilitasLLMClient:
     """
 
     def __init__(self):
-        self.ollama_endpoint = "http://127.0.0.1:11435/api/generate"
+        self.ollama_base_url = self._resolve_ollama_base_url()
+        self.ollama_endpoint = f"{self.ollama_base_url}/api/generate"
         # Vertex AI settings would typically come from environment variables
         self.project_id = os.getenv("GCP_PROJECT_ID")
         self.location = os.getenv("GCP_LOCATION", "us-central1")
+
+    def _resolve_ollama_base_url(self):
+        """
+        Resolve the Ollama base URL from environment.
+
+        Accepted forms:
+        - AGILITAS_OLLAMA_HOST=http://127.0.0.1:11435
+        - OLLAMA_HOST=http://127.0.0.1:11435
+        - OLLAMA_BASE_URL=http://127.0.0.1:11435
+        - OLLAMA_ENDPOINT=http://127.0.0.1:11435/api/generate
+
+        Defaults to the laptop tunnel for Motherbrain-local access.
+        """
+        configured = (
+            os.getenv("AGILITAS_OLLAMA_HOST")
+            or os.getenv("OLLAMA_ENDPOINT")
+            or os.getenv("OLLAMA_BASE_URL")
+            or os.getenv("OLLAMA_HOST")
+            or "http://127.0.0.1:11435"
+        ).strip()
+
+        if configured.endswith("/api/generate"):
+            configured = configured[: -len("/api/generate")]
+
+        configured = configured.rstrip("/")
+        tunnel_default = "http://127.0.0.1:11435"
+
+        # Guard against the common local mismatch where a generic OLLAMA_HOST
+        # points at 11434, but the usable Motherbrain path for this demo is the
+        # laptop tunnel on 11435.
+        if (
+            os.getenv("AGILITAS_OLLAMA_HOST") is None
+            and os.getenv("OLLAMA_ENDPOINT") is None
+            and os.getenv("OLLAMA_BASE_URL") is None
+            and configured == "http://127.0.0.1:11434"
+            and self._is_reachable(tunnel_default)
+            and not self._is_reachable(configured)
+        ):
+            return tunnel_default
+
+        return configured
+
+    def _is_reachable(self, base_url):
+        parsed = urlparse(base_url)
+        host = parsed.hostname
+        port = parsed.port
+        if not host or not port:
+            return False
+
+        try:
+            with socket.create_connection((host, port), timeout=1):
+                return True
+        except OSError:
+            return False
 
     def call_ollama(self, prompt, model="llama3.2:latest"):
         """

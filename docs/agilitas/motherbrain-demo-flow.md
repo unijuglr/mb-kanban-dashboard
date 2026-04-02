@@ -19,9 +19,15 @@ The audience should be able to see:
 ## Smallest Demo Setup
 - machine: Motherbrain
 - model runtime: local Ollama only
-- input: one synthetic transcript fixture
+- input: one synthetic transcript fixture at `data/demo/transcript_retail.txt`
 - execution: one local runner command
 - output: one JSON result file plus optional markdown summary
+
+## Ollama Endpoint Standard
+Use a single assumption for direct local execution:
+- preferred env: `OLLAMA_HOST=http://127.0.0.1:11435` on the laptop when using the Motherbrain SSH tunnel
+- alternate direct-host/container value: `OLLAMA_HOST=http://host.docker.internal:11434` only when the caller is inside Docker and needs host Ollama
+- client behavior should treat `OLLAMA_HOST` as a base URL and append `/api/generate` itself so callers do not have to guess whether they should pass a base URL or a full endpoint
 
 ## Demo Input
 Use one synthetic transcript that contains all of the following on purpose:
@@ -33,6 +39,8 @@ Use one synthetic transcript that contains all of the following on purpose:
 - at least one piece of PII to prove redaction
 
 ### Suggested transcript shape
+Canonical local fixture now lives at `data/demo/transcript_retail.txt`.
+
 ```text
 AE: Thanks for joining. How has onboarding been going?
 Customer: Honestly, it has been rough. My team still can't find the inventory sync settings.
