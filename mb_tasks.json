@@ -830,7 +830,7 @@
   {
     "id": "MB-080",
     "title": "OLN: create 2-page local sample corpus and executable ingest proof",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-4",
     "depends_on": [
       "MB-079"
@@ -839,7 +839,9 @@
       "data/oln/samples/wookieepedia-test.xml",
       "scripts/prove-mb-080.py",
       "PROOF_MB_080.md"
-    ]
+    ],
+    "completed_at": "2026-04-02",
+    "notes": "Repo-side MB-080 proof is complete: the 2-page corpus is confirmed, the executable proof script validates parse plus Neo4j HTTP contract locally, and live Neo4j reachability is reported honestly instead of being simulated. Live graph proof remains separate under MB-088."
   },
   {
     "id": "MB-081",
