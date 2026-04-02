@@ -550,6 +550,16 @@ function renderBoard(model) {
     }
   }).replace(/</g, '\\u003c');
 
+  const initialSwimlanes = [...new Set(model.cards.map((card) => card.project).filter(Boolean))]
+    .sort()
+    .map((projectName) => {
+      const cardsByStatus = Object.fromEntries(
+        model.statusOrder.map((status) => [status, model.cards.filter((card) => card.project === projectName && card.status === status)])
+      );
+      return renderBoardSwimlane(projectName, cardsByStatus, model.statusOrder);
+    })
+    .join('') || '<p class="muted">No cards available.</p>';
+
   return shell({
     title: 'Board',
     currentPath: '/board',
@@ -693,7 +703,7 @@ function renderBoard(model) {
         </div>
       </section>
 
-      <div id="board-swimlanes"></div>
+      <div id="board-swimlanes">${initialSwimlanes}</div>
 
       <script id="board-data" type="application/json">${initialData}</script>
       <script>
@@ -743,31 +753,30 @@ function renderBoard(model) {
           function swimlaneMarkup(projectName, cardsByStatus, statusOrder) {
             const projectCards = Object.values(cardsByStatus).flat();
             if (projectCards.length === 0) return '';
-            
-            // Exclude Archive status from main swimlanes unless we're in a special archive view
-            const effectiveStatusOrder = statusOrder.filter(s => s !== 'Archive');
+
+            const effectiveStatusOrder = statusOrder.filter((s) => s !== 'Archive');
 
             return '<div class="swimlane">'
               + '<div class="swimlane-header">'
               + '<span class="swimlane-title">' + esc(projectName) + '</span>'
-              + '<div>'
-              + '<button class="button" onclick="alert(\'Archive feature: Move individual cards to Archive status in their detail view.\')">Project Archive</button>'
+              + '<div style="display:flex;gap:10px;flex-wrap:wrap;">'
+              + '<span class="chip" style="margin-right:0;">' + projectCards.length + ' card(s)</span>'
               + '<a href="/projects/' + encodeURIComponent(projectName) + '" class="button">View Project</a>'
               + '</div>'
               + '</div>'
               + '<div class="board-row">'
-              + effectiveStatusOrder.map(status => {
+              + effectiveStatusOrder.map((status) => {
                   const cards = cardsByStatus[status] || [];
                   return '<div class="board-col">'
                     + '<div class="status-badge">' + esc(status) + ' (' + cards.length + ')</div>'
-                    + cards.map(card => {
+                    + cards.map((card) => {
                         return '<article class="card" style="padding: 12px; margin-bottom: 0; flex: 0 0 auto;">'
-                          + '<div style="display:flex; justify-content:space-between; margin-bottom: 8px;">'
+                          + '<div style="display:flex; justify-content:space-between; margin-bottom: 8px; gap: 8px;">'
                           + '<span class="chip" style="margin-right:4px; font-size:0.7rem;">' + esc(card.id) + '</span>'
-                          + '<span class="chip" style="margin-right:0; font-size:0.7rem;">' + esc(card.priority) + '</span>'
+                          + '<span class="chip" style="margin-right:0; font-size:0.7rem;">' + esc(card.priority || 'Unknown') + '</span>'
                           + '</div>'
                           + '<h3 style="font-size: 0.95rem; margin: 0 0 8px;"><a href="/cards/' + encodeURIComponent(card.slug) + '">' + esc(card.title) + '</a></h3>'
-                          + '<div class="tiny muted">' + esc(card.owner) + '</div>'
+                          + '<div class="tiny muted">' + esc(card.owner || 'Unknown') + '</div>'
                           + '</article>';
                       }).join('')
                     + '</div>';
@@ -1109,7 +1118,45 @@ function renderDecisions(model) {
     generatedAt: model.generatedAt,
     count: model.decisions.length,
     items: model.decisions.map(decisionApiShape)
-  }).replace(/</g, '\u003c');
+  }).replace(/</g, '\\u003c');
+
+  const initialDecisionList = [...new Set(model.decisions.map((decision) => decision.project).filter(Boolean))]
+    .sort()
+    .map((projectName) => renderDecisionSwimlane(projectName, model.decisions.filter((decision) => decision.project === projectName), initialSelected))
+    .join('') || '<p class="muted">No decisions recorded yet.</p>';
+
+  const decisionStarterTemplates = [
+    {
+      label: 'Approve an approach',
+      id: 'DEC-',
+      title: 'Approve approach for current workstream',
+      status: 'Accepted',
+      context: 'We need a clear call so work can proceed without more wobbling.',
+      decision: 'Approve the current proposed approach and move execution forward now.',
+      consequences: '- delivery can proceed immediately\n- revisit only if new evidence changes the cost/risk profile',
+      followUpTasks: '- [ ] communicate the decision to affected cards\n- [ ] update follow-up work if scope changed'
+    },
+    {
+      label: 'Reject an option',
+      id: 'DEC-',
+      title: 'Reject option that adds avoidable complexity',
+      status: 'Rejected',
+      context: 'Multiple options were considered and one is not worth the complexity/cost right now.',
+      decision: 'Reject the higher-complexity option for now and keep the simpler path.',
+      consequences: '- lower implementation risk now\n- may revisit later if requirements change',
+      followUpTasks: '- [ ] document why the rejected option was not chosen\n- [ ] create follow-up card only if revisit becomes necessary'
+    },
+    {
+      label: 'Record a tradeoff',
+      id: 'DEC-',
+      title: 'Record tradeoff for current implementation',
+      status: 'Proposed',
+      context: 'We need to explicitly capture a tradeoff so it does not disappear into chat history.',
+      decision: 'Accept the near-term tradeoff in exchange for restoring momentum and reducing uncertainty.',
+      consequences: '- captures the compromise clearly\n- gives future work a stable reference point',
+      followUpTasks: '- [ ] add validation step\n- [ ] create cleanup follow-up if needed'
+    }
+  ];
 
   return shell({
     title: 'Decisions',
@@ -1200,6 +1247,20 @@ function renderDecisions(model) {
         <article class="card"><div class="muted">Follow-ups</div><div class="kpi" data-summary="followups">${model.decisions.reduce((sum, decision) => sum + String(decision.followUpTasks || '').split('\n').filter(Boolean).length, 0)}</div></article>
       </section>
       <section class="panel">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">
+          <div>
+            <h2>Make a decision now</h2>
+            <p class="muted">Not just a dead markdown form. Pick a starter, fill the gaps, hit record.</p>
+          </div>
+          <div class="chip" style="margin-right:0;">Action-triggered</div>
+        </div>
+        <div class="button-row" style="margin-top:12px;">
+          ${decisionStarterTemplates.map((template, index) => `<button class="button" type="button" data-decision-starter="${index}">${escapeHtml(template.label)}</button>`).join('')}
+          <button class="button" type="button" id="decision-new-blank">Blank decision</button>
+        </div>
+        <p class="muted tiny" id="decision-starter-result">Choose a starter to open the drawer with a prefilled decision record.</p>
+      </section>
+      <section class="panel">
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
           <label class="stack">
             <span class="muted">Search</span>
@@ -1233,17 +1294,20 @@ function renderDecisions(model) {
         </div>
       </section>
       <section class="grid" style="grid-template-columns: minmax(320px, 480px) minmax(0, 1fr); align-items: start;">
-        <div id="decisions-swimlanes"></div>
+        <div id="decisions-swimlanes">${initialDecisionList}</div>
         <article class="panel" id="decision-detail-panel">
           <h2>Decision detail</h2>
           <div class="muted">Select a decision to inspect its full record.</div>
         </article>
       </section>
       <script id="decisions-data" type="application/json">${initialData}</script>
+      <script id="decision-starters" type="application/json">${JSON.stringify(decisionStarterTemplates).replace(/</g, '\\u003c')}</script>
       <script>
         (() => {
           const embedded = document.getElementById('decisions-data');
           const initial = embedded ? JSON.parse(embedded.textContent) : null;
+          const starterEmbedded = document.getElementById('decision-starters');
+          const starterTemplates = starterEmbedded ? JSON.parse(starterEmbedded.textContent) : [];
           const swimlanesEl = document.getElementById('decisions-swimlanes');
           const detailEl = document.getElementById('decision-detail-panel');
           const searchEl = document.getElementById('decisions-search');
@@ -1256,9 +1320,11 @@ function renderDecisions(model) {
           const createFormEl = document.getElementById('create-decision-form');
           const createSubmitEl = document.getElementById('create-decision-submit');
           const createResultEl = document.getElementById('create-decision-result');
+          const starterResultEl = document.getElementById('decision-starter-result');
           const drawerEl = document.getElementById('create-decision-drawer');
           const drawerToggleEl = document.getElementById('drawer-toggle');
           const drawerCloseEl = document.getElementById('drawer-close');
+          const blankDecisionEl = document.getElementById('decision-new-blank');
 
           const summaryEls = {
             visible: document.querySelector('[data-summary="visible"]'),
@@ -1321,6 +1387,10 @@ function renderDecisions(model) {
               + '<div><h2>' + esc(decision.id) + ' — ' + esc(decision.title) + '</h2><div class="muted">' + esc(decision.status) + ' · ' + esc(decision.date) + ' · ' + esc(decision.owner) + ' · Project: ' + esc(decision.project) + '</div></div>'
               + '<a href="/decisions/' + encodeURIComponent(decision.slug) + '" class="button">Dedicated route</a>'
               + '</div>'
+              + '<div class="button-row" style="margin-top: 12px;">'
+              + '<button class="button" type="button" data-record-followup="' + esc(decision.slug) + '">Record follow-up decision</button>'
+              + '<button class="button" type="button" data-duplicate-decision="' + esc(decision.slug) + '">Use as template</button>'
+              + '</div>'
               + '<div class="grid list" style="margin-top: 16px;">'
               + '<section class="panel"><h3>Context</h3>' + paragraphizeClient(decision.context) + '</section>'
               + '<section class="panel"><h3>Decision</h3>' + paragraphizeClient(decision.decision) + '</section>'
@@ -1328,6 +1398,41 @@ function renderDecisions(model) {
               + '<section class="panel"><h3>Consequences</h3><pre>' + esc(decision.consequences || 'Not available.') + '</pre></section>'
               + '<section class="panel"><h3>Follow-up tasks</h3><pre>' + esc(decision.followUpTasks || 'None listed.') + '</pre></section>'
               + '</div>';
+          }
+
+          function openDrawerWith(data, message) {
+            if (!createFormEl) return;
+            const fields = ['id', 'title', 'project', 'owner', 'status', 'date', 'context', 'decision'];
+            fields.forEach((name) => {
+              if (!(name in data)) return;
+              const input = createFormEl.elements.namedItem(name);
+              if (input) input.value = data[name];
+            });
+            drawerEl.classList.add('open');
+            if (starterResultEl) starterResultEl.textContent = message || 'Decision draft loaded.';
+          }
+
+          function nextDecisionId() {
+            const ids = (payload?.items || []).map((item) => {
+              const match = String(item.id || '').match(/^DEC-(\d+)$/i);
+              return match ? Number(match[1]) : null;
+            }).filter((value) => Number.isFinite(value));
+            const next = (ids.length ? Math.max(...ids) : 0) + 1;
+            return 'DEC-' + String(next).padStart(3, '0');
+          }
+
+          function starterData(template) {
+            const today = new Date().toISOString().slice(0, 10);
+            return {
+              id: nextDecisionId(),
+              title: template.title,
+              project: 'Motherbrain',
+              owner: 'MB-Sam',
+              status: template.status,
+              date: today,
+              context: template.context,
+              decision: template.decision
+            };
           }
 
           async function submitCreateDecision(event) {
@@ -1351,7 +1456,8 @@ function renderDecisions(model) {
               selectedSlug = result.slug;
               render();
               createFormEl.reset();
-              createResultEl.innerHTML = 'Created <a href="/decisions/' + encodeURIComponent(result.slug) + '">' + result.decisionId + '</a>';
+              createResultEl.innerHTML = 'Recorded <a href="/decisions/' + encodeURIComponent(result.slug) + '">' + result.decisionId + '</a> — decision captured.';
+              detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
               setTimeout(() => drawerEl.classList.remove('open'), 1500);
             } catch (err) {
               createResultEl.textContent = err.message;
@@ -1395,9 +1501,49 @@ function renderDecisions(model) {
               searchEl.value = ''; statusEl.value = ''; ownerEl.value = ''; projectFilterEl.value = '';
               render();
             });
+            Array.from(document.querySelectorAll('[data-decision-starter]')).forEach((button) => {
+              button.addEventListener('click', () => {
+                const index = Number(button.getAttribute('data-decision-starter'));
+                const template = starterTemplates[index];
+                if (!template) return;
+                openDrawerWith(starterData(template), 'Starter loaded: ' + template.label + '. Finish it and hit record.');
+              });
+            });
+            if (blankDecisionEl) {
+              blankDecisionEl.addEventListener('click', () => {
+                openDrawerWith({
+                  id: nextDecisionId(),
+                  title: '',
+                  project: 'Motherbrain',
+                  owner: 'MB-Sam',
+                  status: 'Proposed',
+                  date: new Date().toISOString().slice(0, 10),
+                  context: '',
+                  decision: ''
+                }, 'Blank decision draft opened.');
+              });
+            }
             swimlanesEl.addEventListener('click', (e) => {
               const article = e.target.closest('[data-slug]');
               if (article) { selectedSlug = article.getAttribute('data-slug'); render(); }
+            });
+            detailEl.addEventListener('click', (event) => {
+              const followup = event.target.closest('[data-record-followup]');
+              const duplicate = event.target.closest('[data-duplicate-decision]');
+              const sourceSlug = followup?.getAttribute('data-record-followup') || duplicate?.getAttribute('data-duplicate-decision');
+              if (!sourceSlug) return;
+              const source = (payload?.items || []).find((item) => item.slug === sourceSlug);
+              if (!source) return;
+              openDrawerWith({
+                id: nextDecisionId(),
+                title: followup ? 'Follow-up: ' + source.title : source.title,
+                project: source.project || 'Motherbrain',
+                owner: source.owner || 'MB-Sam',
+                status: followup ? 'Proposed' : source.status,
+                date: new Date().toISOString().slice(0, 10),
+                context: source.context || '',
+                decision: followup ? 'Follow-up to ' + source.id + ': ' : source.decision || ''
+              }, followup ? 'Follow-up decision draft loaded.' : 'Template copied from ' + source.id + '.');
             });
             render();
           }
@@ -1406,6 +1552,55 @@ function renderDecisions(model) {
         })();
       </script>`
   });
+}
+
+function renderBoardSwimlane(projectName, cardsByStatus, statusOrder) {
+  const projectCards = Object.values(cardsByStatus).flat();
+  if (!projectCards.length) return '';
+  const effectiveStatusOrder = statusOrder.filter((status) => status !== 'Archive');
+  return `<div class="swimlane">
+    <div class="swimlane-header">
+      <span class="swimlane-title">${escapeHtml(projectName)}</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <span class="chip">${projectCards.length} card(s)</span>
+        <a href="/projects/${encodeURIComponent(projectName)}" class="button">View Project</a>
+      </div>
+    </div>
+    <div class="board-row">
+      ${effectiveStatusOrder.map((status) => {
+        const cards = cardsByStatus[status] || [];
+        return `<div class="board-col">
+          <div class="status-badge">${escapeHtml(status)} (${cards.length})</div>
+          ${cards.map((card) => `<article class="card" style="padding: 12px; margin-bottom: 0; flex: 0 0 auto;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 8px; gap: 8px;">
+              <span class="chip" style="margin-right:4px; font-size:0.7rem;">${escapeHtml(card.id)}</span>
+              <span class="chip" style="margin-right:0; font-size:0.7rem;">${escapeHtml(card.priority || 'Unknown')}</span>
+            </div>
+            <h3 style="font-size: 0.95rem; margin: 0 0 8px;"><a href="/cards/${encodeURIComponent(card.slug)}">${escapeHtml(card.title)}</a></h3>
+            <div class="tiny muted">${escapeHtml(card.owner || 'Unknown')}</div>
+          </article>`).join('')}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function renderDecisionSwimlane(projectName, decisions, selectedSlug) {
+  if (!decisions.length) return '';
+  return `<div class="swimlane">
+    <div class="swimlane-header">
+      <span class="swimlane-title">${escapeHtml(projectName)}</span>
+      <a href="/decisions/projects/${encodeURIComponent(projectName)}" class="button">View Project</a>
+    </div>
+    ${decisions.map((decision) => `<article class="card" data-slug="${escapeHtml(decision.slug)}" style="cursor: pointer; margin-bottom: 12px;${decision.slug === selectedSlug ? ' background: #16203a; border: 1px solid #4f8cff;' : ''}">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="chip">${escapeHtml(decision.id)}</span>
+        <span class="chip" style="margin-right:0;">${escapeHtml(decision.status)}</span>
+      </div>
+      <h3 style="margin-top: 10px; font-size: 1rem;">${escapeHtml(decision.title)}</h3>
+      <div class="tiny muted">${escapeHtml(decision.date)} · ${escapeHtml(decision.owner)}</div>
+    </article>`).join('')}
+  </div>`;
 }
 
 function renderDecisionDetail(model, slug) {

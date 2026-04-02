@@ -165,6 +165,7 @@ export function loadBoardReadModel(rootDir) {
       cardCount: cards.length,
       decisionCount: decisions.length,
       updateCount: updates.length,
+      readyCount: cards.filter((card) => card.status === 'Ready').length,
       activeCount: cards.filter((card) => card.status === 'In Progress').length,
       blockedCount: cards.filter((card) => card.status === 'Blocked').length,
       doneCount: cards.filter((card) => card.status === 'Done').length,
