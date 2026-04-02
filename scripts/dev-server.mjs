@@ -13,6 +13,8 @@ function json(res, statusCode, payload) {
 }
 
 const port = Number(process.env.PORT || 4187);
+const host = process.env.HOST || '127.0.0.1';
+const startedAt = new Date().toISOString();
 const root = process.env.MB_ROOT
   ? path.resolve(process.env.MB_ROOT)
   : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -2076,7 +2078,7 @@ function updateApiShape(update) {
   };
 }
 
-http.createServer(async (req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
   const model = loadDashboardModel(root);
   const metricsLimit = Math.max(1, Math.min(200, Number(url.searchParams.get('limit') || 50)));
@@ -2148,6 +2150,12 @@ http.createServer(async (req, res) => {
     json(res, 200, {
       ok: true,
       app: 'mb-kanban-dashboard',
+      pid: process.pid,
+      host,
+      port,
+      root,
+      startedAt,
+      uptimeMs: Math.round(process.uptime() * 1000),
       routes: [
         '/',
         '/metrics',
@@ -2398,6 +2406,13 @@ http.createServer(async (req, res) => {
   }
 
   sendHtml(res, 404, notFound('/', 'Route not found'));
-}).listen(port, () => {
-  console.log(`MB Kanban Dashboard listening on http://127.0.0.1:${port}`);
+});
+
+server.on('error', (error) => {
+  console.error(`[mb-kanban-dashboard] failed to start on http://${host}:${port}: ${error.message}`);
+  process.exitCode = 1;
+});
+
+server.listen(port, host, () => {
+  console.log(`MB Kanban Dashboard listening on http://${host}:${port} (pid=${process.pid}, root=${root})`);
 });

@@ -86,6 +86,15 @@ MB-053 adds repo-backed decision creation:
 npm run dev
 ```
 
+Or use the helper scripts for clearer local-dev guardrails:
+
+```bash
+scripts/start-mb-dev.sh
+scripts/check-mb-dev.sh
+```
+
+`start-mb-dev.sh` now rejects foreign listeners already bound to the dev port, cleans up stale pidfiles, and waits for `/health` before declaring success. `check-mb-dev.sh` reports pidfile state, port state, health metadata, and a short log tail.
+
 Then open:
 - `http://127.0.0.1:4187/`
 - `http://127.0.0.1:4187/board`
