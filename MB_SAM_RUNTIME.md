@@ -20,13 +20,15 @@
 - `feat/mb-087-088-oln-live-proof`: Motherbrain OLN live-proof attempt and blocker capture (MB-087/MB-088)
 - `feat/mb-078-agilitas-local-proof-pipeline`: Runnable local proof pipeline artifact set (MB-078)
 
-## 📊 Quick Status (2026-04-03 09:50 AM)
+## 📊 Quick Status (2026-04-03 11:58 AM overnight manager pass)
 - **MB-078 Proof Path:** `scripts/qa_agilitas_pipeline.py` still executes the runnable local Agilitas proof path end-to-end and writes `docs/agilitas/motherbrain-local-proof-output.json`.
 - **MB-078 Runtime Truth:** The proof run succeeded without paid services, but live Ollama on `127.0.0.1:11434` was unavailable; the artifact records an honest `deterministic-fallback` instead of pretending a live-model pass.
 - **OLN Motherbrain Root:** Confirmed `/Volumes/hellastuff 1/oln` is the real OLN volume root; `/Volumes/hellastuff/oln` is absent.
 - **Host Runtime:** Motherbrain Docker CLI/Compose are installed, but the Docker daemon was unavailable during the live Neo4j boot attempt.
 - **MB-079 Regression:** Re-ran `python3 scripts/prove-mb-079.py` on the current tree and it now fails because the proof harness still expects the older per-entity merge request shape while `Neo4jClient.batch_merge()` has moved to chunked `UNWIND` writes.
 - **MB-080 Drift:** Reachable git history still contains earlier MB-080 proof artifacts (`76f0ce8`, `a6ba36f`, `9b3ee58`), but those files are missing from the current tree, so the task is documented as blocked rather than fake-ready.
+- **Backlog Integrity:** Recovered MB-086 into `mb_tasks.json` after finding the card marked Done but absent from task state; downstream MB-087 dependency tracking is now truthful again.
+- **Swarm Dispatch Attempt:** Tried to spawn a bounded local coder run for MB-079 proof-contract repair, but the current subagent model allowlist/routing rejected the requested local model name before work began. No paid-model coder was launched.
 - **QA Status:** MB-079 is recorded as blocked by proof drift; MB-080 is blocked by both missing current-tree proof artifacts and the MB-079 regression; MB-087/MB-088 remain blocked honestly by Motherbrain host runtime. Durable evidence and rerun instructions are in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
 
 ## 📝 Developer Notes
