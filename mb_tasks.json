@@ -709,7 +709,7 @@
   {
     "id": "MB-078",
     "title": "Agilitas: runnable local proof pipeline on Motherbrain",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-2",
     "depends_on": [
       "MB-077"

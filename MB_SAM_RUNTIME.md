@@ -18,8 +18,11 @@
 - `feat/agilitas-semantic-v1`: Functional extraction pipeline (MB-055) - **PUSHED**
 - `feat/mb-092-batch-transcript-processing-service`: Batch transcript processing service (MB-092)
 - `feat/mb-087-088-oln-live-proof`: Motherbrain OLN live-proof attempt and blocker capture (MB-087/MB-088)
+- `feat/mb-078-agilitas-local-proof-pipeline`: Runnable local proof pipeline artifact set (MB-078)
 
-## 📊 Quick Status (2026-04-03 07:55 AM)
+## 📊 Quick Status (2026-04-03 09:18 AM)
+- **MB-078 Proof Path:** `scripts/qa_agilitas_pipeline.py` now executes the runnable local Agilitas proof path end-to-end and writes `docs/agilitas/motherbrain-local-proof-output.json`.
+- **MB-078 Runtime Truth:** The proof run succeeded without paid services, but live Ollama on `127.0.0.1:11434` was unavailable; the artifact records an honest `deterministic-fallback` instead of pretending a live-model pass.
 - **OLN Motherbrain Root:** Confirmed `/Volumes/hellastuff 1/oln` is the real OLN volume root; `/Volumes/hellastuff/oln` is absent.
 - **Host Runtime:** Motherbrain Docker CLI/Compose are installed, but the Docker daemon was unavailable during the live Neo4j boot attempt.
 - **QA Status:** MB-087/MB-088 remain blocked honestly; durable evidence and rerun instructions captured in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
