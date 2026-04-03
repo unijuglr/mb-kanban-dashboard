@@ -796,6 +796,42 @@
     ]
   },
   {
+    "id": "MB-087",
+    "title": "OLN: first live Neo4j boot on Motherbrain",
+    "state": "blocked",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-086"
+    ],
+    "artifacts": [
+      "docs/cards/MB-087-oln-first-live-neo4j-boot-on-motherbrain.md",
+      "docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md"
+    ],
+    "notes": [
+      "Confirmed the real Motherbrain OLN root is /Volumes/hellastuff 1/oln; /Volumes/hellastuff/oln does not exist.",
+      "Docker CLI and Compose are installed on Motherbrain, but the Docker daemon was unavailable during the 2026-04-03 startup attempt.",
+      "Used a /tmp/oln-proof-volume symlink workaround because the real path contains spaces and compose env-file handling was brittle."
+    ]
+  },
+  {
+    "id": "MB-088",
+    "title": "OLN: two-page ingest proof into local Neo4j",
+    "state": "blocked",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-087"
+    ],
+    "artifacts": [
+      "docs/cards/MB-088-oln-two-page-ingest-proof-into-local-neo4j.md",
+      "scripts/run_oln_local_ingest.py",
+      "docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md"
+    ],
+    "notes": [
+      "Live proof did not proceed because Neo4j never booted on Motherbrain.",
+      "Schema apply, ingest verification, and idempotence rerun remain pending on a host with a running Docker daemon."
+    ]
+  },
+  {
     "id": "MB-091",
     "title": "OLN: Large-scale ingestion harness (50+ pages)",
     "state": "done",

@@ -1,11 +1,11 @@
 # MB-088 — OLN: two-page ingest proof into local Neo4j
 
-Status: Ready
+Status: Blocked
 Priority: P0 critical
 Project: OLN
 Owner: Prime Sam
 Created: 2026-04-02
-Last Updated: 2026-04-02
+Last Updated: 2026-04-03
 
 ## Objective
 Run the bounded 2-page OLN ingest into the live Motherbrain Neo4j instance and capture proof artifacts.
@@ -35,11 +35,16 @@ This is the actual graph proof. Without this, we still do not know whether Luke 
 - [ ] save proof output under a committed evidence artifact
 
 ## Blockers
-- MB-087 must be completed first
+- MB-087 remained blocked on 2026-04-03 because Motherbrain Docker was unavailable
+- without a live Neo4j instance, schema apply, ingest, proof queries, and idempotence rerun could not proceed honestly
 
 ## Artifacts
 - `scripts/run_oln_local_ingest.py`
 - `docs/oln/motherbrain-first-ingest-runbook.md`
+- `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`
+
+## Update Log
+- 2026-04-03 — Live ingest proof could not proceed because MB-087 failed at host startup. Durable blocker evidence and rerun instructions captured in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
 
 ## Done Looks Like
 One command produces a real local graph on Motherbrain, proof queries succeed, and the evidence is committed instead of living in someone's scrollback.
