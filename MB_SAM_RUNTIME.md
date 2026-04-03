@@ -23,6 +23,8 @@
 - **OLN Motherbrain Root:** Confirmed `/Volumes/hellastuff 1/oln` is the real OLN volume root; `/Volumes/hellastuff/oln` is absent.
 - **Host Runtime:** Motherbrain Docker CLI/Compose are installed, but the Docker daemon was unavailable during the live Neo4j boot attempt.
 - **QA Status:** MB-087/MB-088 remain blocked honestly; durable evidence and rerun instructions captured in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
+- **Overnight QA:** `scripts/prove-mb-079.py` currently fails against the newer batched Neo4j client request shape, so MB-079's executable proof harness needs refresh before anyone calls it re-verified.
+- **Task Metadata Drift:** MB-080 task metadata was pointing at nonexistent proof artifacts and was tightened to reference the actual ingest entrypoint plus overnight QA notes.
 
 ## 📝 Developer Notes
 - LLM response parsing handles markdown code blocks vs raw JSON.

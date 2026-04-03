@@ -731,7 +731,11 @@
     ],
     "artifacts": [
       "src/oln/storage/neo4j-client/",
-      "PROOF_MB_079.md"
+      "PROOF_MB_079.md",
+      "docs/oln/mb-079-080-087-088-overnight-qa-2026-04-03.md"
+    ],
+    "notes": [
+      "2026-04-03 overnight QA found scripts/prove-mb-079.py no longer passes against the current batched UNWIND write path; executable proof harness needs refresh even though the live ingest command still fails honestly when Neo4j is unavailable."
     ]
   },
   {
@@ -744,8 +748,12 @@
     ],
     "artifacts": [
       "data/oln/samples/wookieepedia-test.xml",
-      "scripts/prove-mb-080.py",
-      "PROOF_MB_080.md"
+      "scripts/run_oln_local_ingest.py",
+      "docs/oln/mb-079-080-087-088-overnight-qa-2026-04-03.md"
+    ],
+    "notes": [
+      "2026-04-03 overnight QA confirmed the sample corpus exists and the ingest command fails honestly on missing Neo4j connectivity.",
+      "Task metadata previously referenced nonexistent artifacts scripts/prove-mb-080.py and PROOF_MB_080.md; replaced with artifacts that actually exist in-repo."
     ]
   },
   {

@@ -42,9 +42,14 @@ This is the actual graph proof. Without this, we still do not know whether Luke 
 - `scripts/run_oln_local_ingest.py`
 - `docs/oln/motherbrain-first-ingest-runbook.md`
 - `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`
+- `docs/oln/mb-079-080-087-088-overnight-qa-2026-04-03.md`
 
 ## Update Log
 - 2026-04-03 — Live ingest proof could not proceed because MB-087 failed at host startup. Durable blocker evidence and rerun instructions captured in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
+- 2026-04-03 — Overnight QA confirmed the ingest entrypoint still fails honestly when Neo4j is unreachable, which is the right non-simulated behavior while MB-087 remains blocked.
+
+## Next Executable Step
+After MB-087 is genuinely cleared on a live Motherbrain host, run `python3 scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml` twice, then capture Luke / Tatooine / node-count / relationship-count query outputs as committed evidence.
 
 ## Done Looks Like
 One command produces a real local graph on Motherbrain, proof queries succeed, and the evidence is committed instead of living in someone's scrollback.
