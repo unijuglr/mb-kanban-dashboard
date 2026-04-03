@@ -25,7 +25,7 @@ Without this, Motherbrain cannot be trusted as a serious agent habitat and the r
 - [x] collect prior benchmark/log evidence
 - [x] produce a fresh controlled proof artifact
 - [ ] run at least one model-mediated local coding proof with validated saved outputs
-- [ ] define standard proof protocol for future coding-agent validation
+- [x] define standard proof protocol for future coding-agent validation
 - [x] decide whether current local coding path is acceptable or needs top-priority repair work
 
 ## Current Decision
@@ -38,8 +38,10 @@ Without this, Motherbrain cannot be trusted as a serious agent habitat and the r
 - Live model-mediated proof is currently failing to produce validated artifacts on demand.
 
 ## Artifacts
-- `docs/motherbrain-local-agent-evidence.md`
-- `docs/motherbrain-local-agent-bootstrap.md`
+- `docs/motherbrain/local-coder-reliability-status-2026-04-03.md`
+- `docs/updates/2026-03-30-local-coder-evidence.md`
+- `docs/updates/2026-03-30-agent-enablement.md`
 
 ## Update Log
+- 2026-04-03 — Added a current-tree reliability status/proof protocol note and explicitly recorded that the card-cited legacy artifacts are missing from this checkout, so live model-mediated proof is still outstanding.
 - 2026-03-30 — Card created after confirming partial historical evidence and one fresh controlled proof run.

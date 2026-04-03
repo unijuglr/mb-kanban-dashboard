@@ -21,6 +21,8 @@
 - `feat/mb-078-agilitas-local-proof-pipeline`: Runnable local proof pipeline artifact set (MB-078)
 
 ## 📊 Quick Status (2026-04-03 11:58 AM overnight manager pass)
+- **Reliability Lane Hardening:** Added current-tree durable docs for MB-024/MB-025/MB-026 under `docs/motherbrain/`, including a standard proof protocol for local coder validation and a file-backed queue/schema design for the fallback pipeline.
+- **Artifact Drift Called Out:** The legacy card-cited artifacts `docs/motherbrain-local-agent-evidence.md`, `docs/motherbrain-local-agent-bootstrap.md`, and `docs/motherbrain-multi-agent-pipeline.md` are absent from this checkout, so they are no longer being treated as proof.
 - **MB-078 Proof Path:** `scripts/qa_agilitas_pipeline.py` still executes the runnable local Agilitas proof path end-to-end and writes `docs/agilitas/motherbrain-local-proof-output.json`.
 - **MB-078 Runtime Truth:** The proof run succeeded without paid services, but live Ollama on `127.0.0.1:11434` was unavailable; the artifact records an honest `deterministic-fallback` instead of pretending a live-model pass.
 - **OLN Motherbrain Root:** Confirmed `/Volumes/hellastuff 1/oln` is the real OLN volume root; `/Volumes/hellastuff/oln` is absent.

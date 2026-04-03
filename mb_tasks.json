@@ -542,19 +542,14 @@
   {
     "id": "MB-047",
     "title": "Agilitas: Migration: .NET to Node/Python Track",
-    "state": "done",
+    "state": "ready",
     "owner": "Adam Goldband",
     "artifacts": [
       "docs/cards/MB-047-agilitas-migration-track.md",
-      "migration/dotnet-extraction-log.md",
-      "migration/sql-porting-script.sql",
-      "docs/agilitas/mb-047-dotnet-feature-mapping.md",
-      "PROOF_MB_047.md"
+      "migration/dotnet-extraction-log.md"
     ],
-    "completed_at": "2026-04-03T21:10:00Z",
     "notes": [
-      "Recovered the missing SQL migration artifact by porting the source AgilitasTranscriptAnalyzer SQL scripts into Postgres-friendly Cloud SQL DDL and seed data.",
-      "Added a file-level .NET/OCI-to-current-stack mapping document that closes the remaining feature-mapping step without claiming full runtime parity for OCI aspect sentiment or object-storage triggers."
+      "Current tree contains the extraction log but not the referenced sql-porting-script.sql artifact, so this remains ready rather than done."
     ]
   },
   {

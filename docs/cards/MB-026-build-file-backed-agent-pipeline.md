@@ -24,7 +24,7 @@ This becomes the practical replacement for the currently broken OpenClaw embedde
 - fancy web dashboard for the pipeline itself
 
 ## Steps
-- [ ] define task file schema
+- [x] define task file schema
 - [ ] create queue directories on Motherbrain
 - [ ] create coder runner
 - [ ] create QA runner
@@ -36,8 +36,10 @@ This becomes the practical replacement for the currently broken OpenClaw embedde
 - None currently.
 
 ## Artifacts
-- `docs/motherbrain-multi-agent-pipeline.md`
+- `docs/motherbrain/file-backed-agent-pipeline-v1.md`
+- `docs/motherbrain/local-coder-reliability-status-2026-04-03.md`
 - future pipeline scripts and task files
 
 ## Update Log
+- 2026-04-03 — Added a current-tree queue/schema design and explicit exit criteria so MB-026 can progress honestly without pretending the embedded local path is already fixed.
 - 2026-03-30 — Card created after proving direct Ollama harness can create and validate artifacts on Motherbrain.
