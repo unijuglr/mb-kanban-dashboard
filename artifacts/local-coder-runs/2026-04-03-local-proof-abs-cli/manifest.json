@@ -1,0 +1,10 @@
+{
+  "run_id": "2026-04-03-local-proof-abs-cli",
+  "started_at": "2026-04-03T23:17:24Z",
+  "ended_at": "2026-04-03T23:17:31Z",
+  "command_file": "command.txt",
+  "request_file": "request.txt",
+  "agent_log": "agent.log",
+  "exit_code": 0,
+  "outputs": []
+}

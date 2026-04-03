@@ -188,11 +188,13 @@
     ],
     "artifacts": [
       "docs/cards/MB-024-prove-local-coder-reliability.md",
-      "docs/motherbrain/local-coder-reliability-status-2026-04-03.md"
+      "docs/motherbrain/local-coder-reliability-status-2026-04-03.md",
+      "docs/motherbrain/local-coder-proof-run-2026-04-03.md"
     ],
     "notes": [
       "Card evidence shows this is an active proof/reliability task, not a completed one.",
-      "Current-tree proof protocol and reliability verdict are captured in docs/motherbrain/local-coder-reliability-status-2026-04-03.md; live model-mediated success is still unproven."
+      "Current-tree proof protocol and reliability verdict are captured in docs/motherbrain/local-coder-reliability-status-2026-04-03.md; live model-mediated success is still unproven.",
+      "Fresh bounded run 2026-04-03 launched the CLI by absolute path but still produced zero outputs; captured artifacts show Ollama unreachable at 127.0.0.1:11434 and payload text `No API provider registered for api: ollama`."
     ]
   },
   {
@@ -206,10 +208,14 @@
     "artifacts": [
       "docs/cards/MB-025-repair-live-local-coding-path.md",
       "docs/motherbrain/local-coder-reliability-status-2026-04-03.md",
-      "docs/updates/2026-03-30-now-proof-failure.md"
+      "docs/updates/2026-03-30-now-proof-failure.md",
+      "docs/motherbrain/local-coder-proof-run-2026-04-03.md",
+      "artifacts/local-coder-runs/2026-04-03-local-proof-abs-cli/manifest.json"
     ],
     "notes": [
-      "Still lacks a fresh bounded run with preserved stdout/stderr and output manifest, so the exact failure layer is not yet root-caused honestly."
+      "Still lacks a fresh bounded run with preserved stdout/stderr and output manifest, so the exact failure layer is not yet root-caused honestly.",
+      "Reproduced the local proof on 2026-04-03 with a bounded absolute-path CLI invocation and preserved the full log/manifest under artifacts/local-coder-runs/2026-04-03-local-proof-abs-cli/.",
+      "Failure narrowed from vague hang folklore to two concrete issues in this environment: bare `openclaw` is not on PATH, and the embedded local run cannot reach/configure Ollama at http://127.0.0.1:11434."
     ]
   },
   {
@@ -223,10 +229,13 @@
     "artifacts": [
       "docs/cards/MB-026-build-file-backed-agent-pipeline.md",
       "docs/motherbrain/file-backed-agent-pipeline-v1.md",
-      "docs/motherbrain/local-coder-reliability-status-2026-04-03.md"
+      "docs/motherbrain/local-coder-reliability-status-2026-04-03.md",
+      "motherbrain-pipeline/inbox/mb-026-safe-proof-task.json",
+      "motherbrain-pipeline/templates/mb-026-safe-proof-prompt.md"
     ],
     "notes": [
-      "Queue layout, task schema, manifest contract, and completion criteria are now documented, but no executable runner or seeded task chain exists yet."
+      "Queue layout, task schema, manifest contract, and completion criteria are now documented, but no executable runner or seeded task chain exists yet.",
+      "Seeded an in-repo queue skeleton plus a tiny non-destructive first pilot task on 2026-04-03 so the file-backed pipeline can advance even while MB-025 remains broken."
     ]
   },
   {

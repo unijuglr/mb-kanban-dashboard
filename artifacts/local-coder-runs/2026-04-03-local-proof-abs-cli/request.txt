@@ -1,0 +1,1 @@
+Create solve.py that prints 2+2, run it with python3 saving output to output.txt, create README.md summarizing what was done, and return the folder path only. Work only inside the provided target folder.

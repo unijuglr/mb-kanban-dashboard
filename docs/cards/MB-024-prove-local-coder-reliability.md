@@ -4,7 +4,7 @@ Status: Ready
 Priority: P0 critical
 Owner: Prime Sam
 Created: 2026-03-30
-Last Updated: 2026-03-30
+Last Updated: 2026-04-03
 
 ## Objective
 Produce repeated, validated evidence that Motherbrain-local coding agents can generate and execute useful code artifacts reliably.
@@ -39,9 +39,12 @@ Without this, Motherbrain cannot be trusted as a serious agent habitat and the r
 
 ## Artifacts
 - `docs/motherbrain/local-coder-reliability-status-2026-04-03.md`
+- `docs/motherbrain/local-coder-proof-run-2026-04-03.md`
+- `artifacts/local-coder-runs/2026-04-03-local-proof-abs-cli/manifest.json`
 - `docs/updates/2026-03-30-local-coder-evidence.md`
 - `docs/updates/2026-03-30-agent-enablement.md`
 
 ## Update Log
+- 2026-04-03 — Captured a fresh bounded proof run by invoking the CLI with an absolute path; the run still produced zero outputs, but the saved log/manifest now narrow the failure to missing bare-command PATH wiring plus Ollama/provider unavailability at `127.0.0.1:11434`.
 - 2026-04-03 — Added a current-tree reliability status/proof protocol note and explicitly recorded that the card-cited legacy artifacts are missing from this checkout, so live model-mediated proof is still outstanding.
 - 2026-03-30 — Card created after confirming partial historical evidence and one fresh controlled proof run.
