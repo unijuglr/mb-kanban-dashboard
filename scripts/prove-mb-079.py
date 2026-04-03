@@ -25,12 +25,17 @@ class FakeNeo4jHandler(BaseHTTPRequestHandler):
         })
 
         statement_text = "\n".join(stmt.get("statement", "") for stmt in payload.get("statements", []))
+        first_statement = (payload.get("statements") or [{}])[0]
+        first_parameters = first_statement.get("parameters", {})
         if "RETURN 1 AS ok" in statement_text:
             result = {"results": [{"columns": ["ok"], "data": [{"row": [1], "graph": {}}]}], "errors": []}
         elif "MATCH (e:Entity) RETURN count(e) AS entity_count" in statement_text:
             result = {"results": [{"columns": ["entity_count"], "data": [{"row": [4], "graph": {}}]}], "errors": []}
         elif "MATCH ()-[r:MENTIONS]->() RETURN count(r) AS mentions_count" in statement_text:
             result = {"results": [{"columns": ["mentions_count"], "data": [{"row": [5], "graph": {}}]}], "errors": []}
+        elif "RETURN count(DISTINCT e) AS merged_entities" in statement_text:
+            merged_entities = len(first_parameters.get("entities", []))
+            result = {"results": [{"columns": ["merged_entities"], "data": [{"row": [merged_entities], "graph": {}}]}], "errors": []}
         else:
             result = {"results": [{"columns": ["olid", "title", "link_count"], "data": [{"row": ["OLID:Luke_Skywalker", "Luke Skywalker", 2], "graph": {}}]}], "errors": []}
 
@@ -72,8 +77,21 @@ def main() -> int:
     auth_header = captured[0]["headers"].get("Authorization", "") if captured else ""
     expected_auth = "Basic " + base64.b64encode(b"neo4j:password").decode("ascii")
 
-    merge_payloads = [req for req in captured if any("MERGE (e:Entity {olid: $olid})" in stmt.get("statement", "") for stmt in req["payload"].get("statements", []))]
+    merge_payloads = [
+        req
+        for req in captured
+        if any(
+            "UNWIND $entities AS entity" in stmt.get("statement", "")
+            and "RETURN count(DISTINCT e) AS merged_entities" in stmt.get("statement", "")
+            for stmt in req["payload"].get("statements", [])
+        )
+    ]
     constraint_payloads = [req for req in captured if any("CREATE CONSTRAINT entity_olid" in stmt.get("statement", "") for stmt in req["payload"].get("statements", []))]
+    merge_statement = merge_payloads[0]["payload"]["statements"][0] if merge_payloads else {}
+    merge_parameters = merge_statement.get("parameters", {})
+    merged_entities_payload = merge_parameters.get("entities", [])
+    merged_titles = [entity.get("title") for entity in merged_entities_payload]
+    merged_link_counts = [len(entity.get("links", [])) for entity in merged_entities_payload]
 
     print(json.dumps({
         "merged_primary_entities": merged,
@@ -83,6 +101,9 @@ def main() -> int:
         "auth_header_present": auth_header == expected_auth,
         "schema_request_seen": bool(constraint_payloads),
         "merge_requests_seen": len(merge_payloads),
+        "batch_merge_entity_count": len(merged_entities_payload),
+        "batch_merge_titles": merged_titles,
+        "batch_merge_link_counts": merged_link_counts,
     }, indent=2))
 
     assert merged == 2
@@ -90,7 +111,10 @@ def main() -> int:
     assert mentions_count == 5
     assert auth_header == expected_auth
     assert constraint_payloads
-    assert len(merge_payloads) == 2
+    assert len(merge_payloads) == 1
+    assert len(merged_entities_payload) == 2
+    assert merged_titles == ["Luke Skywalker", "Tatooine"]
+    assert merged_link_counts == [4, 3]
     return 0
 
 

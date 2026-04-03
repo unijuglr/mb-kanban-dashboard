@@ -53,10 +53,19 @@ Observed output:
   "merged_primary_entities": 2,
   "entity_count_query_result": 4,
   "mentions_count_query_result": 5,
-  "captured_request_count": 6,
+  "captured_request_count": 5,
   "auth_header_present": true,
   "schema_request_seen": true,
-  "merge_requests_seen": 2
+  "merge_requests_seen": 1,
+  "batch_merge_entity_count": 2,
+  "batch_merge_titles": [
+    "Luke Skywalker",
+    "Tatooine"
+  ],
+  "batch_merge_link_counts": [
+    4,
+    3
+  ]
 }
 ```
 
@@ -64,7 +73,8 @@ What this proves:
 - the OLN client is no longer a print-only stub
 - the client performs authenticated HTTP calls to a Neo4j-compatible transactional endpoint
 - schema creation statements are sent
-- merge Cypher is sent for each parsed entity
+- the current chunked `UNWIND $entities` batch merge Cypher is sent, not the old per-entity merge shape
+- the batch payload includes the two parsed primary entities and their normalized link sets
 - proof query Cypher is sent and parsed back into rows
 
 ### B. Live local ingest attempt
