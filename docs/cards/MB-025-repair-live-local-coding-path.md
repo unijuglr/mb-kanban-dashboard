@@ -32,8 +32,8 @@ This is the real trust test. If the live local coding path cannot produce code n
 
 ## Artifacts
 - `docs/motherbrain/local-coder-reliability-status-2026-04-03.md`
-- `docs/motherbrain-kanban/updates/2026-03-30-now-proof-failure.md`
+- `docs/updates/2026-03-30-now-proof-failure.md`
 
 ## Update Log
-- 2026-04-03 — Added current-tree failure classification and proof-contract guidance; exact root cause remains unproven until a fresh bounded run captures full logs and output manifests.
+- 2026-04-03 — Repointed the failure-update artifact to its real current-tree path under `docs/updates/` and kept the card open until a fresh bounded run captures full logs and output manifests.
 - 2026-03-30 — Card created after a live proof task hung and produced no files in the target directory.

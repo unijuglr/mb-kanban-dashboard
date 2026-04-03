@@ -34,6 +34,13 @@
 - **Swarm Dispatch Attempt:** Tried to spawn a bounded local coder run for MB-079 proof-contract repair, but the current subagent model allowlist/routing rejected the requested local model name before work began. No paid-model coder was launched.
 - **QA Status:** MB-079 is recorded as blocked by proof drift; MB-080 is blocked by both missing current-tree proof artifacts and the MB-079 regression; MB-087/MB-088 remain blocked honestly by Motherbrain host runtime. Durable evidence and rerun instructions are in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
 
+## 📊 Quick Status (2026-04-03 3:06 PM overnight manager follow-up pass)
+- **MB-047 Integrity Repair:** Audited the current `feat/mb-047-migration-artifacts` branch and confirmed `HEAD` matches `origin/feat/mb-047-migration-artifacts` with zero ahead/behind drift.
+- **MB-047 Proof Rechecked:** `PROOF_MB_047.md` still matches the current tree's completion boundary: migration SQL artifact present, feature-mapping doc present, and task state already recorded done in `mb_tasks.json`.
+- **Card Drift Fixed:** Reconciled `docs/cards/MB-047-agilitas-migration-track.md` from stale `Status: Ready` to truthful `Status: Done`, and added completion caveats so documentation-complete is not confused with runtime-parity complete.
+- **Reliability Lane Backlog Integrity:** Repaired MB-025's artifact path to the real current-tree file `docs/updates/2026-03-30-now-proof-failure.md` so the card no longer cites a dead `docs/motherbrain-kanban/` path.
+- **Next Best Non-DTS Move:** MB-025 remains the highest-value actionable item; the next honest execution step is a fresh bounded `openclaw agent --local` proof run captured into the manifest/log contract described in `docs/motherbrain/local-coder-reliability-status-2026-04-03.md`.
+
 ## 📝 Developer Notes
 - LLM response parsing handles markdown code blocks vs raw JSON.
 - Deterministic extraction mode preserves the 7-dimension contract when a live provider is unavailable.

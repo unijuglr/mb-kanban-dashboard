@@ -542,14 +542,18 @@
   {
     "id": "MB-047",
     "title": "Agilitas: Migration: .NET to Node/Python Track",
-    "state": "ready",
+    "state": "done",
     "owner": "Adam Goldband",
     "artifacts": [
       "docs/cards/MB-047-agilitas-migration-track.md",
-      "migration/dotnet-extraction-log.md"
+      "migration/dotnet-extraction-log.md",
+      "migration/sql-porting-script.sql",
+      "docs/agilitas/mb-047-dotnet-feature-mapping.md",
+      "PROOF_MB_047.md"
     ],
     "notes": [
-      "Current tree contains the extraction log but not the referenced sql-porting-script.sql artifact, so this remains ready rather than done."
+      "2026-04-03 audit confirmed the migration artifacts and proof are present in the current tree, and the feature branch is already pushed to origin.",
+      "This records the migration-track documentation/artifact milestone as done; full runtime parity with the legacy .NET/OCI stack remains future implementation work."
     ]
   },
   {

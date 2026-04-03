@@ -1,11 +1,11 @@
 # MB-047 — Agilitas: Migration: .NET to Node/Python Track
 
-Status: Ready
+Status: Done
 Priority: P2 normal
 Project: Agilitas Solutions
 Owner: Adam Goldband
 Created: 2026-04-01
-Last Updated: 2026-04-01
+Last Updated: 2026-04-03
 
 ## Objective
 Extract and migrate logic from the AgilitasTranscriptAnalyzer (.NET) and related UI prototypes into the main platform architecture.
@@ -25,7 +25,16 @@ Extract and migrate logic from the AgilitasTranscriptAnalyzer (.NET) and related
 - [x] Extract the SQL initial scripts and prepare them for migration to the new DB.
 - [x] Map existing .NET/OCI features to the new GCP-hosted AI-Core.
 
+## Completion Notes
+- This card is complete as a migration-track artifact/documentation milestone, not as full runtime parity with the legacy .NET/OCI stack.
+- OCI aspect-level sentiment parity and object-storage trigger parity remain future implementation work if product scope requires them.
+
 ## Artifacts
 - `migration/dotnet-extraction-log.md`
 - `migration/sql-porting-script.sql`
 - `docs/agilitas/mb-047-dotnet-feature-mapping.md`
+- `PROOF_MB_047.md`
+
+## Update Log
+- 2026-04-03 — Card status reconciled to Done after current-tree audit confirmed artifacts, proof steps, and pushed feature-branch state are consistent.
+- 2026-04-01 — Migration-track card created.
