@@ -752,12 +752,13 @@
     ],
     "artifacts": [
       "data/oln/samples/wookieepedia-test.xml",
-      "scripts/prove-mb-080.py",
-      "PROOF_MB_080.md"
+      "docs/cards/MB-080-oln-two-page-local-sample-corpus-and-executable-ingest-proof.md",
+      "docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md"
     ],
     "notes": [
-      "Repo history suggests MB-080 artifact work exists on feature branches, but current mainline task state never reconciled it.",
-      "MB-080 is blocked for honest completion until MB-079 current-tree proof passes again and live Neo4j prerequisites for MB-088 are available."
+      "Historical MB-080 proof work exists in reachable git history: 76f0ce8 added the proof artifacts, a6ba36f updated mb_tasks.json, and 9b3ee58 recorded runtime completion.",
+      "Those historical proof artifacts are not present in the current tree, so MB-080 should not be treated as ready based on stale branch history alone.",
+      "MB-080 remains blocked until MB-079 current-tree proof passes again and the MB-080 executable proof is revalidated honestly before MB-088 live Neo4j work."
     ]
   },
   {
@@ -822,7 +823,8 @@
     "notes": [
       "Confirmed the real Motherbrain OLN root is /Volumes/hellastuff 1/oln; /Volumes/hellastuff/oln does not exist.",
       "Docker CLI and Compose are installed on Motherbrain, but the Docker daemon was unavailable during the 2026-04-03 startup attempt.",
-      "Used a /tmp/oln-proof-volume symlink workaround because the real path contains spaces and compose env-file handling was brittle."
+      "Used a /tmp/oln-proof-volume symlink workaround because the real path contains spaces and compose env-file handling was brittle.",
+      "The next executable step is not more repo work; it is to get the Motherbrain Docker daemon actually running and then rerun the captured compose/schema commands."
     ]
   },
   {
@@ -840,7 +842,8 @@
     ],
     "notes": [
       "Live proof did not proceed because Neo4j never booted on Motherbrain.",
-      "Schema apply, ingest verification, and idempotence rerun remain pending on a host with a running Docker daemon."
+      "Schema apply, ingest verification, and idempotence rerun remain pending on a host with a running Docker daemon.",
+      "This is blocked by host runtime, not missing repo prep; once Docker is up on Motherbrain, rerun the bounded ingest twice and save the query outputs beside the live-proof note."
     ]
   },
   {

@@ -26,7 +26,8 @@
 - **OLN Motherbrain Root:** Confirmed `/Volumes/hellastuff 1/oln` is the real OLN volume root; `/Volumes/hellastuff/oln` is absent.
 - **Host Runtime:** Motherbrain Docker CLI/Compose are installed, but the Docker daemon was unavailable during the live Neo4j boot attempt.
 - **MB-079 Regression:** Re-ran `python3 scripts/prove-mb-079.py` on the current tree and it now fails because the proof harness still expects the older per-entity merge request shape while `Neo4jClient.batch_merge()` has moved to chunked `UNWIND` writes.
-- **QA Status:** MB-079 is now recorded as blocked by proof drift; MB-080 should not be treated as truly ready until MB-079 proof is repaired. MB-087/MB-088 remain blocked honestly; durable evidence and rerun instructions are in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
+- **MB-080 Drift:** Reachable git history still contains earlier MB-080 proof artifacts (`76f0ce8`, `a6ba36f`, `9b3ee58`), but those files are missing from the current tree, so the task is documented as blocked rather than fake-ready.
+- **QA Status:** MB-079 is recorded as blocked by proof drift; MB-080 is blocked by both missing current-tree proof artifacts and the MB-079 regression; MB-087/MB-088 remain blocked honestly by Motherbrain host runtime. Durable evidence and rerun instructions are in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
 
 ## 📝 Developer Notes
 - LLM response parsing handles markdown code blocks vs raw JSON.
