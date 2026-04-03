@@ -723,22 +723,30 @@
   {
     "id": "MB-079",
     "title": "OLN: implement real local Neo4j write path for vertical slice",
-    "state": "ready",
-    "owner": "Coder-3",
+    "state": "blocked",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-072",
       "MB-075"
     ],
     "artifacts": [
-      "src/oln/storage/neo4j-client/",
+      "docs/cards/MB-079-oln-real-local-neo4j-write-path-for-vertical-slice.md",
+      "src/oln/storage/neo4j_client/client.py",
+      "scripts/run_oln_local_ingest.py",
+      "scripts/prove-mb-079.py",
       "PROOF_MB_079.md"
+    ],
+    "notes": [
+      "Original implementation commit 554b1dd is still in reachable repo history.",
+      "Current-tree QA regressed on 2026-04-03: python3 scripts/prove-mb-079.py fails because the proof harness still expects the older per-entity merge request shape while batch_merge now uses chunked UNWIND writes.",
+      "MB-079 should not be treated as complete again until the proof contract is repaired and rerun honestly."
     ]
   },
   {
     "id": "MB-080",
     "title": "OLN: create 2-page local sample corpus and executable ingest proof",
-    "state": "ready",
-    "owner": "Coder-4",
+    "state": "blocked",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-079"
     ],
@@ -746,6 +754,10 @@
       "data/oln/samples/wookieepedia-test.xml",
       "scripts/prove-mb-080.py",
       "PROOF_MB_080.md"
+    ],
+    "notes": [
+      "Repo history suggests MB-080 artifact work exists on feature branches, but current mainline task state never reconciled it.",
+      "MB-080 is blocked for honest completion until MB-079 current-tree proof passes again and live Neo4j prerequisites for MB-088 are available."
     ]
   },
   {
