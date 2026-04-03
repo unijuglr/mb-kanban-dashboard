@@ -104,13 +104,13 @@ The implemented client supports the runbook query class directly via `client.que
 - `MATCH ()-[r:MENTIONS]->() RETURN count(r) AS mentions_count`
 
 ## Honest status
-Implementation is done.
+Implementation is done, and the executable current-tree proof is passing again.
 
 Live end-to-end proof against a running local Neo4j instance is still environment-blocked on this machine because Neo4j/Docker was not available during execution:
 - Docker daemon unavailable
 - `127.0.0.1:7474` refused connection
 
-Because the live graph was not reachable in this session, I did **not** mark MB-079 done in card/task state. The code now fails honestly instead of simulating success.
+That remaining host/runtime gap is tracked under MB-087 and MB-088. MB-079 itself is now safe to treat as done again because its repo-side proof contract has been repaired and rerun honestly.
 
 ## Next operator step on a machine with Neo4j running
 ```bash
