@@ -187,10 +187,12 @@
       "MB-004"
     ],
     "artifacts": [
-      "docs/cards/MB-024-prove-local-coder-reliability.md"
+      "docs/cards/MB-024-prove-local-coder-reliability.md",
+      "docs/motherbrain/local-coder-reliability-status-2026-04-03.md"
     ],
     "notes": [
-      "Card evidence shows this is an active proof/reliability task, not a completed one."
+      "Card evidence shows this is an active proof/reliability task, not a completed one.",
+      "Current-tree proof protocol and reliability verdict are captured in docs/motherbrain/local-coder-reliability-status-2026-04-03.md; live model-mediated success is still unproven."
     ]
   },
   {
@@ -202,7 +204,12 @@
       "MB-024"
     ],
     "artifacts": [
-      "docs/cards/MB-025-repair-live-local-coding-path.md"
+      "docs/cards/MB-025-repair-live-local-coding-path.md",
+      "docs/motherbrain/local-coder-reliability-status-2026-04-03.md",
+      "docs/updates/2026-03-30-now-proof-failure.md"
+    ],
+    "notes": [
+      "Still lacks a fresh bounded run with preserved stdout/stderr and output manifest, so the exact failure layer is not yet root-caused honestly."
     ]
   },
   {
@@ -214,7 +221,12 @@
       "MB-025"
     ],
     "artifacts": [
-      "docs/cards/MB-026-build-file-backed-agent-pipeline.md"
+      "docs/cards/MB-026-build-file-backed-agent-pipeline.md",
+      "docs/motherbrain/file-backed-agent-pipeline-v1.md",
+      "docs/motherbrain/local-coder-reliability-status-2026-04-03.md"
+    ],
+    "notes": [
+      "Queue layout, task schema, manifest contract, and completion criteria are now documented, but no executable runner or seeded task chain exists yet."
     ]
   },
   {
@@ -530,14 +542,19 @@
   {
     "id": "MB-047",
     "title": "Agilitas: Migration: .NET to Node/Python Track",
-    "state": "ready",
+    "state": "done",
     "owner": "Adam Goldband",
     "artifacts": [
       "docs/cards/MB-047-agilitas-migration-track.md",
-      "migration/dotnet-extraction-log.md"
+      "migration/dotnet-extraction-log.md",
+      "migration/sql-porting-script.sql",
+      "docs/agilitas/mb-047-dotnet-feature-mapping.md",
+      "PROOF_MB_047.md"
     ],
+    "completed_at": "2026-04-03T21:10:00Z",
     "notes": [
-      "Current tree contains the extraction log but not the referenced sql-porting-script.sql artifact, so this remains ready rather than done."
+      "Recovered the missing SQL migration artifact by porting the source AgilitasTranscriptAnalyzer SQL scripts into Postgres-friendly Cloud SQL DDL and seed data.",
+      "Added a file-level .NET/OCI-to-current-stack mapping document that closes the remaining feature-mapping step without claiming full runtime parity for OCI aspect sentiment or object-storage triggers."
     ]
   },
   {

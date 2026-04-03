@@ -22,9 +22,10 @@ Extract and migrate logic from the AgilitasTranscriptAnalyzer (.NET) and related
 ## Steps
 - [x] Document the core logic of `Agilitas.Data` and `Agilitas.FileProcessor.Function`.
 - [x] Port C# schema models to TypeScript/Python equivalents.
-- [ ] Extract the SQL initial scripts and prepare them for migration to the new DB.
-- [ ] Map existing .NET/OCI features to the new GCP-hosted AI-Core.
+- [x] Extract the SQL initial scripts and prepare them for migration to the new DB.
+- [x] Map existing .NET/OCI features to the new GCP-hosted AI-Core.
 
 ## Artifacts
 - `migration/dotnet-extraction-log.md`
 - `migration/sql-porting-script.sql`
+- `docs/agilitas/mb-047-dotnet-feature-mapping.md`
