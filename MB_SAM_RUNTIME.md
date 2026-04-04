@@ -80,3 +80,9 @@
 - Reclassified the five remaining host-path cards (`MB-004`, `MB-022`, `MB-024`, `MB-025`, `MB-026`) from `Status: Ready` to `Status: Blocked` so the cards now match `mb_tasks.json` and their real dependency/runtime constraints.
 - Tightened each card’s blockers/artifacts/update log to reflect current-tree truth: what is proved in-repo, what still needs Motherbrain runtime verification, and where older cited artifacts are missing on this branch.
 - QA for this pass was lightweight but explicit: verified the five cards no longer advertise `Status: Ready` and reviewed git diff/status on `feat/mb-taskstate-reconcile-host-paths`.
+
+## 🌙 Overnight Swarm Notes (2026-04-04 16:40 PT state-integrity pass)
+- Audited non-DTS board/task parity again and found one lingering stale done card plus two duplicate done task entries inside `mb_tasks.json`.
+- Reconciled `docs/cards/MB-023-kanban-ui-mvp.md` from `Status: Ready` to `Status: Done` so the card matches the long-complete proof/task state.
+- Removed duplicate `MB-037` and `MB-038` entries from `mb_tasks.json`; the queue now reports 68 unique tasks instead of inflated duplicate counts.
+- QA for this pass: ran a repo-side parity check confirming no remaining card/task status mismatch and no duplicate task IDs; DTS remained untouched.

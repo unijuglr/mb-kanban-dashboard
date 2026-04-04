@@ -1,10 +1,10 @@
 # MB-023 — Build Motherbrain Kanban UI MVP
 
-Status: Ready
+Status: Done
 Priority: P1 important
 Owner: Motherbrain local coding agents
 Created: 2026-03-30
-Last Updated: 2026-03-30
+Last Updated: 2026-04-04
 
 ## Objective
 Build a lightweight local UI over the file-backed Motherbrain Kanban system.
@@ -45,3 +45,4 @@ This is both a useful tool and an early proving ground for Motherbrain-local cod
 
 ## Update Log
 - 2026-03-30 — Card created as first target build for Motherbrain-local coding agents.
+- 2026-04-04 — Reconciled card status with durable task/proof reality; MB-023 has long been complete in `mb_tasks.json` and `PROOF_MB_023.md`, so the card no longer advertises `Ready`.
