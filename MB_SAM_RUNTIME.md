@@ -61,6 +61,13 @@
 - **Artifact Hygiene Improved:** Hardened `scripts/collect-mb-022-persistence-diagnostics.sh` so plist/launchctl captures redact API-key fields before review, and so port checks fall back to `/usr/sbin/lsof` when plain shell PATH is thin.
 - **Truthful Boundary:** MB-022 remains open because no operator-approved bootout/bootstrap or reboot/relogin verification was performed in this pass.
 
+## 📊 Quick Status (2026-04-03 9:31 PM overnight manager branch/backlog audit)
+- **Card/Task Drift Reconciled:** Updated the repo cards for MB-023, MB-018, and MB-019 to match the already-truthful `mb_tasks.json` state instead of leaving stale `Status:` lines to mislead the next pass.
+- **MB-023 Truth Repair:** The card now reflects the current-tree MVP completion boundary (`scripts/dev-server.mjs`, `PROOF_MB_023.md`, `README.md`) and explicitly keeps safe write operations out of scope.
+- **MB-018/MB-019 Honesty Repair:** Both cards now say Blocked because their cited `docs/motherbrain-kanban*` artifacts are absent from this checkout; no fake done-state remains in the card layer.
+- **Branch Audit:** Enumerated local-only feature branches still not on origin; the highest-risk leftovers are reliability-lane branches (`feat/mb-004-qa-truth-pass`, `feat/mb-024-025-qa-audit`, `feat/mb-024-026-reliability-protocol`, `feat/mb-024-mb-025-local-proof-harness`, `feat/mb-024-mb-025-local-proof-harness-final`) plus older HellaThis/model-bakeoff branches. These need selective push/cleanup so proof work is not stranded only on the laptop.
+- **Next Best Non-DTS Work:** Either push the local-only reliability branch set after confirming branch intent, or continue with another bounded QA/audit pass against the remaining local-only branches to separate redundant aliases from unique unpushed work.
+
 ## 📝 Developer Notes
 - LLM response parsing handles markdown code blocks vs raw JSON.
 - Deterministic extraction mode preserves the 7-dimension contract when a live provider is unavailable.

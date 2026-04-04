@@ -1,10 +1,10 @@
 # MB-018 — Build the Kanban interface itself
 
-Status: Done
+Status: Blocked
 Priority: P0 critical
 Owner: Prime Sam
 Created: 2026-03-30
-Last Updated: 2026-03-30
+Last Updated: 2026-04-03
 
 ## Objective
 Create a transparent, file-based Kanban interface for the Motherbrain build program.
@@ -22,20 +22,17 @@ We need a visible operating surface for tasks, decisions, and progress.
 - fancy UI
 
 ## Steps
-- [x] create board file
-- [x] create directory structure
-- [x] create templates
-- [x] create update log scaffold
+- [ ] create board file
+- [ ] create directory structure
+- [ ] create templates
+- [ ] create update log scaffold
 
 ## Blockers
-- None.
+- The card still cites `docs/motherbrain-kanban*` artifacts that are absent from the current tree, so completion cannot be honestly claimed from present evidence alone.
 
 ## Artifacts
-- `docs/motherbrain-kanban.md`
-- `docs/motherbrain-kanban/README.md`
-- `docs/motherbrain-kanban/templates/card-template.md`
-- `docs/motherbrain-kanban/templates/decision-template.md`
-- `docs/motherbrain-kanban/updates/2026-03-30-initialization.md`
+- historical references only; current-tree proof missing for the listed `docs/motherbrain-kanban*` artifacts
 
 ## Update Log
-- 2026-03-30 — Interface created.
+- 2026-03-30 — Interface originally recorded as created.
+- 2026-04-03 — Reclassified to Blocked during backlog integrity audit because the cited current-tree artifacts are missing in this checkout.
