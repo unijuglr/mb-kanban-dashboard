@@ -48,6 +48,12 @@
 - **MB-026 Seeded Forward:** Added an in-repo `motherbrain-pipeline/` queue skeleton plus a tiny non-destructive first pilot task and prompt so the file-backed fallback lane can keep moving while the embedded local path is repaired.
 - **Durable State Updated:** Refreshed cards `MB-024`, `MB-025`, `MB-026`, updated `mb_tasks.json`, and added `docs/motherbrain/local-coder-proof-run-2026-04-03.md`.
 
+## 📊 Quick Status (2026-04-04 5:30 PM MB-026 proof pass)
+- **MB-026 Runner Landed:** Added `scripts/mb_pipeline_runner.mjs`, a small deterministic file-backed runner that claims tasks, writes coder/QA manifests, preserves stdout/stderr logs, and moves task JSON across `claimed/`, `qa/`, `done/`, and `failed/`.
+- **Real Success Captured:** `node scripts/prove-mb-026.mjs` processed `mb-026-safe-proof-task` end-to-end, producing `notes.txt` + `result.json`, passing coder validation, passing QA, and ending in `motherbrain-pipeline/done/mb-026-safe-proof-task.json`.
+- **Real Failure Captured:** The same proof seeded `mb-026-safe-proof-task-failure`, which intentionally required a missing file and landed in `motherbrain-pipeline/failed/` with durable `failure_tag: missing_outputs` evidence.
+- **Durable Truth Updated:** Added `PROOF_MB_026.md`, updated card/task state to done, and kept the limitation explicit: devops/integration is still out of scope and the model-backed MB-025 lane remains a separate repair track.
+
 ## 📝 Developer Notes
 - LLM response parsing handles markdown code blocks vs raw JSON.
 - Deterministic extraction mode preserves the 7-dimension contract when a live provider is unavailable.

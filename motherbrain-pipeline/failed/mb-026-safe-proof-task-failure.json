@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "mb-026-safe-proof-task-failure",
+  "created_at": "2026-04-03T23:45:00Z",
+  "project": "mb-kanban-dashboard",
+  "card": "MB-026",
+  "stage": "coder",
+  "status": "failed",
+  "working_dir": "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/motherbrain-pipeline/logs/mb-026-safe-proof-task-failure/workspace",
+  "prompt_file": "motherbrain-pipeline/templates/mb-026-safe-proof-prompt.md",
+  "expected_outputs": [
+    "notes.txt",
+    "result.json",
+    "missing.txt"
+  ],
+  "validation": {
+    "command": "find . -maxdepth 1 \\( -name notes.txt -o -name result.json -o -name missing.txt \\) | sort",
+    "timeout_seconds": 30,
+    "must_create": [
+      "notes.txt",
+      "result.json",
+      "missing.txt"
+    ]
+  },
+  "handoff": {
+    "qa_required": true,
+    "devops_required": false
+  },
+  "attempt": 1,
+  "max_attempts": 1,
+  "artifacts_dir": "motherbrain-pipeline/logs/mb-026-safe-proof-task-failure",
+  "notes": [
+    "Deliberately expects a file the deterministic safe-proof coder does not create.",
+    "Used to prove durable failure capture for MB-026 without touching the repo tree.",
+    "Coder run started at 2026-04-04T00:28:17.069Z",
+    "Coder run failed at 2026-04-04T00:28:17.283Z with missing_outputs"
+  ]
+}

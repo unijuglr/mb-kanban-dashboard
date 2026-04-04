@@ -221,21 +221,27 @@
   {
     "id": "MB-026",
     "title": "Build file-backed Motherbrain agent pipeline",
-    "state": "ready",
+    "state": "done",
     "owner": "Prime Sam",
-    "depends_on": [
-      "MB-025"
-    ],
+    "depends_on": [],
     "artifacts": [
       "docs/cards/MB-026-build-file-backed-agent-pipeline.md",
       "docs/motherbrain/file-backed-agent-pipeline-v1.md",
       "docs/motherbrain/local-coder-reliability-status-2026-04-03.md",
-      "motherbrain-pipeline/inbox/mb-026-safe-proof-task.json",
-      "motherbrain-pipeline/templates/mb-026-safe-proof-prompt.md"
+      "scripts/mb_pipeline_runner.mjs",
+      "scripts/prove-mb-026.mjs",
+      "PROOF_MB_026.md",
+      "motherbrain-pipeline/templates/mb-026-safe-proof-prompt.md",
+      "motherbrain-pipeline/done/mb-026-safe-proof-task.json",
+      "motherbrain-pipeline/failed/mb-026-safe-proof-task-failure.json",
+      "motherbrain-pipeline/logs/mb-026-safe-proof-task/coder-manifest.json",
+      "motherbrain-pipeline/logs/mb-026-safe-proof-task/qa-manifest.json",
+      "motherbrain-pipeline/logs/mb-026-safe-proof-task-failure/coder-manifest.json"
     ],
     "notes": [
-      "Queue layout, task schema, manifest contract, and completion criteria are now documented, but no executable runner or seeded task chain exists yet.",
-      "Seeded an in-repo queue skeleton plus a tiny non-destructive first pilot task on 2026-04-03 so the file-backed pipeline can advance even while MB-025 remains broken."
+      "Implemented a minimal file-backed coder/QA runner that moves task JSON across inbox/claimed/qa/done/failed and writes durable manifests plus stdout/stderr logs under motherbrain-pipeline/logs/.",
+      "Proved a real success path with mb-026-safe-proof-task and a real failure path with mb-026-safe-proof-task-failure, which ends in failed/ with failure_tag missing_outputs.",
+      "Devops/integration remains intentionally out of scope for this completed scaffolding card."
     ]
   },
   {

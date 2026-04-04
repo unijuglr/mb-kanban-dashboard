@@ -12,6 +12,7 @@
     "proof:mb-012": "node scripts/prove-mb-012.mjs",
     "proof:mb-013": "node scripts/prove-mb-013.mjs",
     "proof:mb-021": "node scripts/prove-mb-021.mjs",
+    "proof:mb-026": "node scripts/prove-mb-026.mjs",
     "proof:mb-050": "node scripts/prove-mb-050.mjs",
     "proof:mb-030": "node scripts/prove-mb-030.mjs",
     "proof:mb-031": "node scripts/prove-mb-031.mjs",

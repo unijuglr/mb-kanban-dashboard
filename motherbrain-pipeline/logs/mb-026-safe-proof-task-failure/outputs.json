@@ -1,0 +1,10 @@
+[
+  {
+    "path": "notes.txt",
+    "sha256": "3e955edebc369880da151bc83462b0cf558fd31560f976406669b8dc79d9c605"
+  },
+  {
+    "path": "result.json",
+    "sha256": "f983b105dce2446a09277f27cdf61d3cb1d6f93a5ecb3fa9aa3771635234491c"
+  }
+]

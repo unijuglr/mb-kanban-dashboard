@@ -1,0 +1,27 @@
+{
+  "task_id": "mb-026-safe-proof-task",
+  "runner": "qa",
+  "started_at": "2026-04-04T00:28:16.718Z",
+  "ended_at": "2026-04-04T00:28:17.003Z",
+  "command": "find . -maxdepth 1 \\( -name notes.txt -o -name result.json \\) | sort",
+  "exit_code": 0,
+  "outputs": [
+    {
+      "path": "notes.txt",
+      "sha256": "851fcd6401a49b60674cbf3ef0fa47451ceb6343e0a18170dea4ef07c69d67b6"
+    },
+    {
+      "path": "result.json",
+      "sha256": "d203f024ebaae676289c30f6545215c063c44cbd3b9493432a6122f999031127"
+    }
+  ],
+  "validation": {
+    "command": "find . -maxdepth 1 \\( -name notes.txt -o -name result.json \\) | sort",
+    "exit_code": 0,
+    "stdout": "./notes.txt\n./result.json\n",
+    "stderr": "",
+    "timed_out": false
+  },
+  "result": "passed",
+  "failure_tag": null
+}

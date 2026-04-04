@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "mb-026-safe-proof-task",
+  "created_at": "2026-04-03T23:20:00Z",
+  "project": "mb-kanban-dashboard",
+  "card": "MB-026",
+  "stage": "done",
+  "status": "done",
+  "working_dir": "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/motherbrain-pipeline/logs/mb-026-safe-proof-task/workspace",
+  "prompt_file": "motherbrain-pipeline/templates/mb-026-safe-proof-prompt.md",
+  "expected_outputs": [
+    "notes.txt",
+    "result.json"
+  ],
+  "validation": {
+    "command": "find . -maxdepth 1 \\( -name notes.txt -o -name result.json \\) | sort",
+    "timeout_seconds": 30,
+    "must_create": [
+      "notes.txt",
+      "result.json"
+    ]
+  },
+  "handoff": {
+    "qa_required": true,
+    "devops_required": false
+  },
+  "attempt": 1,
+  "max_attempts": 2,
+  "artifacts_dir": "motherbrain-pipeline/logs/mb-026-safe-proof-task",
+  "notes": [
+    "Seeded as a non-destructive first pilot task for the file-backed pipeline.",
+    "This task is intentionally tiny so failure handling can be verified before real repo edits are attempted.",
+    "Coder run started at 2026-04-04T00:28:16.441Z",
+    "Coder run passed at 2026-04-04T00:28:16.716Z",
+    "QA run started at 2026-04-04T00:28:16.718Z",
+    "QA run passed at 2026-04-04T00:28:17.003Z"
+  ]
+}

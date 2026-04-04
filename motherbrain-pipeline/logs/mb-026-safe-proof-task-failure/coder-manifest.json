@@ -1,0 +1,27 @@
+{
+  "task_id": "mb-026-safe-proof-task-failure",
+  "runner": "coder",
+  "started_at": "2026-04-04T00:28:17.069Z",
+  "ended_at": "2026-04-04T00:28:17.283Z",
+  "command": "deterministic-safe-proof-writer",
+  "exit_code": 0,
+  "outputs": [
+    {
+      "path": "notes.txt",
+      "sha256": "3e955edebc369880da151bc83462b0cf558fd31560f976406669b8dc79d9c605"
+    },
+    {
+      "path": "result.json",
+      "sha256": "f983b105dce2446a09277f27cdf61d3cb1d6f93a5ecb3fa9aa3771635234491c"
+    }
+  ],
+  "validation": {
+    "command": "find . -maxdepth 1 \\( -name notes.txt -o -name result.json -o -name missing.txt \\) | sort",
+    "exit_code": 0,
+    "stdout": "./notes.txt\n./result.json\n",
+    "stderr": "",
+    "timed_out": false
+  },
+  "result": "failed",
+  "failure_tag": "missing_outputs"
+}
