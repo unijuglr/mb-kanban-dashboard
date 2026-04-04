@@ -4,7 +4,7 @@ Status: Ready
 Priority: P1 important
 Owner: Prime Sam
 Created: 2026-03-30
-Last Updated: 2026-04-03
+Last Updated: 2026-04-04
 
 ## Objective
 Repair or replace the current LaunchAgent-based persistence path for the Motherbrain OpenClaw gateway.
@@ -48,9 +48,11 @@ The gateway runtime itself works, but service persistence currently fails, which
 - `docs/motherbrain/gateway-persistence-findings-2026-04-03.md`
 - `scripts/collect-mb-022-persistence-diagnostics.sh`
 - `PROOF_MB_022.md`
+- `artifacts/mb-022/recheck-sanitized/`
 - `docs/updates/2026-03-30-agent-enablement.md`
 
 ## Update Log
 - 2026-03-30 — Card created after confirming manual gateway startup works but LaunchAgent startup does not.
 - 2026-04-03 — Added a current-tree runbook, safe diagnostics helper, and honest proof boundary so MB-022 is executable tonight without faking host-runtime completion.
 - 2026-04-03 — Captured a fresh read-only host diagnostics summary and narrowed the failure class to launchd/plist config drift (`11434` loaded vs `11435` on disk) plus shell-path ergonomics issues; task remains open pending an operator-approved reload/restart verification.
+- 2026-04-04 — Promoted the redacted `artifacts/mb-022/recheck-sanitized/` bundle as the durable evidence snapshot and ignored the unsafe local-only sibling bundles so overnight work stops leaving raw secret-bearing diagnostics loose in git status.

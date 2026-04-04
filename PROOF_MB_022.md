@@ -11,6 +11,7 @@ The repo now contains a current-tree, MB-022-specific diagnosis package:
 - `docs/motherbrain/gateway-persistence-diagnosis-runbook-2026-04-03.md`
 - `docs/motherbrain/gateway-persistence-findings-2026-04-03.md`
 - `scripts/collect-mb-022-persistence-diagnostics.sh`
+- `artifacts/mb-022/recheck-sanitized/`
 - updated `docs/cards/MB-022-fix-motherbrain-gateway-persistence.md`
 - updated `mb_tasks.json`
 
@@ -47,6 +48,8 @@ No claim is made here that:
 bash -n scripts/collect-mb-022-persistence-diagnostics.sh
 ./scripts/collect-mb-022-persistence-diagnostics.sh artifacts/mb-022/local-smoke
 ./scripts/collect-mb-022-persistence-diagnostics.sh artifacts/mb-022/recheck
+rm -rf artifacts/mb-022/recheck-sanitized
+./scripts/collect-mb-022-persistence-diagnostics.sh artifacts/mb-022/recheck-sanitized
 ```
 
 ## QA results
@@ -64,12 +67,15 @@ The helper script was executed locally against this checkout to confirm that it:
 That smoke run only verifies the script behavior, not Motherbrain host truth.
 
 ### Read-only host findings summary
-The fresh `artifacts/mb-022/recheck/` bundle confirmed:
+The fresh redacted `artifacts/mb-022/recheck-sanitized/` bundle confirmed:
 - `~/Library/LaunchAgents/ai.openclaw.gateway.plist` exists and passes `plutil -lint`
 - `launchctl print gui/$(id -u)/ai.openclaw.gateway` reports the job is running
 - the loaded job environment disagrees with the plist on disk about `OLLAMA_HOST` (`11434` loaded vs `11435` on disk)
 
 That is real evidence, but not yet a persistence fix.
+
+### Durability improvement
+The raw `local-smoke/` and `recheck/` bundles remain intentionally local-only because they may contain unredacted secrets. `.gitignore` now excludes those directories so future MB-022 passes stop leaving unsafe loose artifacts behind, while the committed proof points at the sanitized bundle instead.
 
 ## Required host-runtime work still pending
 

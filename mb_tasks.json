@@ -986,11 +986,13 @@
       "docs/motherbrain/gateway-persistence-diagnosis-runbook-2026-04-03.md",
       "docs/motherbrain/gateway-persistence-findings-2026-04-03.md",
       "scripts/collect-mb-022-persistence-diagnostics.sh",
-      "PROOF_MB_022.md"
+      "PROOF_MB_022.md",
+      "artifacts/mb-022/recheck-sanitized/"
     ],
     "notes": [
       "Repo-side proof is current and honest: diagnostics helper, runbook, findings note, and PROOF_MB_022 exist on this tree.",
-      "Still blocked on operator-approved Motherbrain reload/restart verification to prove the loaded launchd environment matches the plist on disk and survives lifecycle events."
+      "Still blocked on operator-approved Motherbrain reload/restart verification to prove the loaded launchd environment matches the plist on disk and survives lifecycle events.",
+      "2026-04-04: promoted the sanitized recheck bundle as the durable artifact and ignored raw local-only MB-022 diagnostics folders so future overnight passes stop leaving secret-bearing evidence loose in git status."
     ]
   },
   {

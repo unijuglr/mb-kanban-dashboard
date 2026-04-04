@@ -4,13 +4,15 @@
 
 This note summarizes the read-only MB-022 host diagnostics run captured from the current Mac host using `scripts/collect-mb-022-persistence-diagnostics.sh`.
 
-It is intentionally a summary, not a raw artifact dump, because the raw plist/launchctl output can contain environment secrets and should stay local unless redacted first.
+It is intentionally a summary, not a raw artifact dump, because the raw plist/launchctl output can contain environment secrets and should stay local unless redacted first. The durable repo-side artifact for this pass is the sanitized bundle under `artifacts/mb-022/recheck-sanitized/`.
 
 ## Commands run
 
 ```bash
 bash -n scripts/collect-mb-022-persistence-diagnostics.sh
 ./scripts/collect-mb-022-persistence-diagnostics.sh artifacts/mb-022/recheck
+rm -rf artifacts/mb-022/recheck-sanitized
+./scripts/collect-mb-022-persistence-diagnostics.sh artifacts/mb-022/recheck-sanitized
 ```
 
 ## Durable findings

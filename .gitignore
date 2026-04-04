@@ -25,3 +25,7 @@ mb_metrics.db-journal
 logs/
 temp/
 *.tmp
+
+# Local diagnostics bundles (commit sanitized snapshots explicitly when needed)
+artifacts/mb-022/local-smoke/
+artifacts/mb-022/recheck/
