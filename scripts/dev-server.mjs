@@ -7,6 +7,7 @@ import { createDecisionFromTemplate } from '../src/decision-writes.mjs';
 import { appendDecisionResponse, loadDecisionResponseEnvelope } from '../src/decision-response-store.mjs';
 import { appendUpdate } from '../src/update-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
+import { loadGraphExplorerModel } from '../src/graph-explorer/adapter.mjs';
 
 function json(res, statusCode, payload) {
   res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -41,6 +42,7 @@ function shell({ title, currentPath, body }) {
     ['/', 'Overview'],
     ['/metrics', 'Metrics'],
     ['/board', 'Board'],
+    ['/graph', 'Graph'],
     ['/decisions', 'Decisions'],
     ['/updates', 'Updates']
   ];
@@ -2325,6 +2327,368 @@ function renderProjectDecisionsView(model, projectName) {
   });
 }
 
+function renderGraph(model) {
+  const initialData = JSON.stringify(model).replace(/</g, '\\u003c');
+  return shell({
+    title: 'Graph explorer',
+    currentPath: '/graph',
+    body: `
+      <section class="hero">
+        <div>
+          <h1>Graph explorer</h1>
+          <p>Read-only OLN proof graph over committed repo artifacts. Honest scope: zero-dependency SVG explorer, not fake 3D.</p>
+        </div>
+        <div class="muted">Generated ${escapeHtml(model.generatedAt)}</div>
+      </section>
+      <section class="grid stats">
+        <article class="card"><div class="muted">Nodes</div><div class="kpi">${model.summary.nodeCount}</div><div class="tiny muted">${model.summary.primaryCount} primary · ${model.summary.linkedCount} linked</div></article>
+        <article class="card"><div class="muted">Edges</div><div class="kpi">${model.summary.edgeCount}</div><div class="tiny muted">Proof-derived only</div></article>
+        <article class="card"><div class="muted">Source</div><div class="kpi" style="font-size:1rem;">${escapeHtml(model.source.mode)}</div><div class="tiny muted">Luke/Tatooine vertical slice</div></article>
+        <article class="card"><div class="muted">Live probe</div><div class="kpi" style="font-size:1rem;">${model.source.liveProbeAttempted ? 'attempted' : 'not attempted'}</div><div class="tiny muted">${escapeHtml(model.source.liveProbeReason || 'n/a')}</div></article>
+      </section>
+      <section class="panel">
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
+          <label class="stack">
+            <span class="muted">Search nodes</span>
+            <input id="graph-search" type="search" placeholder="Luke, Tatooine, MB-088" />
+          </label>
+          <label class="stack">
+            <span class="muted">Filter by type</span>
+            <select id="graph-type-filter"><option value="">All types</option>${model.filters.types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('')}</select>
+          </label>
+          <label class="stack">
+            <span class="muted">Filter by group</span>
+            <select id="graph-group-filter"><option value="">All groups</option>${model.filters.groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join('')}</select>
+          </label>
+          <div class="stack">
+            <span class="muted">Quick actions</span>
+            <div class="button-row"><button class="button" id="graph-reset" type="button">Reset view</button><a class="button" href="/api/graph">Open JSON</a></div>
+          </div>
+        </div>
+      </section>
+      <section class="grid detail-layout" style="align-items: stretch;">
+        <article class="panel" style="min-height: 620px; overflow: hidden;">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap; margin-bottom: 12px;">
+            <div class="muted" id="graph-state">Showing full proof graph.</div>
+            <div class="chip">Click a node to inspect neighbors</div>
+          </div>
+          <svg id="graph-canvas" viewBox="0 0 960 620" width="100%" height="620" role="img" aria-label="Interactive graph explorer"></svg>
+        </article>
+        <aside class="stack">
+          <article class="panel">
+            <h2>Selected node</h2>
+            <div id="graph-selection" class="muted">Nothing selected yet. Click Luke if you enjoy the obvious.</div>
+          </article>
+          <article class="panel">
+            <h2>Legend</h2>
+            <div class="stack tiny">
+              <div><span class="chip" style="background:#1d4ed8;color:#dbeafe;border-color:#3b82f6;">Primary</span> Luke/Tatooine slice anchors</div>
+              <div><span class="chip" style="background:#14532d;color:#dcfce7;border-color:#22c55e;">Linked</span> Mentioned entities from the proof artifact</div>
+              <div><span class="chip" style="background:#5b21b6;color:#f3e8ff;border-color:#8b5cf6;">Proof</span> Repo proof/card nodes</div>
+            </div>
+          </article>
+          <article class="panel">
+            <h2>Source honesty</h2>
+            <div class="tiny muted">This page reads committed proof data from <code>docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json</code> plus the MB-088 card metadata. No writes, no paid APIs, no pretending a live graph exists when it doesn't.</div>
+          </article>
+        </aside>
+      </section>
+      <script id="graph-data" type="application/json">${initialData}</script>
+      <script>
+        (() => {
+          const payload = JSON.parse(document.getElementById('graph-data').textContent);
+          const svg = document.getElementById('graph-canvas');
+          const searchEl = document.getElementById('graph-search');
+          const typeEl = document.getElementById('graph-type-filter');
+          const groupEl = document.getElementById('graph-group-filter');
+          const resetEl = document.getElementById('graph-reset');
+          const stateEl = document.getElementById('graph-state');
+          const selectionEl = document.getElementById('graph-selection');
+          let selectedId = null;
+
+          const esc = (value) => String(value || '')
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+          function colorFor(node) {
+            if (node.group === 'primary') return '#3b82f6';
+            if (node.group === 'linked') return '#22c55e';
+            if (node.group === 'proof') return '#a855f7';
+            return '#94a3b8';
+          }
+
+          function passes(node) {
+            const search = String(searchEl.value || '').trim().toLowerCase();
+            const type = typeEl.value;
+            const group = groupEl.value;
+            const haystack = [node.label, node.type, node.group, node.source, node.key].join(' ').toLowerCase();
+            return (!search || haystack.includes(search))
+              && (!type || node.type === type)
+              && (!group || node.group === group);
+          }
+
+          function neighborsFor(nodeId) {
+            const ids = new Set([nodeId]);
+            payload.edges.forEach((edge) => {
+              if (edge.source === nodeId) ids.add(edge.target);
+              if (edge.target === nodeId) ids.add(edge.source);
+            });
+            return ids;
+          }
+
+          function layout(nodes) {
+            const width = 960;
+            const height = 620;
+            const cx = width / 2;
+            const cy = height / 2;
+            const radius = Math.min(width, height) * 0.34;
+            return nodes.map((node, index) => {
+              const angle = (Math.PI * 2 * index) / Math.max(nodes.length, 1);
+              const ring = node.group === 'primary' ? radius * 0.55 : (node.group === 'proof' ? radius * 0.25 : radius);
+              return { ...node, x: cx + Math.cos(angle) * ring, y: cy + Math.sin(angle) * ring };
+            });
+          }
+
+          function renderSelection(node, visibleNodes, visibleEdges) {
+            if (!node) {
+              selectionEl.innerHTML = '<div class="muted">Nothing selected yet. Click a node to inspect neighbors.</div>';
+              return;
+            }
+            const related = visibleEdges.filter((edge) => edge.source === node.id || edge.target === node.id);
+            selectionEl.innerHTML = ''
+              + '<div><strong>' + esc(node.label) + '</strong></div>'
+              + '<div class="tiny muted" style="margin-top:6px;">' + esc(node.type) + ' · ' + esc(node.group) + '</div>'
+              + '<div class="tiny muted" style="margin-top:6px;">Source: ' + esc(node.source) + '</div>'
+              + '<div class="tiny muted" style="margin-top:10px;">Neighbors: ' + related.length + '</div>'
+              + '<pre style="margin-top:12px;">' + esc(JSON.stringify(node.properties || {}, null, 2)) + '</pre>'
+              + (related.length ? '<div class="stack tiny">' + related.map((edge) => {
+                  const otherId = edge.source === node.id ? edge.target : edge.source;
+                  const other = visibleNodes.find((candidate) => candidate.id === otherId) || payload.nodes.find((candidate) => candidate.id === otherId);
+                  return '<div class="card-item"><strong>' + esc(edge.type) + '</strong> → ' + esc(other ? other.label : otherId) + '</div>';
+                }).join('') + '</div>' : '');
+          }
+
+          function render() {
+            const baseNodes = payload.nodes.filter(passes);
+            const neighborhood = selectedId ? neighborsFor(selectedId) : null;
+            const visibleNodes = layout(baseNodes.filter((node) => !neighborhood || neighborhood.has(node.id) || node.id === selectedId));
+            const visibleNodeIds = new Set(visibleNodes.map((node) => node.id));
+            const visibleEdges = payload.edges.filter((edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target));
+
+            stateEl.textContent = selectedId
+              ? 'Focused on selected node neighborhood.'
+              : (baseNodes.length === payload.nodes.length ? 'Showing full proof graph.' : 'Showing filtered proof graph.');
+
+            svg.innerHTML = ''
+              + '<rect x="0" y="0" width="960" height="620" rx="18" fill="#0d1322" stroke="#26304a"></rect>'
+              + visibleEdges.map((edge) => {
+                  const source = visibleNodes.find((node) => node.id === edge.source);
+                  const target = visibleNodes.find((node) => node.id === edge.target);
+                  if (!source || !target) return '';
+                  const highlighted = selectedId && (edge.source === selectedId || edge.target === selectedId);
+                  return '<g>'
+                    + '<line x1="' + source.x + '" y1="' + source.y + '" x2="' + target.x + '" y2="' + target.y + '" stroke="' + (highlighted ? '#93c5fd' : '#334155') + '" stroke-width="' + (highlighted ? '3' : '1.5') + '" opacity="0.9"></line>'
+                    + '<text x="' + ((source.x + target.x) / 2) + '" y="' + ((source.y + target.y) / 2 - 6) + '" fill="#94a3b8" font-size="10" text-anchor="middle">' + esc(edge.type) + '</text>'
+                    + '</g>';
+                }).join('')
+              + visibleNodes.map((node) => {
+                  const selected = node.id === selectedId;
+                  const radius = node.group === 'primary' ? 18 : (node.group === 'proof' ? 15 : 12);
+                  return '<g class="graph-node" data-node-id="' + esc(node.id) + '" style="cursor:pointer;">'
+                    + '<circle cx="' + node.x + '" cy="' + node.y + '" r="' + radius + '" fill="' + colorFor(node) + '" stroke="' + (selected ? '#f8fafc' : '#0f172a') + '" stroke-width="' + (selected ? '4' : '2') + '"></circle>'
+                    + '<text x="' + node.x + '" y="' + (node.y + radius + 18) + '" fill="#e2e8f0" font-size="12" text-anchor="middle">' + esc(node.label) + '</text>'
+                    + '</g>';
+                }).join('');
+
+            svg.querySelectorAll('.graph-node').forEach((el) => {
+              el.addEventListener('click', () => {
+                selectedId = el.getAttribute('data-node-id');
+                const next = payload.nodes.find((node) => node.id === selectedId) || null;
+                renderSelection(next, visibleNodes, visibleEdges);
+                render();
+              });
+            });
+
+            const selectedNode = payload.nodes.find((node) => node.id === selectedId) || null;
+            renderSelection(selectedNode, visibleNodes, visibleEdges);
+          }
+
+          [searchEl, typeEl, groupEl].forEach((el) => el.addEventListener('input', () => {
+            selectedId = null;
+            render();
+          }));
+          resetEl.addEventListener('click', () => {
+            searchEl.value = '';
+            typeEl.value = '';
+            groupEl.value = '';
+            selectedId = null;
+            render();
+          });
+          render();
+        })();
+      </script>`
+  });
+}
+
+function renderGraphExplorer() {
+  const graph = loadGraphExplorerModel(root);
+  const graphData = JSON.stringify(graph).replace(/</g, '\\u003c');
+
+  return shell({
+    title: 'Graph explorer',
+    currentPath: '/graph',
+    body: `
+      <section class="hero">
+        <div>
+          <h1>Graph explorer</h1>
+          <p>Read-only OLN proof graph sourced from the Luke/Tatooine vertical-slice artifacts already committed in-repo.</p>
+        </div>
+        <div class="muted">${escapeHtml(graph.summary.nodeCount)} node(s) · ${escapeHtml(graph.summary.edgeCount)} edge(s)</div>
+      </section>
+      <section class="grid stats">
+        <article class="card"><div class="muted">Primary entities</div><div class="kpi">${escapeHtml(graph.summary.primaryCount)}</div></article>
+        <article class="card"><div class="muted">Linked entities</div><div class="kpi">${escapeHtml(graph.summary.linkedCount)}</div></article>
+        <article class="card"><div class="muted">Source mode</div><div class="kpi" style="font-size:1.05rem;">${escapeHtml(graph.source.mode)}</div></article>
+        <article class="card"><div class="muted">Live probe</div><div class="kpi" style="font-size:1.05rem;">${graph.source.liveProbeAttempted ? 'attempted' : 'offline proof only'}</div></article>
+      </section>
+      <section class="grid" style="grid-template-columns: minmax(260px, 320px) minmax(0, 1fr) minmax(280px, 360px); align-items:start;">
+        <article class="panel stack">
+          <h2>Controls</h2>
+          <label class="stack"><span class="muted">Search</span><input id="graph-search" type="search" placeholder="Luke, Tatooine, Jedi…" /></label>
+          <label class="stack"><span class="muted">Group</span><select id="graph-group-filter"><option value="">All groups</option>${graph.filters.groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join('')}</select></label>
+          <label class="stack"><span class="muted">Type</span><select id="graph-type-filter"><option value="">All types</option>${graph.filters.types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('')}</select></label>
+          <div class="button-row"><button id="graph-reset" class="button" type="button">Reset filters</button></div>
+          <div class="muted tiny" id="graph-filter-state">Showing all proof-backed nodes.</div>
+        </article>
+        <article class="panel">
+          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
+            <h2 style="margin:0;">Explorer canvas</h2>
+            <div class="muted tiny">Click a node or its badge to inspect neighbors and properties.</div>
+          </div>
+          <svg id="graph-canvas" viewBox="0 0 900 560" width="100%" role="img" aria-label="Graph explorer canvas" style="background: radial-gradient(circle at top, #15203b, #0b1020 68%); border:1px solid #26304a; border-radius:14px;"></svg>
+          <div class="stack" style="margin-top:12px;" id="graph-node-list"></div>
+        </article>
+        <article class="panel stack" id="graph-detail-panel">
+          <h2>Node detail</h2>
+          <p class="muted">Select a node to inspect its properties and direct neighbors.</p>
+        </article>
+      </section>
+      <script id="graph-data" type="application/json">${graphData}</script>
+      <script>
+        (() => {
+          const graph = JSON.parse(document.getElementById('graph-data').textContent);
+          const searchEl = document.getElementById('graph-search');
+          const groupEl = document.getElementById('graph-group-filter');
+          const typeEl = document.getElementById('graph-type-filter');
+          const resetEl = document.getElementById('graph-reset');
+          const stateEl = document.getElementById('graph-filter-state');
+          const listEl = document.getElementById('graph-node-list');
+          const detailEl = document.getElementById('graph-detail-panel');
+          const svg = document.getElementById('graph-canvas');
+          let selectedId = graph.nodes[0]?.id || null;
+
+          const esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+          const norm = (value) => String(value ?? '').toLowerCase();
+          const colorFor = (group) => ({ primary: '#8ad4ff', linked: '#c6a2ff', proof: '#ffd166' }[group] || '#8fb3ff');
+          const neighborMap = new Map();
+          for (const edge of graph.edges) {
+            if (!neighborMap.has(edge.source)) neighborMap.set(edge.source, []);
+            if (!neighborMap.has(edge.target)) neighborMap.set(edge.target, []);
+            neighborMap.get(edge.source).push(edge.target);
+            neighborMap.get(edge.target).push(edge.source);
+          }
+
+          function filteredNodes() {
+            const search = norm(searchEl.value).trim();
+            return graph.nodes.filter((node) => {
+              const matchesSearch = !search || [node.label, node.type, node.group, node.source, JSON.stringify(node.properties || {})].map(norm).join(' ').includes(search);
+              const matchesGroup = !groupEl.value || node.group === groupEl.value;
+              const matchesType = !typeEl.value || node.type === typeEl.value;
+              return matchesSearch && matchesGroup && matchesType;
+            });
+          }
+
+          function renderDetail(node, visibleIds) {
+            if (!node) {
+              detailEl.innerHTML = '<h2>Node detail</h2><p class="muted">No visible node selected.</p>';
+              return;
+            }
+            const neighbors = (neighborMap.get(node.id) || []).map((id) => graph.nodes.find((item) => item.id === id)).filter(Boolean);
+            detailEl.innerHTML = '<h2>' + esc(node.label) + '</h2>'
+              + '<div><span class="chip">' + esc(node.type) + '</span><span class="chip">' + esc(node.group) + '</span></div>'
+              + '<p class="muted">Source: ' + esc(node.source || 'unknown') + '</p>'
+              + '<h3>Properties</h3><pre>' + esc(JSON.stringify(node.properties || {}, null, 2)) + '</pre>'
+              + '<h3>Visible neighbors</h3>'
+              + (neighbors.filter((item) => visibleIds.has(item.id)).length
+                  ? '<div>' + neighbors.filter((item) => visibleIds.has(item.id)).map((item) => '<button class="button" type="button" data-select-node="' + esc(item.id) + '">' + esc(item.label) + '</button>').join(' ') + '</div>'
+                  : '<p class="muted">No visible neighbors under the current filters.</p>');
+          }
+
+          function render() {
+            const nodes = filteredNodes();
+            const visibleIds = new Set(nodes.map((node) => node.id));
+            if (!visibleIds.has(selectedId)) selectedId = nodes[0]?.id || null;
+            const selected = nodes.find((node) => node.id === selectedId) || null;
+            const width = 900;
+            const height = 560;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = 190;
+            const positions = new Map();
+            nodes.forEach((node, index) => {
+              const angle = (Math.PI * 2 * index) / Math.max(nodes.length, 1);
+              const orbit = node.group === 'primary' ? radius * 0.45 : node.group === 'proof' ? radius * 0.2 : radius;
+              positions.set(node.id, {
+                x: centerX + Math.cos(angle) * orbit,
+                y: centerY + Math.sin(angle) * orbit
+              });
+            });
+            const visibleEdges = graph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
+            svg.innerHTML = '<g>' + visibleEdges.map((edge) => {
+              const source = positions.get(edge.source);
+              const target = positions.get(edge.target);
+              if (!source || !target) return '';
+              return '<line x1="' + source.x + '" y1="' + source.y + '" x2="' + target.x + '" y2="' + target.y + '" stroke="' + (edge.emphasis === 'verified' ? '#ffd166' : '#38507e') + '" stroke-width="' + (edge.emphasis === 'verified' ? '3' : '1.5') + '" opacity="0.9" />';
+            }).join('') + '</g><g>' + nodes.map((node) => {
+              const pos = positions.get(node.id);
+              const selectedStroke = node.id === selectedId ? '#ffffff' : '#0b1020';
+              return '<g data-node-id="' + esc(node.id) + '" style="cursor:pointer;">'
+                + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="28" fill="' + colorFor(node.group) + '" stroke="' + selectedStroke + '" stroke-width="3"></circle>'
+                + '<text x="' + pos.x + '" y="' + (pos.y + 48) + '" text-anchor="middle" fill="#dfe9fb" font-size="15" font-family="Inter, sans-serif">' + esc(node.label) + '</text>'
+                + '</g>';
+            }).join('') + '</g>';
+            listEl.innerHTML = nodes.length
+              ? nodes.map((node) => '<button class="button" type="button" data-select-node="' + esc(node.id) + '" style="justify-content:flex-start; text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + '</span></button>').join('')
+              : '<p class="muted">No graph nodes match the current filters.</p>';
+            stateEl.textContent = nodes.length ? ('Showing ' + nodes.length + ' node(s) and ' + visibleEdges.length + ' visible edge(s).') : 'No nodes match the current filters.';
+            renderDetail(selected, visibleIds);
+          }
+
+          document.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-select-node]');
+            const nodeGroup = event.target.closest('[data-node-id]');
+            if (button) {
+              selectedId = button.getAttribute('data-select-node');
+              render();
+            } else if (nodeGroup) {
+              selectedId = nodeGroup.getAttribute('data-node-id');
+              render();
+            }
+          });
+
+          [searchEl, groupEl, typeEl].forEach((el) => el.addEventListener('input', render));
+          resetEl.addEventListener('click', () => {
+            searchEl.value = '';
+            groupEl.value = '';
+            typeEl.value = '';
+            render();
+          });
+          render();
+        })();
+      </script>`
+  });
+}
+
 function notFound(backHref, label) {
   return shell({
     title: 'Not found',
@@ -2587,6 +2951,7 @@ http.createServer(async (req, res) => {
         '/',
         '/metrics',
         '/board',
+        '/graph',
         '/cards/:id',
         '/decisions',
         '/decisions/projects/:projectName',
@@ -2594,6 +2959,7 @@ http.createServer(async (req, res) => {
         '/updates',
         '/api/summary',
         '/api/board',
+        '/api/graph',
         '/api/cards',
         'POST /api/cards',
         '/api/cards/:id',
@@ -2606,7 +2972,8 @@ http.createServer(async (req, res) => {
         '/api/metrics/summary',
         '/api/metrics/runs',
         '/api/metrics/comparison',
-        '/api/metrics/timeline'
+        '/api/metrics/timeline',
+        '/api/graph'
       ]
     });
     return;
@@ -2675,6 +3042,16 @@ http.createServer(async (req, res) => {
     } catch (error) {
       json(res, 500, { ok: false, error: error.message });
     }
+    return;
+  }
+
+  if (url.pathname === '/api/graph') {
+    json(res, 200, loadGraphExplorerModel(root));
+    return;
+  }
+
+  if (url.pathname === '/api/graph') {
+    json(res, 200, loadGraphExplorerModel(root));
     return;
   }
 
@@ -2795,6 +3172,11 @@ http.createServer(async (req, res) => {
     return;
   }
 
+  if (url.pathname === '/graph') {
+    sendHtml(res, 200, renderGraphExplorer());
+    return;
+  }
+
   if (url.pathname.startsWith('/projects/')) {
     sendHtml(res, 200, renderProjectView(model, decodeURIComponent(url.pathname.slice('/projects/'.length))));
     return;
@@ -2824,6 +3206,11 @@ http.createServer(async (req, res) => {
 
   if (url.pathname.startsWith('/decisions/')) {
     sendHtml(res, 200, renderDecisionDetail(model, decodeURIComponent(url.pathname.slice('/decisions/'.length))));
+    return;
+  }
+
+  if (url.pathname === '/graph') {
+    sendHtml(res, 200, renderGraph(loadGraphExplorerModel(root)));
     return;
   }
 

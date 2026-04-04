@@ -925,16 +925,22 @@
   {
     "id": "MB-089",
     "title": "3D Graph Explorer: MVP visualization for Neo4j nodes",
-    "state": "ready",
-    "owner": "Coder-2",
+    "state": "review",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-087",
       "MB-088"
     ],
     "artifacts": [
-      "src/graph-explorer/",
+      "src/graph-explorer/adapter.mjs",
       "scripts/dev-server.mjs",
-      "PROOF_MB_089.md"
+      "scripts/prove-mb-089.mjs",
+      "PROOF_MB_089.md",
+      "docs/cards/MB-089-3d-graph-explorer-mvp.md"
+    ],
+    "notes": [
+      "MVP shipped as a zero-dependency SVG explorer over committed Luke/Tatooine OLN proof artifacts.",
+      "This is proof-backed and read-only; later live-Neo4j / heavier 3D work can build on the same API surface."
     ]
   }
 ]

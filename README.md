@@ -50,9 +50,15 @@ MB-053 adds repo-backed decision creation:
 - creates a new markdown decision record from a fixed template
 - duplicate decision IDs are rejected before write
 
+MB-089 adds a proof-backed graph explorer route:
+- `/graph` renders an interactive read-only node/link explorer
+- `/api/graph` emits graph JSON sourced from committed OLN proof artifacts
+- seeded from the Luke/Tatooine vertical-slice evidence already in-tree
+
 ## Routes
 - `/` — overview shell
 - `/board` — status-grouped card board
+- `/graph` — read-only OLN proof graph explorer
 - `/metrics` — metrics timeline + comparison screen
 - `/cards/:id` — card detail view
 - `/decisions` — decision list
@@ -60,6 +66,7 @@ MB-053 adds repo-backed decision creation:
 - `/updates` — updates timeline
 - `/api/summary` — read-only JSON counts/status summary
 - `/api/board` — status-grouped board JSON
+- `/api/graph` — graph explorer JSON derived from committed OLN proof artifacts
 - `/api/cards` — all cards JSON
 - `POST /api/cards` — create a new card from template
 - `/api/cards/:id` — card detail JSON
@@ -73,6 +80,7 @@ MB-053 adds repo-backed decision creation:
 - `/api/metrics/runs` — recent MB task/run records with metadata
 - `/api/metrics/comparison` — owner comparison rows for leaderboard/side-by-side review
 - `/api/metrics/timeline` — daily timeline buckets for dashboard charts
+- `/api/graph` — read-only graph JSON sourced from OLN proof artifacts
 - `/health` — health probe
 
 ## Local structure
@@ -89,6 +97,8 @@ npm run dev
 Then open:
 - `http://127.0.0.1:4187/`
 - `http://127.0.0.1:4187/board`
+- `http://127.0.0.1:4187/graph`
+- `http://127.0.0.1:4187/graph`
 
 Or inspect the API directly:
 - `http://127.0.0.1:4187/api/board`
@@ -96,6 +106,7 @@ Or inspect the API directly:
 - `http://127.0.0.1:4187/api/cards/mb-018`
 - `http://127.0.0.1:4187/api/decisions`
 - `http://127.0.0.1:4187/api/updates`
+- `http://127.0.0.1:4187/api/graph`
 
 Example status transition request:
 
