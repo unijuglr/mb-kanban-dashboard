@@ -1,11 +1,11 @@
 # MB-088 — OLN: two-page ingest proof into local Neo4j
 
-Status: Ready
+Status: Done
 Priority: P0 critical
 Project: OLN
 Owner: Prime Sam
 Created: 2026-04-02
-Last Updated: 2026-04-02
+Last Updated: 2026-04-03
 
 ## Objective
 Run the bounded 2-page OLN ingest into the live Motherbrain Neo4j instance and capture proof artifacts.
@@ -35,7 +35,7 @@ This is the actual graph proof. Without this, we still do not know whether Luke 
 - [ ] save proof output under a committed evidence artifact
 
 ## Blockers
-- MB-087 must be completed first
+- none for the completed proof run; follow-up reproducibility work remains for Python dependency bootstrap on Motherbrain
 
 ## Artifacts
 - `scripts/run_oln_local_ingest.py`
@@ -43,3 +43,10 @@ This is the actual graph proof. Without this, we still do not know whether Luke 
 
 ## Done Looks Like
 One command produces a real local graph on Motherbrain, proof queries succeed, and the evidence is committed instead of living in someone's scrollback.
+
+## Completion Notes (2026-04-03)
+- Executed the live ingest on Motherbrain against the running `oln-neo4j` container.
+- Verified Luke Skywalker, Tatooine, and a Luke→Tatooine `MENTIONS` relationship.
+- Re-ran the ingest and confirmed stable counts (`entity_count=9`, `mentions_count=7`).
+- Saved raw proof output to `artifacts/oln/mb-088-live-ingest-proof-2026-04-03.txt`.
+- See `PROOF_MB_088.md` for the finalized proof summary.

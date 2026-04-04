@@ -1,0 +1,64 @@
+Motherbrain live OLN two-page ingest proof
+Date: 2026-04-03 America/Los_Angeles
+Host: Motherbrain.local
+Repo path: /Users/darthg/projects/mb-kanban-dashboard
+Execution environment: /tmp/mb-oln-proof Python venv with PyYAML installed, because base Motherbrain python lacked yaml.
+
+Run 1 command:
+/tmp/mb-oln-proof/bin/python scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml
+Run 1 output:
+{
+  "sample": "data/oln/samples/wookieepedia-test.xml",
+  "primary_pages_parsed": 2,
+  "entity_nodes_present": 9,
+  "mentions_relationships_present": 7,
+  "primary_entities_written": 2,
+  "failures": 0
+}
+
+Proof command after ingest:
+/tmp/mb-oln-proof/bin/python scripts/prove-mb-088.py
+Proof output:
+{
+  "luke_found": true,
+  "tatooine_found": true,
+  "relationship_found": true,
+  "luke_data": {
+    "olid": "oln-star-wars-luke-skywalker",
+    "labels": ["Entity"]
+  },
+  "tatooine_data": {
+    "olid": "OLID:Tatooine",
+    "labels": ["Entity"]
+  }
+}
+
+Cypher-shell verification:
+- entity_count = 9
+- Luke Skywalker row = oln-star-wars-luke-skywalker / Character / Wookieepedia / star_wars
+- Tatooine rows = OLID:Tatooine / LinkedEntity and oln-star-wars-tatooine / Planet
+- rel_count (Luke -> Tatooine MENTIONS) = 1
+- mentions_count = 7
+
+Run 2 command:
+/tmp/mb-oln-proof/bin/python scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml
+Run 2 output:
+{
+  "sample": "data/oln/samples/wookieepedia-test.xml",
+  "primary_pages_parsed": 2,
+  "entity_nodes_present": 9,
+  "mentions_relationships_present": 7,
+  "primary_entities_written": 2,
+  "failures": 0
+}
+
+Idempotence check after run 2:
+- entity_count = 9
+- mentions_count = 7
+- luke_count = 1
+- tatooine_count = 2
+
+Interpretation:
+- Live Motherbrain Neo4j ingest succeeded.
+- Counts remained stable on rerun.
+- Duplicate Tatooine titles exist as distinct OLIDs/types, but the rerun itself was idempotent.

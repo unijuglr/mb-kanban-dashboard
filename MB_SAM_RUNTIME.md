@@ -46,3 +46,12 @@
 - Re-ran `python3 scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml`; live ingest remains blocked by `127.0.0.1:7474` refusing connections, so MB-079 stays honestly non-done.
 - Spawned a focused coding sub-agent for MB-080, then committed and pushed the resulting branch-backed proof artifacts after QA.
 - MB-080 is now done at the repo-prep layer: `feat/mb-080-two-page-ingest-proof` contains the missing card, `scripts/prove-mb-080.py`, and `PROOF_MB_080.md`, with offline contract proof passing and live Neo4j probe failing honestly due to connection refusal.
+
+## 🌙 Overnight Swarm Notes (2026-04-03 23:35 PT pass)
+- Audited non-DTS ready work and chose the highest-value OLN path instead of backlog theater: verify Motherbrain Neo4j live and run the first bounded ingest for real.
+- Confirmed `oln-neo4j` is up on Motherbrain and `cypher-shell` works; schema readiness is present via the `entity_olid` constraint.
+- Created a temporary Motherbrain venv only for proof execution because base host Python lacked `PyYAML`; avoided mutating system Python.
+- Ran `scripts/run_oln_local_ingest.py` live against Motherbrain Neo4j, then re-ran it for idempotence; counts stayed stable at `entity_count=9` and `mentions_count=7`.
+- Verified Luke Skywalker, Tatooine, and a Luke→Tatooine `MENTIONS` relationship with both `cypher-shell` and `scripts/prove-mb-088.py`.
+- Reconciled durable repo state by updating `PROOF_MB_087.md`, `PROOF_MB_088.md`, both cards, raw artifact logs under `artifacts/oln/`, and restoring missing `MB-087` / `MB-088` entries to `mb_tasks.json`.
+- Follow-up remains for reproducible Motherbrain Python bootstrap (`PyYAML`) and for cleaning duplicate-title/canonicalization behavior around Tatooine, but the live bounded proof itself is now real and done.

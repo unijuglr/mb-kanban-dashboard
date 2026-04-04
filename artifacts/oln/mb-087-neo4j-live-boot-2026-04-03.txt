@@ -1,0 +1,21 @@
+Motherbrain live Neo4j boot verification
+Date: 2026-04-03 America/Los_Angeles
+Host: Motherbrain.local
+Repo path: /Users/darthg/projects/mb-kanban-dashboard
+
+Command: docker ps --format "table {{.Names}}\t{{.Status}}"
+Relevant result:
+oln-neo4j                            Up 15 hours
+
+Command: docker exec -i oln-neo4j cypher-shell -u neo4j -p password "SHOW CONSTRAINTS;"
+Relevant result:
+id, name, type, entityType, labelsOrTypes, properties, ownedIndex, propertyType
+4, "entity_olid", "UNIQUENESS", "NODE", ["Entity"], ["olid"], "entity_olid", NULL
+
+Storage roots observed:
+- /Volumes/hellastuff 1/oln
+- /Volumes/hellastuff/oln
+
+Selected operational reality for proof run:
+- Neo4j container was already running on Motherbrain and accepted cypher-shell connections.
+- Schema constraint `entity_olid` was present.

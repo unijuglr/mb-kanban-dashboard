@@ -364,36 +364,6 @@
     ]
   },
   {
-    "id": "MB-037",
-    "title": "OLN: Analysis: Graph Relationship Density & Quality",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-034"
-    ],
-    "artifacts": [
-      "docs/oln/graph-analysis-v1.md",
-      "scripts/prove-mb-037.py",
-      "PROOF_MB_037.md"
-    ]
-  },
-  {
-    "id": "MB-038",
-    "title": "OLN: Franchise Generalization",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-028"
-    ],
-    "artifacts": [
-      "services/oln_ingestor/lore_config.yaml",
-      "data/oln/samples/memory-alpha-test.xml",
-      "docs/oln/franchise-agnostic-design.md",
-      "scripts/prove-mb-038.py",
-      "PROOF_MB_038.md"
-    ]
-  },
-  {
     "id": "MB-038",
     "title": "OLN: Franchise Generalization",
     "state": "done",
@@ -912,6 +882,38 @@
       "docs/oln/neo4j-motherbrain-execution-tranche-2026-04-02.md",
       "docs/cards/MB-086-oln-neo4j-motherbrain-path-selection-and-startup-hardening.md"
     ]
+  },
+  {
+    "id": "MB-087",
+    "title": "OLN: first live Neo4j boot on Motherbrain",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-086"
+    ],
+    "artifacts": [
+      "docs/cards/MB-087-oln-first-live-neo4j-boot-on-motherbrain.md",
+      "PROOF_MB_087.md",
+      "artifacts/oln/mb-087-neo4j-live-boot-2026-04-03.txt"
+    ],
+    "notes": "Completed with live Motherbrain verification: oln-neo4j running, cypher-shell connectivity confirmed, and entity_olid constraint present."
+  },
+  {
+    "id": "MB-088",
+    "title": "OLN: two-page ingest proof into local Neo4j",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-087"
+    ],
+    "artifacts": [
+      "docs/cards/MB-088-oln-two-page-ingest-proof-into-local-neo4j.md",
+      "scripts/run_oln_local_ingest.py",
+      "scripts/prove-mb-088.py",
+      "PROOF_MB_088.md",
+      "artifacts/oln/mb-088-live-ingest-proof-2026-04-03.txt"
+    ],
+    "notes": "Completed live on Motherbrain via temporary venv-backed Python proof run; Luke/Tatooine/MENTIONS verified and rerun counts stayed stable (entity_count=9, mentions_count=7)."
   },
   {
     "id": "MB-089",
