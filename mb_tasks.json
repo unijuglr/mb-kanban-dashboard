@@ -189,7 +189,8 @@
     "artifacts": [
       "docs/cards/MB-024-prove-local-coder-reliability.md",
       "docs/motherbrain/local-coder-reliability-status-2026-04-03.md",
-      "docs/motherbrain/local-coder-proof-run-2026-04-03.md"
+      "docs/motherbrain/local-coder-proof-run-2026-04-03.md",
+      "docs/motherbrain/local-coder-qa-note-2026-04-03.md"
     ],
     "notes": [
       "Card evidence shows this is an active proof/reliability task, not a completed one.",
@@ -210,10 +211,11 @@
       "docs/motherbrain/local-coder-reliability-status-2026-04-03.md",
       "docs/updates/2026-03-30-now-proof-failure.md",
       "docs/motherbrain/local-coder-proof-run-2026-04-03.md",
+      "docs/motherbrain/local-coder-qa-note-2026-04-03.md",
       "artifacts/local-coder-runs/2026-04-03-local-proof-abs-cli/manifest.json"
     ],
     "notes": [
-      "Still lacks a fresh bounded run with preserved stdout/stderr and output manifest, so the exact failure layer is not yet root-caused honestly.",
+      "Fresh bounded run with preserved stdout/stderr and output manifest now exists under artifacts/local-coder-runs/2026-04-03-local-proof-abs-cli/; the task stays open because the run failed, not because evidence is missing.",
       "Reproduced the local proof on 2026-04-03 with a bounded absolute-path CLI invocation and preserved the full log/manifest under artifacts/local-coder-runs/2026-04-03-local-proof-abs-cli/.",
       "Failure narrowed from vague hang folklore to two concrete issues in this environment: bare `openclaw` is not on PATH, and the embedded local run cannot reach/configure Ollama at http://127.0.0.1:11434."
     ]

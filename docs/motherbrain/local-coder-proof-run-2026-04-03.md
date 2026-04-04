@@ -67,3 +67,20 @@ Why:
 2. verify the intended Ollama endpoint for local embedded runs and whether `127.0.0.1:11434` should instead route through the existing Motherbrain tunnel on `127.0.0.1:11435`
 3. confirm the local provider registration/config expected by `openclaw agent --local`
 4. rerun the same bounded proof contract after endpoint/provider repair
+
+## Concise Rerun Protocol
+
+Before rerunning, require all of the following:
+
+1. `openclaw --help` succeeds by bare command name in the same shell that will run the proof.
+2. The intended Ollama endpoint is reachable from that shell.
+3. The target workspace starts empty.
+4. The rerun artifact directory is pre-created and will contain at least:
+   - `command.txt`
+   - `request.txt`
+   - `agent.log`
+   - `manifest.json`
+   - `validation.txt`
+   - `result.md`
+
+Count the rerun as success only if requested files are written, bounded validation is executed and saved, and the result note labels the run as model-mediated success rather than fallback/manual repair/failure.
