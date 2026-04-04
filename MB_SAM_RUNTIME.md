@@ -37,4 +37,5 @@
 - Confirmed the proof remains honest: fallback redaction path works, normalization tests pass, and the output artifact still records local Ollama at `127.0.0.1:11434` as unavailable rather than faking a live-model success.
 - Left MB-078 on its own pushed feature branch; no DTS work touched and no half-local implementation stranded.
 - Reconciled MB-078 onto current repo state on `feat/mb-078-reconcile-local-proof`; restored the card/proof/artifact set and fixed `scripts/qa_agilitas_pipeline.py` for the current extractor API so the proof still passes honestly with `providerUsed: deterministic-fallback` when Ollama is down.
+- Re-verified MB-080 and MB-089 on the current tree before dawn: `python3 scripts/prove-mb-080.py` still passes the bounded two-page OLN ingest contract, and `node scripts/prove-mb-089.mjs` still passes the proof-backed `/graph` explorer path. Reconciled durable state so MB-080 is no longer stuck in `ready` and MB-089 is back in `mb_tasks.json` with truthful artifacts/notes.
 

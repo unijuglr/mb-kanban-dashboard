@@ -760,7 +760,7 @@
   {
     "id": "MB-080",
     "title": "OLN: create 2-page local sample corpus and executable ingest proof",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-4",
     "depends_on": [
       "MB-079"
@@ -768,7 +768,14 @@
     "artifacts": [
       "data/oln/samples/wookieepedia-test.xml",
       "scripts/prove-mb-080.py",
-      "PROOF_MB_080.md"
+      "PROOF_MB_080.md",
+      "docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json",
+      "docs/cards/MB-080-oln-two-page-local-sample-corpus-and-executable-ingest-proof.md"
+    ],
+    "completed_at": "2026-04-03T22:50:00-07:00",
+    "notes": [
+      "Re-verified on the current tree with `python3 scripts/prove-mb-080.py`; the bounded repo-side proof passed and preserved the Luke/Tatooine two-page ingest contract.",
+      "This remains repo-side only; live Neo4j proof is still downstream MB-087/MB-088 work and is not being faked here."
     ]
   },
   {
@@ -852,6 +859,27 @@
     "notes": [
       "Live proof did not proceed because Neo4j never booted on Motherbrain.",
       "Schema apply, ingest verification, and idempotence rerun remain pending on a host with a running Docker daemon."
+    ]
+  },
+  {
+    "id": "MB-089",
+    "title": "3D Graph Explorer: MVP visualization for Neo4j nodes",
+    "state": "done",
+    "owner": "Coder-2",
+    "depends_on": [
+      "MB-080"
+    ],
+    "artifacts": [
+      "src/graph-explorer/adapter.mjs",
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-089.mjs",
+      "PROOF_MB_089.md",
+      "docs/cards/MB-089-3d-graph-explorer-mvp.md"
+    ],
+    "completed_at": "2026-04-04T00:53:00-07:00",
+    "notes": [
+      "Restored the missing durable task entry to match the existing done card, proof, and current-tree explorer implementation.",
+      "Re-verified on the current tree with `node scripts/prove-mb-089.mjs`; /graph, /api/graph, and the Luke Skywalker -> Tatooine edge all passed from proof-backed data."
     ]
   },
   {
