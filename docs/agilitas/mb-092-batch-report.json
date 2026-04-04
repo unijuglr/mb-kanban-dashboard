@@ -1,0 +1,130 @@
+{
+  "batchId": "agilitas-batch-20260404T181802Z",
+  "processedAt": "2026-04-04T18:18:02.811453+00:00",
+  "deterministicOfflineFriendly": true,
+  "requestedProvider": "deterministic",
+  "resultCounts": {
+    "total": 3,
+    "ok": 3,
+    "error": 0
+  },
+  "results": [
+    {
+      "input_path": "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/data/agilitas/samples/zoom-sample.json",
+      "format": "zoom_json",
+      "status": "ok",
+      "normalized": {
+        "dateTime": "2026-04-02T10:00:00Z",
+        "agent": "Adam",
+        "customer": "Client",
+        "fullTranscript": "Adam: Hello, how can I help you today?\nClient: I'm having trouble with the dashboard.",
+        "customerTranscript": "I'm having trouble with the dashboard.",
+        "parts": [
+          {
+            "type": "Agent",
+            "text": "Hello, how can I help you today?"
+          },
+          {
+            "type": "Customer",
+            "text": "I'm having trouble with the dashboard."
+          }
+        ],
+        "sourceFormat": "zoom_json",
+        "sourcePath": "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/data/agilitas/samples/zoom-sample.json"
+      },
+      "extraction": {
+        "sentiment": "Neutral",
+        "pain_points": [
+          "Client: I'm having trouble with the dashboard."
+        ],
+        "emotion": "Neutral",
+        "effort": "Low",
+        "competitors": [],
+        "innovation": [],
+        "summary": "Pain points: Client: I'm having trouble with the dashboard.",
+        "providerUsed": "deterministic",
+        "deterministic": true
+      },
+      "output_path": "/var/folders/wt/yx4sr_2x1ygdm13773pjtz0r0000gn/T/mb-092-21bk4l5a/outputs/zoom-sample.batch-result.json",
+      "error": null
+    },
+    {
+      "input_path": "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/data/agilitas/samples/teams-sample.vtt",
+      "format": "teams_vtt",
+      "status": "ok",
+      "normalized": {
+        "dateTime": "2026-04-04T18:18:02.810029+00:00",
+        "agent": "Adam",
+        "customer": "Client",
+        "fullTranscript": "Adam: Welcome to the meeting.\nClient: Thanks for having me. I wanted to discuss the new features.",
+        "customerTranscript": "Thanks for having me. I wanted to discuss the new features.",
+        "parts": [
+          {
+            "type": "Agent",
+            "text": "Welcome to the meeting."
+          },
+          {
+            "type": "Customer",
+            "text": "Thanks for having me. I wanted to discuss the new features."
+          }
+        ],
+        "sourceFormat": "teams_vtt",
+        "sourcePath": "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/data/agilitas/samples/teams-sample.vtt"
+      },
+      "extraction": {
+        "sentiment": "Neutral",
+        "pain_points": [],
+        "emotion": "Neutral",
+        "effort": "Low",
+        "competitors": [],
+        "innovation": [
+          "Client: Thanks for having me. I wanted to discuss the new features."
+        ],
+        "summary": "Requested improvements: Client: Thanks for having me. I wanted to discuss the new features.",
+        "providerUsed": "deterministic",
+        "deterministic": true
+      },
+      "output_path": "/var/folders/wt/yx4sr_2x1ygdm13773pjtz0r0000gn/T/mb-092-21bk4l5a/outputs/teams-sample.batch-result.json",
+      "error": null
+    },
+    {
+      "input_path": "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/data/demo/transcript_retail.txt",
+      "format": "plain_text",
+      "status": "ok",
+      "normalized": {
+        "dateTime": "2026-04-04T18:18:02.811060+00:00",
+        "agent": null,
+        "customer": null,
+        "fullTranscript": "AE: Thanks for joining today. How has onboarding been going for your store team?\nCustomer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nCustomer: We lost two afternoons on setup, and support responses felt slow when we asked for help.\nCustomer: My email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up.\nCustomer: We are comparing this against CompetitorCo because their setup looked easier.\nCustomer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nAE: Understood. Anything else causing friction?\nCustomer: Mostly frustration. It feels like too much effort for something we expected to be simple.\nAE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up.",
+        "customerTranscript": "AE: Thanks for joining today. How has onboarding been going for your store team?\nCustomer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nCustomer: We lost two afternoons on setup, and support responses felt slow when we asked for help.\nCustomer: My email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up.\nCustomer: We are comparing this against CompetitorCo because their setup looked easier.\nCustomer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nAE: Understood. Anything else causing friction?\nCustomer: Mostly frustration. It feels like too much effort for something we expected to be simple.\nAE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up.",
+        "parts": [],
+        "sourceFormat": "plain_text",
+        "sourcePath": "/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/data/demo/transcript_retail.txt"
+      },
+      "extraction": {
+        "sentiment": "Negative",
+        "pain_points": [
+          "Customer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.",
+          "Customer: We lost two afternoons on setup, and support responses felt slow when we asked for help.",
+          "AE: Understood. Anything else causing friction?",
+          "Customer: Mostly frustration. It feels like too much effort for something we expected to be simple.",
+          "AE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up."
+        ],
+        "emotion": "Frustration",
+        "effort": "Medium",
+        "competitors": [
+          "CompetitorCo"
+        ],
+        "innovation": [
+          "Customer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.",
+          "AE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up."
+        ],
+        "summary": "Pain points: Customer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying., Customer: We lost two afternoons on setup, and support responses felt slow when we asked for help.; Competitors: CompetitorCo; Requested improvements: Customer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.",
+        "providerUsed": "deterministic",
+        "deterministic": true
+      },
+      "output_path": "/var/folders/wt/yx4sr_2x1ygdm13773pjtz0r0000gn/T/mb-092-21bk4l5a/outputs/transcript_retail.batch-result.json",
+      "error": null
+    }
+  ]
+}

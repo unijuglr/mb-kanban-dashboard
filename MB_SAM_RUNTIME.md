@@ -50,3 +50,9 @@
 - Verified MB-086 already has durable proof-backed artifacts in-tree: the done card, `infra/motherbrain/docker-compose.yaml`, `infra/motherbrain/setup.sh`, `infra/motherbrain/oln.env.example`, and the execution-tranche doc that unblocked the later live-host proof.
 - Reconciled the missing MB-086 entry back into `mb_tasks.json` so task state now matches the repo evidence and the downstream MB-087/MB-088 lineage reads truthfully.
 - Kept DTS excluded and left unrelated untracked `artifacts/mb-022/*` diagnostics untouched.
+
+## 🌙 Overnight Swarm Notes (2026-04-04 11:15 PT cron pass)
+- Audited the current non-DTS worktree and found unfinished local MB-092 Agilitas changes stranded on an unrelated branch; promoted them onto dedicated branch `feat/mb-092-proof-refresh` instead of leaving them half-local.
+- Re-ran `python3 scripts/prove-mb-092.py`, `python3 scripts/qa_agilitas_pipeline.py`, `python3 scripts/test_agilitas_redaction.py`, and `python3 scripts/test_agilitas_ingestor.py`; all passed on the current tree.
+- Refreshed `docs/agilitas/mb-092-batch-report.json` with current proof output and added durable proof/state notes so MB-092 no longer depends on an implied or missing proof doc.
+- Left DTS excluded and did not sweep unrelated `artifacts/mb-022/*` diagnostics into the Agilitas tranche.

@@ -887,7 +887,7 @@
       "artifacts/oln/mb-088-live-ingest-proof-2026-04-03.txt"
     ],
     "notes": [
-      "Live Motherbrain ingest proof passed on 2026-04-03 with Luke, Tatooine, and a Luke→Tatooine MENTIONS edge verified in Neo4j.",
+      "Live Motherbrain ingest proof passed on 2026-04-03 with Luke, Tatooine, and a Luke\u2192Tatooine MENTIONS edge verified in Neo4j.",
       "Idempotence rerun stayed stable at entity_count=9 and mentions_count=7.",
       "Task state reconciled on 2026-04-04 so mb_tasks.json matches the committed proof/card evidence."
     ]
@@ -953,7 +953,9 @@
     "notes": [
       "Added services/agilitas_ingestor/batch_processor.py for multi-file normalize/extract runs across Zoom JSON, Teams VTT, and plain-text transcripts.",
       "Extended the Agilitas extractor with deterministic mode plus honest offline fallback when live Ollama is unavailable.",
-      "Verified MB-092 locally with a committed batch report artifact and executable proof script."
+      "Verified MB-092 locally with a committed batch report artifact and executable proof script.",
+      "Repo-side QA re-run on 2026-04-04: python3 scripts/prove-mb-092.py, python3 scripts/qa_agilitas_pipeline.py, python3 scripts/test_agilitas_redaction.py, and python3 scripts/test_agilitas_ingestor.py all passed on the current tree.",
+      "Durable proof now includes PROOF_MB_092.md; deterministic extraction/report output was refreshed honestly without claiming a live Ollama pass."
     ]
   }
 ]
