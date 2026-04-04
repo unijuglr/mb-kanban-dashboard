@@ -1,0 +1,103 @@
+{
+  "run_id": "20260404T120534Z-mb-078-retail-proof",
+  "card": "MB-078",
+  "generated_at": "2026-04-04T12:05:34.954848+00:00",
+  "source": {
+    "path": "data/demo/transcript_retail.txt",
+    "format": "plain_text",
+    "execution_context": "local-host",
+    "provider_requested": "ollama",
+    "ollama_host": "http://127.0.0.1:11434"
+  },
+  "normalized": {
+    "dateTime": "2026-04-04T12:05:34.836808+00:00",
+    "agent": "AE",
+    "customer": "Customer",
+    "fullTranscript": "AE: Thanks for joining today. How has onboarding been going for your store team?\nCustomer: Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nCustomer: We lost two afternoons on setup, and support responses felt slow when we asked for help.\nCustomer: My email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up.\nCustomer: We are comparing this against CompetitorCo because their setup looked easier.\nCustomer: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nAE: Understood. Anything else causing friction?\nCustomer: Mostly frustration. It feels like too much effort for something we expected to be simple.\nAE: Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up.",
+    "customerTranscript": "Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nWe lost two afternoons on setup, and support responses felt slow when we asked for help.\nMy email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up.\nWe are comparing this against CompetitorCo because their setup looked easier.\nIf the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nMostly frustration. It feels like too much effort for something we expected to be simple.",
+    "parts": [
+      {
+        "type": "Agent",
+        "text": "Thanks for joining today. How has onboarding been going for your store team?"
+      },
+      {
+        "type": "Customer",
+        "text": "Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying."
+      },
+      {
+        "type": "Customer",
+        "text": "We lost two afternoons on setup, and support responses felt slow when we asked for help."
+      },
+      {
+        "type": "Customer",
+        "text": "My email is jamie@example.com and my cell is 415-555-0188 if someone needs to follow up."
+      },
+      {
+        "type": "Customer",
+        "text": "We are comparing this against CompetitorCo because their setup looked easier."
+      },
+      {
+        "type": "Customer",
+        "text": "If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay."
+      },
+      {
+        "type": "Agent",
+        "text": "Understood. Anything else causing friction?"
+      },
+      {
+        "type": "Customer",
+        "text": "Mostly frustration. It feels like too much effort for something we expected to be simple."
+      },
+      {
+        "type": "Agent",
+        "text": "Thanks. I am logging the onboarding friction, support delay, and checklist request for follow-up."
+      }
+    ]
+  },
+  "redacted_transcript": "Honestly, it has been rough. We still cannot find the inventory sync settings and two managers gave up trying.\nWe lost two afternoons on setup, and support responses felt slow when we asked for help.\nMy email is <EMAIL_ADDRESS> and my cell is <PHONE_NUMBER> if someone needs to follow up.\nWe are comparing this against CompetitorCo because their setup looked easier.\nIf the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.\nMostly frustration. It feels like too much effort for something we expected to be simple.",
+  "pii_checks": {
+    "email_redacted": true,
+    "phone_redacted": true,
+    "raw_email_present_in_input": true,
+    "raw_phone_present_in_input": true
+  },
+  "extraction": {
+    "sentiment": "Negative",
+    "pain_points": [
+      "Honestly, it has been rough.",
+      "We lost two afternoons on setup, and support responses felt slow when we asked for help.",
+      "Mostly frustration."
+    ],
+    "emotion": "Frustration",
+    "effort": "Medium",
+    "competitors": [
+      "CompetitorCo"
+    ],
+    "innovation": [
+      "If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay."
+    ],
+    "summary": "Pain points: Honestly, it has been rough., We lost two afternoons on setup, and support responses felt slow when we asked for help.; Competitors: CompetitorCo; Requested improvements: If the product had a guided checklist and a clearer handoff between setup steps, we would probably stay.",
+    "providerUsed": "deterministic-fallback",
+    "deterministic": true,
+    "providerWarning": "Ollama Error: HTTPConnectionPool(host='127.0.0.1', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1058783a0>: Failed to establish a new connection: [Errno 61] Connection refused'))",
+    "raw_response": "Ollama Error: HTTPConnectionPool(host='127.0.0.1', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1058783a0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+  },
+  "kpis": {
+    "churn_probability": 0.6667,
+    "revenue_loss_potential": 8000.0,
+    "effort_score": 0.5
+  },
+  "action": {
+    "loop_type": "Outer Loop",
+    "priority": "High",
+    "department": "Product Management",
+    "recommendation": "Escalate to Product Management for immediate review and resolution.",
+    "kpi_context": {
+      "churn_probability": 0.6667,
+      "revenue_loss_potential": 8000.0
+    }
+  },
+  "customer_metadata": {
+    "ltv": 12000
+  }
+}
