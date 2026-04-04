@@ -831,17 +831,24 @@
     "id": "MB-080",
     "title": "OLN: create 2-page local sample corpus and executable ingest proof",
     "state": "done",
-    "owner": "Coder-4",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-079"
     ],
     "artifacts": [
       "data/oln/samples/wookieepedia-test.xml",
       "scripts/prove-mb-080.py",
-      "PROOF_MB_080.md"
+      "PROOF_MB_080.md",
+      "docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json",
+      "docs/cards/MB-080-oln-two-page-local-sample-corpus-and-executable-ingest-proof.md"
     ],
-    "completed_at": "2026-04-02",
-    "notes": "Repo-side MB-080 proof is complete: the 2-page corpus is confirmed, the executable proof script validates parse plus Neo4j HTTP contract locally, and live Neo4j reachability is reported honestly instead of being simulated. Live graph proof remains separate under MB-088."
+    "completed_at": "2026-04-04T05:50:00Z",
+    "notes": [
+      "Historical MB-080 proof artifacts still exist in reachable git history: 76f0ce8 added the original proof files, a6ba36f updated mb_tasks.json, and 9b3ee58 recorded the earlier runtime completion.",
+      "After MB-079 was repaired on 2026-04-03, MB-080 was rerun honestly on the current tree with python3 scripts/prove-mb-080.py against a local Neo4j-compatible fake server.",
+      "The saved repo-side proof output lives at docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json.",
+      "Live Neo4j host proof remains downstream runtime work under MB-087 and MB-088 rather than MB-080 itself."
+    ]
   },
   {
     "id": "MB-081",

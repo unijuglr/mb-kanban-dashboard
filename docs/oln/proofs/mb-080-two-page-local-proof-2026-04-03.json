@@ -1,0 +1,37 @@
+{
+  "offline_contract_proof": {
+    "sample_path": "data/oln/samples/wookieepedia-test.xml",
+    "primary_titles": [
+      "Luke Skywalker",
+      "Tatooine"
+    ],
+    "primary_entities_parsed": 2,
+    "primary_link_titles": [
+      [
+        "Galactic Civil War",
+        "Human",
+        "Jedi Master",
+        "Tatooine"
+      ],
+      [
+        "Arkanis sector",
+        "Outer Rim",
+        "Outer Rim Territories"
+      ]
+    ],
+    "merged_primary_entities": 2,
+    "entity_count": 7,
+    "mentions_count": 7,
+    "luke_found": true,
+    "tatooine_found": true,
+    "luke_mentions_tatooine": true,
+    "captured_request_count": 9,
+    "auth_header_present": true,
+    "schema_request_seen": true,
+    "batch_merge_entity_count": 2
+  },
+  "live_neo4j_probe": {
+    "attempted": false,
+    "reason": "not requested; live Neo4j proof remains downstream MB-087/MB-088 work"
+  }
+}
