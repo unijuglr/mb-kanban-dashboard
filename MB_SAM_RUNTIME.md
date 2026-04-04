@@ -70,3 +70,13 @@
 - Confirmed the current non-DTS queue is effectively exhausted on repo-side work: remaining unresolved items are the blocked Motherbrain host-path tasks MB-004, MB-022, MB-024, MB-025, and MB-026.
 - Left unrelated untracked `artifacts/mb-022/*` local smoke outputs alone; no DTS work touched.
 
+## 🌙 Overnight Swarm Notes (2026-04-04 15:31 PT host-path truth pass)
+- Audited `mb_tasks.json` against MB-004, MB-022, MB-024, MB-025, and MB-026 on branch `feat/mb-taskstate-reconcile-host-paths`.
+- Updated the five host-path cards so they stop overstating readiness where the current tree only supports blocked runtime diagnosis, historical evidence, or missing artifacts.
+- Kept the pass strictly in backlog-shaping/truth-maintenance mode: no DTS changes, no fabricated host proof, and no unrelated repo churn.
+
+## 🌙 Overnight Swarm Notes (2026-04-04 15:30 PT cron pass)
+- Audited the remaining non-DTS queue again; still no honest repo-side implementation tranche was executable without Motherbrain host access, so I used the pass to remove truth drift instead of inventing churn.
+- Reclassified the five remaining host-path cards (`MB-004`, `MB-022`, `MB-024`, `MB-025`, `MB-026`) from `Status: Ready` to `Status: Blocked` so the cards now match `mb_tasks.json` and their real dependency/runtime constraints.
+- Tightened each card’s blockers/artifacts/update log to reflect current-tree truth: what is proved in-repo, what still needs Motherbrain runtime verification, and where older cited artifacts are missing on this branch.
+- QA for this pass was lightweight but explicit: verified the five cards no longer advertise `Status: Ready` and reviewed git diff/status on `feat/mb-taskstate-reconcile-host-paths`.

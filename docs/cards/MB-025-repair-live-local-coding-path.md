@@ -1,10 +1,10 @@
 # MB-025 — Repair live model-mediated local coding path
 
-Status: Ready
+Status: Blocked
 Priority: P0 critical
 Owner: Prime Sam
 Created: 2026-03-30
-Last Updated: 2026-03-30
+Last Updated: 2026-04-04
 
 ## Objective
 Fix the current Motherbrain local agent path so a live `openclaw agent --local` coding task produces validated artifacts on demand.
@@ -28,11 +28,13 @@ This is the real trust test. If the live local coding path cannot produce code n
 - [ ] document the working pattern or the blocking defect
 
 ## Blockers
-- None currently, beyond the system being broken in the exact place we care about.
+- MB-024 has not yet produced a validated, repeatable local-coder proof on the current tree.
+- The direct Ollama + executor harness is the practical workaround, but it does not prove the native `openclaw --local` path is healthy.
+- The older evidence docs cited by this card are absent on the current checkout, so the repair path cannot honestly be treated as ready-now implementation work.
 
 ## Artifacts
-- `docs/motherbrain-local-agent-evidence.md`
-- `docs/motherbrain-kanban/updates/2026-03-30-now-proof-failure.md`
+- `docs/cards/MB-025-repair-live-local-coding-path.md`
 
 ## Update Log
 - 2026-03-30 — Card created after a live proof task hung and produced no files in the target directory.
+- 2026-04-04 — Reclassified from ready to blocked so the card matches `mb_tasks.json`: the defect is still real, but the current branch does not contain the proof assets needed to claim an executable repair tranche.

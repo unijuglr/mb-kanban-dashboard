@@ -1,10 +1,10 @@
 # MB-024 — Prove Motherbrain local coder reliability
 
-Status: Ready
+Status: Blocked
 Priority: P0 critical
 Owner: Prime Sam
 Created: 2026-03-30
-Last Updated: 2026-03-30
+Last Updated: 2026-04-04
 
 ## Objective
 Produce repeated, validated evidence that Motherbrain-local coding agents can generate and execute useful code artifacts reliably.
@@ -34,12 +34,13 @@ Without this, Motherbrain cannot be trusted as a serious agent habitat and the r
 - Therefore local coder reliability remains a top-priority repair target.
 
 ## Blockers
-- Current gateway persistence remains broken.
+- Current gateway persistence remains broken enough that the local coder path cannot be treated as stable.
 - Live model-mediated proof is currently failing to produce validated artifacts on demand.
+- The older bootstrap/evidence docs cited by this card are absent on the current checkout, so historical references alone are not enough to count as executable ready work.
 
 ## Artifacts
-- `docs/motherbrain-local-agent-evidence.md`
-- `docs/motherbrain-local-agent-bootstrap.md`
+- `docs/cards/MB-024-prove-local-coder-reliability.md`
 
 ## Update Log
 - 2026-03-30 — Card created after confirming partial historical evidence and one fresh controlled proof run.
+- 2026-04-04 — Reclassified from ready to blocked so the card matches `mb_tasks.json` and the current tree: the failure is documented, but the artifact set needed for a fresh reliability proof is incomplete here.

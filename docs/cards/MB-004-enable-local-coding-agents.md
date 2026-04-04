@@ -1,10 +1,10 @@
 # MB-004 — Enable early local coding agents on Motherbrain
 
-Status: Ready
+Status: Blocked
 Priority: P0 critical
 Owner: Prime Sam
 Created: 2026-03-30
-Last Updated: 2026-03-30
+Last Updated: 2026-04-04
 
 ## Objective
 Get a minimal, stable local coding-agent environment working on Motherbrain so it can help build the rest of the system.
@@ -37,12 +37,13 @@ This creates compounding leverage early and aligns with the goal of Motherbrain 
 - Security audit on Motherbrain flags small-model sandbox concerns; we should treat this as a real requirement, not decoration.
 
 ## Blockers
-- Depends on enough environment clarity to avoid building on sand.
+- Stable bootstrapped/local-gateway path on Motherbrain is still not proved on the current tree.
+- MB-022 gateway persistence remains unresolved, so this cannot honestly be treated as ready-now execution work.
 
 ## Artifacts
-- future bootstrap doc
-- future runbook
-- future decision record
+- `docs/cards/MB-004-enable-local-coding-agents.md`
+- `docs/updates/2026-03-30-agent-enablement.md`
 
 ## Update Log
 - 2026-03-30 — Card created as early execution priority.
+- 2026-04-04 — Reclassified from ready to blocked so the card matches `mb_tasks.json` and current-tree evidence: manual foreground startup is proved, but stable bootstrapped local-agent readiness is not.

@@ -1,6 +1,6 @@
 # MB-022 — Fix Motherbrain gateway persistence
 
-Status: Ready
+Status: Blocked
 Priority: P1 important
 Owner: Prime Sam
 Created: 2026-03-30
@@ -39,8 +39,9 @@ The gateway runtime itself works, but service persistence currently fails, which
 - That mismatch points to stale imported launchd state or reload/bootstrap drift, not just a missing plist file.
 
 ## Blockers
-- Need an actual Motherbrain runtime pass to collect the failing plist, `launchctl bootstrap` stderr, and related unified-log evidence.
+- Need an actual Motherbrain runtime pass to collect or refresh the failing plist, `launchctl bootstrap` stderr, and related unified-log evidence if the failure class changes.
 - Need one operator-approved reload/restart verification to prove whether the loaded job can be made to match the plist on disk and stay healthy across session lifecycle events.
+- Until that host pass happens, the repo contains diagnosis and proof boundaries, not a completed persistence fix.
 
 ## Artifacts
 - `docs/cards/MB-022-fix-motherbrain-gateway-persistence.md`
@@ -56,3 +57,5 @@ The gateway runtime itself works, but service persistence currently fails, which
 - 2026-04-03 — Added a current-tree runbook, safe diagnostics helper, and honest proof boundary so MB-022 is executable tonight without faking host-runtime completion.
 - 2026-04-03 — Captured a fresh read-only host diagnostics summary and narrowed the failure class to launchd/plist config drift (`11434` loaded vs `11435` on disk) plus shell-path ergonomics issues; task remains open pending an operator-approved reload/restart verification.
 - 2026-04-04 — Promoted the redacted `artifacts/mb-022/recheck-sanitized/` bundle as the durable evidence snapshot and ignored the unsafe local-only sibling bundles so overnight work stops leaving raw secret-bearing diagnostics loose in git status.
+- 2026-04-04 — Rechecked backlog truth against `mb_tasks.json`; card remains blocked because current-tree evidence only proves diagnosis and bounded repro, not a surviving host-side fix.
+- 2026-04-04 — Reclassified from ready to blocked so the card matches `mb_tasks.json`: this repo now contains an honest diagnosis package, but the persistence fix itself still needs a real Motherbrain reload/restart verification.
