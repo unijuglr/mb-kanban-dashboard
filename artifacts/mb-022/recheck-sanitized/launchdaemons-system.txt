@@ -1,0 +1,12 @@
+$ /bin/sh -c ls\ -la\ /Library/LaunchDaemons\ \|\|\ true
+
+total 56
+drwxr-xr-x   9 root  wheel   288 Mar 16 21:15 .
+drwxr-xr-x  68 root  wheel  2176 Mar  4 08:21 ..
+-rw-r--r--@  1 root  wheel   593 May 13  2025 com.docker.socket.plist
+-rw-r--r--@  1 root  wheel   667 May 13  2025 com.docker.vmnetd.plist
+-rw-r--r--   1 root  wheel   897 Aug  6  2025 com.google.GoogleUpdater.wake.system.plist
+-rw-r--r--   1 root  wheel   181 Aug  6  2025 com.google.keystone.daemon.plist
+-rw-r--r--   1 root  wheel   428 Feb 28 08:36 com.microsoft.autoupdate.helper.plist
+-rw-r--r--@  1 root  admin   929 Oct 17  2024 homebrew.mxcl.newrelic-infra-agent.plist
+-rw-r--r--   1 root  wheel   622 Mar 16 21:15 us.zoom.ZoomDaemon.plist

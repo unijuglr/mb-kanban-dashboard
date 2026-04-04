@@ -1,0 +1,13 @@
+$ /bin/sh -c ls\ -la\ ~/Library/LaunchAgents\ \|\|\ true
+
+total 64
+drwx------@  10 adamgoldband  staff   320 Mar 27 17:02 .
+drwx------@ 105 adamgoldband  staff  3360 Mar 23 14:00 ..
+-rw-r--r--@   1 adamgoldband  staff  2715 Mar 25 11:36 ai.openclaw.gateway.plist
+-rw-r--r--@   1 adamgoldband  staff   879 May 26  2025 com.google.GoogleUpdater.wake.plist
+-rw-r--r--@   1 adamgoldband  staff   181 Aug 12  2024 com.google.keystone.agent.plist
+-rw-r--r--@   1 adamgoldband  staff   181 Aug 12  2024 com.google.keystone.xpcservice.plist
+-rw-r--r--@   1 adamgoldband  staff   633 Aug 26  2024 homebrew.mxcl.emacs.plist
+-rw-r--r--    1 adamgoldband  staff   772 Oct 25  2024 homebrew.mxcl.logrotate.plist
+-rw-r--r--@   1 adamgoldband  staff   732 Aug 27  2024 homebrew.mxcl.mysql.plist
+-rw-r--r--@   1 adamgoldband  staff   821 Sep 11  2024 homebrew.mxcl.neo4j.plist

@@ -1,0 +1,5 @@
+$ /bin/sh -c command\ -v\ lsof\ \>/dev/null\ 2\>\&1\ \&\&\ lsof\ -nP\ -iTCP:18789\ -sTCP:LISTEN\ \|\|\ /usr/sbin/lsof\ -nP\ -iTCP:18789\ -sTCP:LISTEN\ \|\|\ true
+
+COMMAND   PID         USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    85332 adamgoldband   15u  IPv4 0x4ad48718f1e67baf      0t0  TCP 127.0.0.1:18789 (LISTEN)
+node    85332 adamgoldband   16u  IPv6  0x9fa9e69e562022d      0t0  TCP [::1]:18789 (LISTEN)

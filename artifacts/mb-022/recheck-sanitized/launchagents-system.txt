@@ -1,0 +1,10 @@
+$ /bin/sh -c ls\ -la\ /Library/LaunchAgents\ \|\|\ true
+
+total 40
+drwxr-xr-x   7 root  wheel   224 Mar 16 21:15 .
+drwxr-xr-x  68 root  wheel  2176 Mar  4 08:21 ..
+-rw-r--r--   1 root  wheel   181 Aug 26  2024 com.google.keystone.agent.plist
+-rw-r--r--   1 root  wheel   181 Aug 26  2024 com.google.keystone.xpcservice.plist
+-rw-r--r--   1 root  wheel   405 Feb 28 08:36 com.microsoft.update.agent.plist
+-rw-r--r--   1 root  wheel   604 Mar 16 21:15 us.zoom.updater.login.check.plist
+-rw-r--r--   1 root  wheel   639 Mar 16 21:15 us.zoom.updater.plist

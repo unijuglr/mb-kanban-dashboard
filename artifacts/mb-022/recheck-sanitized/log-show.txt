@@ -1,0 +1,402 @@
+$ /bin/sh -c log\ show\ --last\ 15m\ --style\ compact\ --predicate\ \"\(process\ ==\ \\\"launchd\\\"\)\ OR\ \(eventMessage\ CONTAINS\[c\]\ \\\"openclaw\\\"\)\ OR\ \(eventMessage\ CONTAINS\[c\]\ \\\"gateway\\\"\)\"\ \|\ tail\ -n\ 400\ \|\|\ true
+
+2026-04-03 19:26:55.243 Df launchd[1:b2a190] [pid/82464 [contactsd]:] cleaning up
+2026-04-03 19:26:55.244 Df launchd[1:b2a190] [system:] removing child: pid/82464
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [user/278/com.apple.contactsd [82467]:] exited due to exit(0), ran for 60315ms
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [user/278/com.apple.contactsd [82467]:] service state: exited
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [user/278/com.apple.contactsd [82467]:] internal event: EXITED, code = 0
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [user/278/com.apple.contactsd [82467]:] job state = exited
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [user/278:] service inactive: com.apple.contactsd
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [user/278/com.apple.contactsd [82467]:] service state: not running
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [pid/82467 [contactsd]:] shutting down
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [pid/82467 [contactsd]:] cleaning up
+2026-04-03 19:26:55.286 Df launchd[1:b2a190] [system:] removing child: pid/82467
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [user/262/com.apple.contactsd [82466]:] exited due to exit(0), ran for 60351ms
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [user/262/com.apple.contactsd [82466]:] service state: exited
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [user/262/com.apple.contactsd [82466]:] internal event: EXITED, code = 0
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [user/262/com.apple.contactsd [82466]:] job state = exited
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [user/262:] service inactive: com.apple.contactsd
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [user/262/com.apple.contactsd [82466]:] service state: not running
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [pid/82466 [contactsd]:] shutting down
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [pid/82466 [contactsd]:] cleaning up
+2026-04-03 19:26:55.309 Df launchd[1:b2a04f] [system:] removing child: pid/82466
+2026-04-03 19:26:55.316 E  launchd[1:b2a190] no client port found
+2026-04-03 19:26:55.334 Df launchd[1:b2a04f] [user/260/com.apple.contactsd [82468]:] exited due to exit(0), ran for 60337ms
+2026-04-03 19:26:55.334 Df launchd[1:b2a04f] [user/260/com.apple.contactsd [82468]:] service state: exited
+2026-04-03 19:26:55.334 Df launchd[1:b2a04f] [user/260/com.apple.contactsd [82468]:] internal event: EXITED, code = 0
+2026-04-03 19:26:55.334 Df launchd[1:b2a04f] [user/260/com.apple.contactsd [82468]:] job state = exited
+2026-04-03 19:26:55.334 Df launchd[1:b2a04f] [user/260:] service inactive: com.apple.contactsd
+2026-04-03 19:26:55.335 Df launchd[1:b2a04f] [user/260/com.apple.contactsd [82468]:] service state: not running
+2026-04-03 19:26:55.335 Df launchd[1:b2a04f] [pid/82468 [contactsd]:] shutting down
+2026-04-03 19:26:55.335 Df launchd[1:b2a04f] [pid/82468 [contactsd]:] cleaning up
+2026-04-03 19:26:55.335 Df launchd[1:b2a04f] [system:] removing child: pid/82468
+2026-04-03 19:26:55.338 E  launchd[1:b2a190] no client port found
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [user/301/com.apple.contactsd [82469]:] exited due to exit(0), ran for 60316ms
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [user/301/com.apple.contactsd [82469]:] service state: exited
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [user/301/com.apple.contactsd [82469]:] internal event: EXITED, code = 0
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [user/301/com.apple.contactsd [82469]:] job state = exited
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [user/301:] service inactive: com.apple.contactsd
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [user/301/com.apple.contactsd [82469]:] service state: not running
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [pid/82469 [contactsd]:] shutting down
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [pid/82469 [contactsd]:] cleaning up
+2026-04-03 19:26:55.350 Df launchd[1:b2a04f] [system:] removing child: pid/82469
+2026-04-03 19:27:07.239 Df launchd[1:b2a1aa] [gui/501 [100022]:] denied lookup: name = com.apple.dock.fullscreen, requestor = Firefox GPU Hel[36087], error = 159: Sandbox restriction
+2026-04-03 19:27:13.798 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.04000000-0300-0000-0000-000000000000 [82437]:] exited due to SIGKILL | sent by mds[354], ran for 101347ms
+2026-04-03 19:27:13.798 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.04000000-0300-0000-0000-000000000000 [82437]:] service state: exited
+2026-04-03 19:27:13.798 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.04000000-0300-0000-0000-000000000000 [82437]:] internal event: EXITED, code = 0
+2026-04-03 19:27:13.798 Df launchd[1:b2a190] [user/501:] service inactive: com.apple.mdworker.shared.04000000-0300-0000-0000-000000000000
+2026-04-03 19:27:13.798 Df launchd[1:b2a190] [user/501:] removing service: com.apple.mdworker.shared.04000000-0300-0000-0000-000000000000
+2026-04-03 19:27:13.798 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.04000000-0300-0000-0000-000000000000 [82437]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:27:13.798 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.04000000-0300-0000-0000-000000000000 [82437]:] service state: not running
+2026-04-03 19:27:13.799 Df launchd[1:b2a190] [pid/82437 [mdworker_shared]:] shutting down
+2026-04-03 19:27:13.799 Df launchd[1:b2a190] [pid/82437 [mdworker_shared]:] cleaning up
+2026-04-03 19:27:13.799 Df launchd[1:b2a190] [system:] removing child: pid/82437
+2026-04-03 19:27:14.855 Df launchd[1:b2a190] [system:] failed lookup: name = com.apple.AppleLOM.Watchdog, flags = 0x1, requestor = watchdogd[350], error = 3: No such process
+2026-04-03 19:27:20.040 Df launchd[1:b2a190] [gui/501 [100022]:] denied lookup: name = com.apple.dock.fullscreen, requestor = Firefox GPU Hel[36087], error = 159: Sandbox restriction
+2026-04-03 19:27:23.087 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:27:23.087 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:27:23.087 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:27:23.087 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:27:23.089 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] xpcproxy spawned with pid 82533
+2026-04-03 19:27:23.089 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] internal event: SPAWNED, code = 0
+2026-04-03 19:27:23.089 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] service state: xpcproxy
+2026-04-03 19:27:23.089 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:27:23.090 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:27:23.090 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:27:23.090 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:27:23.090 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:27:23.093 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] xpcproxy spawned with pid 82534
+2026-04-03 19:27:23.093 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] internal event: SPAWNED, code = 0
+2026-04-03 19:27:23.093 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] service state: xpcproxy
+2026-04-03 19:27:23.093 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:27:23.107 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] service state: running
+2026-04-03 19:27:23.107 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] internal event: INIT, code = 0
+2026-04-03 19:27:23.107 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] Successfully spawned mdworker_shared[82533] because ipc (mach)
+2026-04-03 19:27:23.107 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] service state: running
+2026-04-03 19:27:23.107 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] internal event: INIT, code = 0
+2026-04-03 19:27:23.107 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] Successfully spawned mdworker_shared[82534] because ipc (mach)
+2026-04-03 19:27:23.115 Df launchd[1:b2a295] [pid/82533 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:27:23.115 Df launchd[1:b2a295] [pid/82533 [mdworker_shared]:] created
+2026-04-03 19:27:23.118 Df launchd[1:b2a190] [pid/82534 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:27:23.118 Df launchd[1:b2a190] [pid/82534 [mdworker_shared]:] created
+2026-04-03 19:27:23.135 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:27:23.135 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:27:23.135 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:27:23.135 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:27:23.137 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] xpcproxy spawned with pid 82535
+2026-04-03 19:27:23.137 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] internal event: SPAWNED, code = 0
+2026-04-03 19:27:23.137 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] service state: xpcproxy
+2026-04-03 19:27:23.137 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:27:23.137 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:27:23.137 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:27:23.137 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:27:23.137 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:27:23.139 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] xpcproxy spawned with pid 82536
+2026-04-03 19:27:23.139 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] internal event: SPAWNED, code = 0
+2026-04-03 19:27:23.139 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] service state: xpcproxy
+2026-04-03 19:27:23.140 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:27:23.151 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] service state: running
+2026-04-03 19:27:23.151 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] internal event: INIT, code = 0
+2026-04-03 19:27:23.151 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] Successfully spawned mdworker_shared[82536] because ipc (mach)
+2026-04-03 19:27:23.154 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] service state: running
+2026-04-03 19:27:23.154 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] internal event: INIT, code = 0
+2026-04-03 19:27:23.154 Df launchd[1:b2a295] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] Successfully spawned mdworker_shared[82535] because ipc (mach)
+2026-04-03 19:27:23.180 Df launchd[1:b2a190] [pid/82536 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:27:23.180 Df launchd[1:b2a190] [pid/82536 [mdworker_shared]:] created
+2026-04-03 19:27:23.185 Df launchd[1:b2a2cb] [pid/82535 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:27:23.185 Df launchd[1:b2a2cb] [pid/82535 [mdworker_shared]:] created
+2026-04-03 19:27:23.294 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:27:23.294 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:27:23.294 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:27:23.294 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:27:23.297 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] xpcproxy spawned with pid 82537
+2026-04-03 19:27:23.297 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] internal event: SPAWNED, code = 0
+2026-04-03 19:27:23.297 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] service state: xpcproxy
+2026-04-03 19:27:23.297 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:27:23.311 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] service state: running
+2026-04-03 19:27:23.311 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] internal event: INIT, code = 0
+2026-04-03 19:27:23.311 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] Successfully spawned mdworker_shared[82537] because ipc (mach)
+2026-04-03 19:27:23.321 Df launchd[1:b2a190] [pid/82537 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:27:23.321 Df launchd[1:b2a190] [pid/82537 [mdworker_shared]:] created
+2026-04-03 19:27:23.345 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:27:23.345 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:27:23.346 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:27:23.346 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:27:23.347 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] xpcproxy spawned with pid 82538
+2026-04-03 19:27:23.347 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] internal event: SPAWNED, code = 0
+2026-04-03 19:27:23.347 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] service state: xpcproxy
+2026-04-03 19:27:23.347 Df launchd[1:b2a2cb] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:27:23.370 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] service state: running
+2026-04-03 19:27:23.370 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] internal event: INIT, code = 0
+2026-04-03 19:27:23.370 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] Successfully spawned mdworker_shared[82538] because ipc (mach)
+2026-04-03 19:27:23.381 Df launchd[1:b2a2cb] [pid/82538 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:27:23.381 Df launchd[1:b2a2cb] [pid/82538 [mdworker_shared]:] created
+2026-04-03 19:27:23.641 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:27:23.641 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:27:23.641 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:27:23.641 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:27:23.643 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000 [82539]:] xpcproxy spawned with pid 82539
+2026-04-03 19:27:23.643 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000 [82539]:] internal event: SPAWNED, code = 0
+2026-04-03 19:27:23.643 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000 [82539]:] service state: xpcproxy
+2026-04-03 19:27:23.643 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000 [82539]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:27:23.656 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000 [82539]:] service state: running
+2026-04-03 19:27:23.656 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000 [82539]:] internal event: INIT, code = 0
+2026-04-03 19:27:23.656 Df launchd[1:b2a190] [user/501/com.apple.mdworker.shared.0A000000-0700-0000-0000-000000000000 [82539]:] Successfully spawned mdworker_shared[82539] because ipc (mach)
+2026-04-03 19:27:23.663 Df launchd[1:b2a295] [pid/82539 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:27:23.663 Df launchd[1:b2a295] [pid/82539 [mdworker_shared]:] created
+2026-04-03 19:27:32.631 Df launchd[1:b2a2cb] [gui/501 [100022]:] denied lookup: name = com.apple.dock.fullscreen, requestor = Firefox GPU Hel[36087], error = 159: Sandbox restriction
+2026-04-03 19:27:44.857 Df launchd[1:b2a2cb] [system:] failed lookup: name = com.apple.AppleLOM.Watchdog, flags = 0x1, requestor = watchdogd[350], error = 3: No such process
+2026-04-03 19:27:45.431 Df launchd[1:b2a3be] [gui/501 [100022]:] denied lookup: name = com.apple.dock.fullscreen, requestor = Firefox GPU Hel[36087], error = 159: Sandbox restriction
+2026-04-03 19:28:00.696 Df launchd[1:b2a420] Remove subscription with token 29767
+2026-04-03 19:28:00.696 Df launchd[1:b2a2cb] Last log repeated 1 times
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] exited due to SIGKILL | sent by mds[354], ran for 42254ms
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] service state: exited
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] internal event: EXITED, code = 0
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [user/501:] service inactive: com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [user/501:] removing service: com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.10000000-0300-0000-0000-000000000000 [82534]:] service state: not running
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [pid/82534 [mdworker_shared]:] shutting down
+2026-04-03 19:28:05.349 Df launchd[1:b2a420] [pid/82534 [mdworker_shared]:] cleaning up
+2026-04-03 19:28:05.350 Df launchd[1:b2a420] [system:] removing child: pid/82534
+2026-04-03 19:28:05.638 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] exited due to SIGKILL | sent by mds[354], ran for 42497ms
+2026-04-03 19:28:05.638 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] service state: exited
+2026-04-03 19:28:05.638 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] internal event: EXITED, code = 0
+2026-04-03 19:28:05.638 Df launchd[1:b2a420] [user/501:] service inactive: com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000
+2026-04-03 19:28:05.638 Df launchd[1:b2a420] [user/501:] removing service: com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000
+2026-04-03 19:28:05.638 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:28:05.638 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.03000000-0600-0000-0000-000000000000 [82536]:] service state: not running
+2026-04-03 19:28:05.639 Df launchd[1:b2a420] [pid/82536 [mdworker_shared]:] shutting down
+2026-04-03 19:28:05.639 Df launchd[1:b2a420] [pid/82536 [mdworker_shared]:] cleaning up
+2026-04-03 19:28:05.639 Df launchd[1:b2a420] [system:] removing child: pid/82536
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] exited due to SIGKILL | sent by mds[354], ran for 42505ms
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] service state: exited
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] internal event: EXITED, code = 0
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [user/501:] service inactive: com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [user/501:] removing service: com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.02000000-0000-0000-0000-000000000000 [82535]:] service state: not running
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [pid/82535 [mdworker_shared]:] shutting down
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [pid/82535 [mdworker_shared]:] cleaning up
+2026-04-03 19:28:05.643 Df launchd[1:b2a420] [system:] removing child: pid/82535
+2026-04-03 19:28:05.717 Df launchd[1:b2a420] [pid/82537 [mdworker_shared]:] shutting down
+2026-04-03 19:28:05.717 Df launchd[1:b2a420] [pid/82537 [mdworker_shared]:] cleaning up
+2026-04-03 19:28:05.717 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] exited due to SIGKILL | sent by mds[354], ran for 42414ms
+2026-04-03 19:28:05.717 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] service state: exited
+2026-04-03 19:28:05.717 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] internal event: EXITED, code = 0
+2026-04-03 19:28:05.718 Df launchd[1:b2a420] [user/501:] service inactive: com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000
+2026-04-03 19:28:05.718 Df launchd[1:b2a420] [user/501:] removing service: com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000
+2026-04-03 19:28:05.718 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:28:05.718 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0D000000-0400-0000-0000-000000000000 [82537]:] service state: not running
+2026-04-03 19:28:05.718 Df launchd[1:b2a420] [system:] removing child: pid/82537
+2026-04-03 19:28:05.740 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] exited due to SIGKILL | sent by mds[354], ran for 42390ms
+2026-04-03 19:28:05.740 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] service state: exited
+2026-04-03 19:28:05.740 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] internal event: EXITED, code = 0
+2026-04-03 19:28:05.740 Df launchd[1:b2a420] [user/501:] service inactive: com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000
+2026-04-03 19:28:05.740 Df launchd[1:b2a420] [user/501:] removing service: com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000
+2026-04-03 19:28:05.741 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:28:05.741 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.08000000-0000-0000-0000-000000000000 [82538]:] service state: not running
+2026-04-03 19:28:05.741 Df launchd[1:b2a420] [pid/82538 [mdworker_shared]:] shutting down
+2026-04-03 19:28:05.741 Df launchd[1:b2a420] [pid/82538 [mdworker_shared]:] cleaning up
+2026-04-03 19:28:05.741 Df launchd[1:b2a420] [system:] removing child: pid/82538
+2026-04-03 19:28:05.776 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0F000000-0000-0000-0000-000000000000 [82475]:] exited due to SIGKILL | sent by mds[354], ran for 129881ms
+2026-04-03 19:28:05.776 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0F000000-0000-0000-0000-000000000000 [82475]:] service state: exited
+2026-04-03 19:28:05.776 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0F000000-0000-0000-0000-000000000000 [82475]:] internal event: EXITED, code = 0
+2026-04-03 19:28:05.776 Df launchd[1:b2a420] [user/501:] service inactive: com.apple.mdworker.shared.0F000000-0000-0000-0000-000000000000
+2026-04-03 19:28:05.776 Df launchd[1:b2a420] [user/501:] removing service: com.apple.mdworker.shared.0F000000-0000-0000-0000-000000000000
+2026-04-03 19:28:05.776 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0F000000-0000-0000-0000-000000000000 [82475]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:28:05.776 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.0F000000-0000-0000-0000-000000000000 [82475]:] service state: not running
+2026-04-03 19:28:05.777 Df launchd[1:b2a420] [pid/82475 [mdworker_shared]:] shutting down
+2026-04-03 19:28:05.777 Df launchd[1:b2a420] [pid/82475 [mdworker_shared]:] cleaning up
+2026-04-03 19:28:05.777 Df launchd[1:b2a420] [system:] removing child: pid/82475
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [pid/82476 [mdworker_shared]:] shutting down
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [pid/82476 [mdworker_shared]:] cleaning up
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.05000000-0200-0000-0000-000000000000 [82476]:] exited due to SIGKILL | sent by mds[354], ran for 129731ms
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.05000000-0200-0000-0000-000000000000 [82476]:] service state: exited
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.05000000-0200-0000-0000-000000000000 [82476]:] internal event: EXITED, code = 0
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [user/501:] service inactive: com.apple.mdworker.shared.05000000-0200-0000-0000-000000000000
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [user/501:] removing service: com.apple.mdworker.shared.05000000-0200-0000-0000-000000000000
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.05000000-0200-0000-0000-000000000000 [82476]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [user/501/com.apple.mdworker.shared.05000000-0200-0000-0000-000000000000 [82476]:] service state: not running
+2026-04-03 19:28:05.790 Df launchd[1:b2a420] [system:] removing child: pid/82476
+2026-04-03 19:28:11.032 Df launchd[1:b2a420] [gui/501 [100022]:] denied lookup: name = com.apple.dock.fullscreen, requestor = Firefox GPU Hel[36087], error = 159: Sandbox restriction
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] exited due to SIGKILL | sent by mds[354], ran for 50688ms
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] service state: exited
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] internal event: EXITED, code = 0
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [user/501:] service inactive: com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [user/501:] removing service: com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] internal event: PETRIFIED, code = 0
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [user/501/com.apple.mdworker.shared.04000000-0400-0000-0000-000000000000 [82533]:] service state: not running
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [pid/82533 [mdworker_shared]:] shutting down
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [pid/82533 [mdworker_shared]:] cleaning up
+2026-04-03 19:28:13.783 Df launchd[1:b2a497] [system:] removing child: pid/82533
+2026-04-03 19:28:21.009 Df launchd[1:b2a497] Remove subscription with token 29770
+2026-04-03 19:28:23.632 Df launchd[1:b2a497] [gui/501 [100022]:] denied lookup: name = com.apple.dock.fullscreen, requestor = Firefox GPU Hel[36087], error = 159: Sandbox restriction
+2026-04-03 19:28:24.858 Df launchd[1:b2a4fc] [system:] failed lookup: name = com.apple.AppleLOM.Watchdog, flags = 0x1, requestor = watchdogd[350], error = 3: No such process
+2026-04-03 19:28:31.698 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:31.699 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:28:31.699 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:28:31.699 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:28:31.705 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000 [82585]:] xpcproxy spawned with pid 82585
+2026-04-03 19:28:31.705 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000 [82585]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:31.705 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000 [82585]:] service state: xpcproxy
+2026-04-03 19:28:31.705 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000 [82585]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:31.741 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000 [82585]:] service state: running
+2026-04-03 19:28:31.742 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000 [82585]:] internal event: INIT, code = 0
+2026-04-03 19:28:31.742 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.04000000-0500-0000-0000-000000000000 [82585]:] Successfully spawned mdworker_shared[82585] because ipc (mach)
+2026-04-03 19:28:31.751 Df launchd[1:b2a4fc] [pid/82585 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:28:31.751 Df launchd[1:b2a4fc] [pid/82585 [mdworker_shared]:] created
+2026-04-03 19:28:36.432 Df launchd[1:b2a57c] [gui/501 [100022]:] denied lookup: name = com.apple.dock.fullscreen, requestor = Firefox GPU Hel[36087], error = 159: Sandbox restriction
+2026-04-03 19:28:39.036 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:39.036 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:28:39.036 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:28:39.037 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:28:39.039 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000 [82592]:] xpcproxy spawned with pid 82592
+2026-04-03 19:28:39.039 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000 [82592]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:39.039 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000 [82592]:] service state: xpcproxy
+2026-04-03 19:28:39.039 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000 [82592]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:39.039 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:39.039 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:28:39.039 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:28:39.039 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:28:39.040 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000 [82593]:] xpcproxy spawned with pid 82593
+2026-04-03 19:28:39.040 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000 [82593]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:39.040 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000 [82593]:] service state: xpcproxy
+2026-04-03 19:28:39.040 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000 [82593]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:39.057 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000 [82593]:] service state: running
+2026-04-03 19:28:39.057 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000 [82593]:] internal event: INIT, code = 0
+2026-04-03 19:28:39.057 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.08000000-0100-0000-0000-000000000000 [82593]:] Successfully spawned mdworker_shared[82593] because ipc (mach)
+2026-04-03 19:28:39.058 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000 [82592]:] service state: running
+2026-04-03 19:28:39.058 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000 [82592]:] internal event: INIT, code = 0
+2026-04-03 19:28:39.058 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.05000000-0300-0000-0000-000000000000 [82592]:] Successfully spawned mdworker_shared[82592] because ipc (mach)
+2026-04-03 19:28:39.068 Df launchd[1:b2a4fc] [pid/82592 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:28:39.068 Df launchd[1:b2a4fc] [pid/82592 [mdworker_shared]:] created
+2026-04-03 19:28:39.068 Df launchd[1:b2a4fc] [pid/82593 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:28:39.068 Df launchd[1:b2a4fc] [pid/82593 [mdworker_shared]:] created
+2026-04-03 19:28:39.081 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:39.081 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:28:39.081 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:28:39.082 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:28:39.084 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000 [82594]:] xpcproxy spawned with pid 82594
+2026-04-03 19:28:39.084 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000 [82594]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:39.084 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000 [82594]:] service state: xpcproxy
+2026-04-03 19:28:39.084 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000 [82594]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:39.087 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:39.087 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:28:39.087 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:28:39.087 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:28:39.091 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000 [82595]:] xpcproxy spawned with pid 82595
+2026-04-03 19:28:39.091 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000 [82595]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:39.091 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000 [82595]:] service state: xpcproxy
+2026-04-03 19:28:39.091 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000 [82595]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:39.100 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000 [82594]:] service state: running
+2026-04-03 19:28:39.100 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000 [82594]:] internal event: INIT, code = 0
+2026-04-03 19:28:39.100 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.0F000000-0100-0000-0000-000000000000 [82594]:] Successfully spawned mdworker_shared[82594] because ipc (mach)
+2026-04-03 19:28:39.103 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000 [82595]:] service state: running
+2026-04-03 19:28:39.103 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000 [82595]:] internal event: INIT, code = 0
+2026-04-03 19:28:39.103 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.10000000-0400-0000-0000-000000000000 [82595]:] Successfully spawned mdworker_shared[82595] because ipc (mach)
+2026-04-03 19:28:39.107 Df launchd[1:b2a57c] [pid/82594 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:28:39.107 Df launchd[1:b2a57c] [pid/82594 [mdworker_shared]:] created
+2026-04-03 19:28:39.111 Df launchd[1:b2a4fc] [pid/82595 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:28:39.111 Df launchd[1:b2a4fc] [pid/82595 [mdworker_shared]:] created
+2026-04-03 19:28:39.166 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:39.166 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:28:39.166 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:28:39.166 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:28:39.166 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000 [82596]:] xpcproxy spawned with pid 82596
+2026-04-03 19:28:39.166 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000 [82596]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:39.166 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000 [82596]:] service state: xpcproxy
+2026-04-03 19:28:39.166 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000 [82596]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:39.177 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000 [82596]:] service state: running
+2026-04-03 19:28:39.177 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000 [82596]:] internal event: INIT, code = 0
+2026-04-03 19:28:39.177 Df launchd[1:b2a57c] [user/501/com.apple.mdworker.shared.03000000-0700-0000-0000-000000000000 [82596]:] Successfully spawned mdworker_shared[82596] because ipc (mach)
+2026-04-03 19:28:39.188 Df launchd[1:b2a4fc] [pid/82596 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:28:39.188 Df launchd[1:b2a4fc] [pid/82596 [mdworker_shared]:] created
+2026-04-03 19:28:39.355 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:39.355 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:28:39.355 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:28:39.355 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:28:39.358 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000 [82597]:] xpcproxy spawned with pid 82597
+2026-04-03 19:28:39.358 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000 [82597]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:39.358 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000 [82597]:] service state: xpcproxy
+2026-04-03 19:28:39.358 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000 [82597]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:39.369 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:39.369 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000:] service state: spawn scheduled
+2026-04-03 19:28:39.369 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000:] service state: spawning
+2026-04-03 19:28:39.369 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000:] launching: ipc (mach)
+2026-04-03 19:28:39.372 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000 [82598]:] xpcproxy spawned with pid 82598
+2026-04-03 19:28:39.372 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000 [82598]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:39.372 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000 [82598]:] service state: xpcproxy
+2026-04-03 19:28:39.373 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000 [82598]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:39.388 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000 [82597]:] service state: running
+2026-04-03 19:28:39.388 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000 [82597]:] internal event: INIT, code = 0
+2026-04-03 19:28:39.389 Df launchd[1:b2a4fc] [user/501/com.apple.mdworker.shared.0D000000-0500-0000-0000-000000000000 [82597]:] Successfully spawned mdworker_shared[82597] because ipc (mach)
+2026-04-03 19:28:39.393 Df launchd[1:b2a4fc] [pid/82597 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:28:39.393 Df launchd[1:b2a4fc] [pid/82597 [mdworker_shared]:] created
+2026-04-03 19:28:39.396 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000 [82598]:] service state: running
+2026-04-03 19:28:39.396 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000 [82598]:] internal event: INIT, code = 0
+2026-04-03 19:28:39.396 Df launchd[1:b2a580] [user/501/com.apple.mdworker.shared.02000000-0100-0000-0000-000000000000 [82598]:] Successfully spawned mdworker_shared[82598] because ipc (mach)
+2026-04-03 19:28:39.410 Df launchd[1:b2a4fc] [pid/82598 [mdworker_shared]:] uncorking exec source upfront
+2026-04-03 19:28:39.410 Df launchd[1:b2a4fc] [pid/82598 [mdworker_shared]:] created
+2026-04-03 19:28:42.825 Df launchd[1:b2a580] [pid/505/com.apple.XprotectFramework.AnalysisService:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:42.825 Df launchd[1:b2a580] [pid/505/com.apple.XprotectFramework.AnalysisService:] service state: spawn scheduled
+2026-04-03 19:28:42.825 Df launchd[1:b2a580] [pid/505/com.apple.XprotectFramework.AnalysisService:] service state: spawning
+2026-04-03 19:28:42.825 Df launchd[1:b2a580] [pid/505/com.apple.XprotectFramework.AnalysisService:] launching: ipc (mach)
+2026-04-03 19:28:42.826 Df launchd[1:b2a580] [pid/505/com.apple.XprotectFramework.AnalysisService [82606]:] xpcproxy spawned with pid 82606
+2026-04-03 19:28:42.826 Df launchd[1:b2a580] [pid/505/com.apple.XprotectFramework.AnalysisService [82606]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:42.826 Df launchd[1:b2a580] [pid/505/com.apple.XprotectFramework.AnalysisService [82606]:] service state: xpcproxy
+2026-04-03 19:28:42.826 Df launchd[1:b2a580] [pid/505/com.apple.XprotectFramework.AnalysisService [82606]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:42.831 Df launchd[1:b2a4fc] [pid/505/com.apple.XprotectFramework.AnalysisService [82606]:] service state: running
+2026-04-03 19:28:42.831 Df launchd[1:b2a4fc] [pid/505/com.apple.XprotectFramework.AnalysisService [82606]:] internal event: INIT, code = 0
+2026-04-03 19:28:42.831 Df launchd[1:b2a4fc] [pid/505/com.apple.XprotectFramework.AnalysisService [82606]:] Successfully spawned XprotectService[82606] because ipc (mach)
+2026-04-03 19:28:42.834 Df launchd[1:b2a4fc] [pid/82606 [XprotectService]:] uncorking exec source upfront
+2026-04-03 19:28:42.834 Df launchd[1:b2a4fc] [pid/82606 [XprotectService]:] created
+2026-04-03 19:28:42.850 Df launchd[1:b2a57c] [pid/82606 [XprotectService]:] uncorking domain
+2026-04-03 19:28:42.973 Df launchd[1:b2a57c] [system/com.apple.ReportCrash.Root:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:42.973 Df launchd[1:b2a57c] [system/com.apple.ReportCrash.Root:] service state: spawn scheduled
+2026-04-03 19:28:42.973 Df launchd[1:b2a57c] [system/com.apple.ReportCrash.Root:] service state: spawning
+2026-04-03 19:28:42.973 Df launchd[1:b2a57c] [system/com.apple.ReportCrash.Root:] launching: ipc (mach)
+2026-04-03 19:28:42.976 Df launchd[1:b2a57c] [system/com.apple.ReportCrash.Root [82607]:] xpcproxy spawned with pid 82607
+2026-04-03 19:28:42.976 Df launchd[1:b2a57c] [system/com.apple.ReportCrash.Root [82607]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:42.976 Df launchd[1:b2a57c] [system/com.apple.ReportCrash.Root [82607]:] service state: xpcproxy
+2026-04-03 19:28:42.977 Df launchd[1:b2a57c] [system/com.apple.ReportCrash.Root [82607]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:42.988 Df launchd[1:b2a4fc] [system/com.apple.ReportCrash.Root [82607]:] service state: running
+2026-04-03 19:28:42.988 Df launchd[1:b2a4fc] [system/com.apple.ReportCrash.Root [82607]:] internal event: INIT, code = 0
+2026-04-03 19:28:42.988 Df launchd[1:b2a4fc] [system/com.apple.ReportCrash.Root [82607]:] Successfully spawned ReportCrash[82607] because ipc (mach)
+2026-04-03 19:28:43.012 Df launchd[1:b2a57c] [pid/82607 [ReportCrash]:] uncorking exec source upfront
+2026-04-03 19:28:43.012 Df launchd[1:b2a57c] [pid/82607 [ReportCrash]:] created
+2026-04-03 19:28:43.026 Df launchd[1:b2a4fc] [system/com.apple.ReportMemoryException:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:43.026 Df launchd[1:b2a4fc] [system/com.apple.ReportMemoryException:] service state: spawn scheduled
+2026-04-03 19:28:43.026 Df launchd[1:b2a4fc] [system/com.apple.ReportMemoryException:] service state: spawning
+2026-04-03 19:28:43.026 Df launchd[1:b2a4fc] [system/com.apple.ReportMemoryException:] launching: ipc (mach)
+2026-04-03 19:28:43.027 Df launchd[1:b2a4fc] [system/com.apple.ReportMemoryException [82608]:] xpcproxy spawned with pid 82608
+2026-04-03 19:28:43.027 Df launchd[1:b2a4fc] [system/com.apple.ReportMemoryException [82608]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:43.027 Df launchd[1:b2a4fc] [system/com.apple.ReportMemoryException [82608]:] service state: xpcproxy
+2026-04-03 19:28:43.027 Df launchd[1:b2a4fc] [system/com.apple.ReportMemoryException [82608]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:43.052 Df launchd[1:b2a57c] [system/com.apple.ReportMemoryException [82608]:] service state: running
+2026-04-03 19:28:43.052 Df launchd[1:b2a57c] [system/com.apple.ReportMemoryException [82608]:] internal event: INIT, code = 0
+2026-04-03 19:28:43.052 Df launchd[1:b2a57c] [system/com.apple.ReportMemoryException [82608]:] Successfully spawned ReportMemoryException[82608] because ipc (mach)
+2026-04-03 19:28:43.059 Df launchd[1:b2a4fc] [pid/82608 [ReportMemoryExc]:] uncorking exec source upfront
+2026-04-03 19:28:43.059 Df launchd[1:b2a4fc] [pid/82608 [ReportMemoryExc]:] created
+2026-04-03 19:28:43.150 Df launchd[1:b2a57c] [system/com.apple.coresymbolicationd:] internal event: WILL_SPAWN, code = 0
+2026-04-03 19:28:43.150 Df launchd[1:b2a57c] [system/com.apple.coresymbolicationd:] service state: spawn scheduled
+2026-04-03 19:28:43.150 Df launchd[1:b2a57c] [system/com.apple.coresymbolicationd:] service state: spawning
+2026-04-03 19:28:43.150 Df launchd[1:b2a57c] [system/com.apple.coresymbolicationd:] launching: ipc (mach)
+2026-04-03 19:28:43.150 Df launchd[1:b2a57c] [system/com.apple.coresymbolicationd [82622]:] xpcproxy spawned with pid 82622
+2026-04-03 19:28:43.150 Df launchd[1:b2a57c] [system/com.apple.coresymbolicationd [82622]:] internal event: SPAWNED, code = 0
+2026-04-03 19:28:43.150 Df launchd[1:b2a57c] [system/com.apple.coresymbolicationd [82622]:] service state: xpcproxy
+2026-04-03 19:28:43.150 Df launchd[1:b2a57c] [system/com.apple.coresymbolicationd [82622]:] internal event: SOURCE_ATTACH, code = 0
+2026-04-03 19:28:43.162 Df launchd[1:b2a580] [system/com.apple.coresymbolicationd [82622]:] service state: running
+2026-04-03 19:28:43.162 Df launchd[1:b2a580] [system/com.apple.coresymbolicationd [82622]:] internal event: INIT, code = 0
+2026-04-03 19:28:43.163 Df launchd[1:b2a580] [system/com.apple.coresymbolicationd [82622]:] Successfully spawned coresymbolicationd[82622] because ipc (mach)
+2026-04-03 19:28:43.170 Df launchd[1:b2a57c] [pid/82622 [coresymbolicati]:] uncorking exec source upfront
+2026-04-03 19:28:43.170 Df launchd[1:b2a57c] [pid/82622 [coresymbolicati]:] created
+2026-04-03 19:28:43.502 Df log[82638:b2a6a5] [com.apple.log:] log run noninteractively, parent: 82637 (bash), args: 'log' 'show' '--last' '15m' '--style' 'compact' '--predicate' '(process == "launchd") OR (eventMessage CONTAINS[c] "openclaw") OR (eventMessage CONTAINS[c] "gateway")'
+2026-04-03 19:28:44.266 E  kernel[0:b29bcb] (Sandbox) Sandbox: logd_helper(82395) deny(1) file-read-data /Users/adamgoldband/.nvm/versions/node/v22.22.0/lib/node_modules/openclaw/node_modules/@mariozechner/clipboard-darwin-universal/clipboard.darwin-universal.node
+2026-04-03 19:28:44.268 E  kernel[0:b29bcb] (Sandbox) Sandbox: logd_helper(82395) deny(1) file-read-data /Users/adamgoldband/.nvm/versions/node/v22.22.0/lib/node_modules/openclaw/node_modules/@lydell/node-pty-darwin-arm64/prebuilds/darwin-arm64/pty.node
+2026-04-03 19:28:49.230 Df launchd[1:b2a57c] [gui/501 [100022]:] denied lookup: name = com.apple.dock.fullscreen, requestor = Firefox GPU Hel[36087], error = 159: Sandbox restriction
+2026-04-03 19:29:04.858 Df launchd[1:b2a778] [system:] failed lookup: name = com.apple.AppleLOM.Watchdog, flags = 0x1, requestor = watchdogd[350], error = 3: No such process
+2026-04-03 19:29:04.858 Df launchd[1:b2a6fc] Last log repeated 1 times
+2026-04-03 19:29:10.732 Df log[82708:b2a803] [com.apple.log:] log run noninteractively, parent: 82707 (bash), args: 'log' 'show' '--last' '15m' '--style' 'compact' '--predicate' '(process == "launchd") OR (eventMessage CONTAINS[c] "openclaw") OR (eventMessage CONTAINS[c] "gateway")'
+2026-04-03 19:29:11.441 E  kernel[0:b29bcb] (Sandbox) Sandbox: logd_helper(82395) deny(1) file-read-data /Users/adamgoldband/.nvm/versions/node/v22.22.0/lib/node_modules/openclaw/node_modules/@mariozechner/clipboard-darwin-universal/clipboard.darwin-universal.node
+2026-04-03 19:29:11.442 E  kernel[0:b29bcb] (Sandbox) Sandbox: logd_helper(82395) deny(1) file-read-data /Users/adamgoldband/.nvm/versions/node/v22.22.0/lib/node_modules/openclaw/node_modules/@lydell/node-pty-darwin-arm64/prebuilds/darwin-arm64/pty.node

@@ -1,0 +1,36 @@
+$ plutil -p /Users/adamgoldband/Library/LaunchAgents/ai.openclaw.gateway.plist
+
+{
+  "Comment" => "OpenClaw Gateway (v2026.3.22)"
+  "EnvironmentVariables" => {
+    "HOME" => "/Users/adamgoldband"
+    "NODE_EXTRA_CA_CERTS" => "/etc/ssl/cert.pem"
+    "NODE_USE_SYSTEM_CA" => "1"
+    "OLLAMA_API_KEY" => "[REDACTED]"
+    "OLLAMA_HOST" => "http://127.0.0.1:11435"
+    "OPENAI_API_KEY" => "[REDACTED]"
+    "OPENCLAW_GATEWAY_PORT" => "18789"
+    "OPENCLAW_LAUNCHD_LABEL" => "ai.openclaw.gateway"
+    "OPENCLAW_SERVICE_KIND" => "gateway"
+    "OPENCLAW_SERVICE_MARKER" => "openclaw"
+    "OPENCLAW_SERVICE_VERSION" => "2026.3.22"
+    "OPENCLAW_SYSTEMD_UNIT" => "openclaw-gateway.service"
+    "OPENCLAW_WINDOWS_TASK_NAME" => "OpenClaw Gateway"
+    "PATH" => "/opt/homebrew/bin:/Users/adamgoldband/.nvm:/Users/adamgoldband/.local/bin:/Users/adamgoldband/.npm-global/bin:/Users/adamgoldband/bin:/Users/adamgoldband/.volta/bin:/Users/adamgoldband/.asdf/shims:/Users/adamgoldband/.bun/bin:/Users/adamgoldband/Library/Application Support/fnm/aliases/default/bin:/Users/adamgoldband/.fnm/aliases/default/bin:/Users/adamgoldband/Library/pnpm:/Users/adamgoldband/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin"
+    "TMPDIR" => "/var/folders/wt/yx4sr_2x1ygdm13773pjtz0r0000gn/T/"
+  }
+  "KeepAlive" => true
+  "Label" => "ai.openclaw.gateway"
+  "ProgramArguments" => [
+    0 => "/opt/homebrew/bin/node"
+    1 => "/Users/adamgoldband/.nvm/versions/node/v22.22.0/lib/node_modules/openclaw/dist/index.js"
+    2 => "gateway"
+    3 => "--port"
+    4 => "18789"
+  ]
+  "RunAtLoad" => true
+  "StandardErrorPath" => "/Users/adamgoldband/.openclaw/logs/gateway.err.log"
+  "StandardOutPath" => "/Users/adamgoldband/.openclaw/logs/gateway.log"
+  "ThrottleInterval" => 1
+  "Umask" => 63
+}

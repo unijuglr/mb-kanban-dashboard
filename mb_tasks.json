@@ -155,8 +155,15 @@
     "owner": "Prime Sam",
     "depends_on": [],
     "artifacts": [
-      "docs/motherbrain-operations.md",
-      "docs/motherbrain-local-agent-bootstrap.md"
+      "docs/cards/MB-022-fix-motherbrain-gateway-persistence.md",
+      "docs/motherbrain/gateway-persistence-diagnosis-runbook-2026-04-03.md",
+      "docs/motherbrain/gateway-persistence-findings-2026-04-03.md",
+      "scripts/collect-mb-022-persistence-diagnostics.sh",
+      "PROOF_MB_022.md"
+    ],
+    "notes": [
+      "Current-tree evidence is now durable, but the task remains honestly non-done pending an operator-approved Motherbrain reload/bootstrap verification.",
+      "Fresh read-only diagnostics showed launchd config drift: the loaded job environment reported OLLAMA_HOST=http://127.0.0.1:11434 while the plist on disk reported http://127.0.0.1:11435."
     ]
   },
   {

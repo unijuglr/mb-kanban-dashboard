@@ -1,0 +1,3 @@
+$ plutil -lint /Users/adamgoldband/Library/LaunchAgents/ai.openclaw.gateway.plist
+
+/Users/adamgoldband/Library/LaunchAgents/ai.openclaw.gateway.plist: OK

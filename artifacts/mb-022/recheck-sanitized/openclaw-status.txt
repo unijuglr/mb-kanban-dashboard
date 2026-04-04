@@ -1,0 +1,3 @@
+$ /bin/sh -c openclaw\ gateway\ status\ \|\|\ true
+
+/bin/sh: openclaw: command not found

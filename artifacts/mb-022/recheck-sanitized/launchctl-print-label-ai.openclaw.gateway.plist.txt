@@ -1,0 +1,94 @@
+$ /bin/sh -c launchctl\ print\ gui/501/ai.openclaw.gateway\ \|\|\ true
+
+gui/501/ai.openclaw.gateway = {
+	active count = 1
+	path = /Users/adamgoldband/Library/LaunchAgents/ai.openclaw.gateway.plist
+	type = LaunchAgent
+	state = running
+
+	program = /opt/homebrew/bin/node
+	arguments = {
+		/opt/homebrew/bin/node
+		/Users/adamgoldband/.nvm/versions/node/v22.22.0/lib/node_modules/openclaw/dist/index.js
+		gateway
+		--port
+		18789
+	}
+
+	stdout path = /Users/adamgoldband/.openclaw/logs/gateway.log
+	stderr path = /Users/adamgoldband/.openclaw/logs/gateway.err.log
+	inherited environment = {
+		OLLAMA_ORIGINS => *
+		SSH_AUTH_SOCK => /private/tmp/com.apple.launchd.pN4d0KeTgE/Listeners
+	}
+
+	default environment = {
+		PATH => /usr/bin:/bin:/usr/sbin:/sbin
+	}
+
+	environment = {
+		OSLogRateLimit => 64
+		OPENCLAW_GATEWAY_PORT => 18789
+		NODE_USE_SYSTEM_CA => 1
+		OLLAMA_HOST => http://127.0.0.1:11434
+		OPENCLAW_SERVICE_VERSION => 2026.3.22
+		OPENCLAW_SYSTEMD_UNIT => openclaw-gateway.service
+		OPENCLAW_WINDOWS_TASK_NAME => OpenClaw Gateway
+		NODE_EXTRA_CA_CERTS => /etc/ssl/cert.pem
+		OPENAI_API_KEY => [REDACTED]
+		OPENCLAW_LAUNCHD_LABEL => ai.openclaw.gateway
+		PATH => /opt/homebrew/bin:/Users/adamgoldband/.nvm:/Users/adamgoldband/.local/bin:/Users/adamgoldband/.npm-global/bin:/Users/adamgoldband/bin:/Users/adamgoldband/.volta/bin:/Users/adamgoldband/.asdf/shims:/Users/adamgoldband/.bun/bin:/Users/adamgoldband/Library/Application Support/fnm/aliases/default/bin:/Users/adamgoldband/.fnm/aliases/default/bin:/Users/adamgoldband/Library/pnpm:/Users/adamgoldband/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin
+		HOME => /Users/adamgoldband
+		OPENCLAW_SERVICE_KIND => gateway
+		OPENCLAW_SERVICE_MARKER => openclaw
+		TMPDIR => /var/folders/wt/yx4sr_2x1ygdm13773pjtz0r0000gn/T/
+		OLLAMA_API_KEY => [REDACTED]
+		XPC_SERVICE_NAME => ai.openclaw.gateway
+	}
+
+	domain = gui/501 [100022]
+	umask = 77
+	asid = 100022
+	minimum runtime = 1
+	exit timeout = 5
+	runs = 14
+	pid = 85332
+	immediate reason = non-ipc demand
+	forks = 17509
+	execs = 1
+	initialized = 1
+	trampolined = 1
+	started suspended = 0
+	proxy started suspended = 0
+	checked allocations = 0 (queried = 1)
+	checked allocations reason = no host
+	checked allocations flags = 0x0
+	last exit code = 0
+
+	resource coalition = {
+		ID = 45802
+		type = resource
+		state = active
+		active count = 1
+		name = ai.openclaw.gateway
+	}
+
+	jetsam coalition = {
+		ID = 45803
+		type = jetsam
+		state = active
+		active count = 1
+		name = ai.openclaw.gateway
+	}
+
+	spawn type = daemon (3)
+	jetsam priority = 40
+	jetsam memory limit (active) = (unlimited)
+	jetsam memory limit (inactive) = (unlimited)
+	jetsamproperties category = daemon
+	jetsam thread limit = 32
+	cpumon = default
+	job state = running
+
+	properties = partial import | keepalive | runatload | inferred program
+}

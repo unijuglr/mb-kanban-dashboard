@@ -1,0 +1,3 @@
+$ /bin/sh -c printf\ \"%s\\n\"\ \"\$PATH\"
+
+/usr/bin:/bin:/opt/homebrew/bin:/Users/adamgoldband/.nvm:/Users/adamgoldband/.local/bin:/Users/adamgoldband/.npm-global/bin:/Users/adamgoldband/bin:/Users/adamgoldband/.volta/bin:/Users/adamgoldband/.asdf/shims:/Users/adamgoldband/.bun/bin:/Users/adamgoldband/Library/Application Support/fnm/aliases/default/bin:/Users/adamgoldband/.fnm/aliases/default/bin:/Users/adamgoldband/Library/pnpm:/Users/adamgoldband/.local/share/pnpm:/usr/local/bin

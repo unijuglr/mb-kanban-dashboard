@@ -1,0 +1,5 @@
+$ /bin/sh -c pgrep\ -fal\ \"openclaw.\*gateway\|gateway.\*openclaw\"\ \|\|\ true
+
+82676 /bin/bash -c bash -n scripts/collect-mb-022-persistence-diagnostics.sh && rm -rf artifacts/mb-022/recheck-sanitized && ./scripts/collect-mb-022-persistence-diagnostics.sh artifacts/mb-022/recheck-sanitized && echo '--- redact check 2 ---' && grep -nE 'OPENAI_API_KEY|OLLAMA_API_KEY' artifacts/mb-022/recheck-sanitized/plutil-print-ai.openclaw.gateway.plist.txt artifacts/mb-022/recheck-sanitized/launchctl-print-label-ai.openclaw.gateway.plist.txt && echo '--- OLLAMA_HOST check ---' && grep -n 'OLLAMA_HOST' artifacts/mb-022/recheck-sanitized/plutil-print-ai.openclaw.gateway.plist.txt artifacts/mb-022/recheck-sanitized/launchctl-print-label-ai.openclaw.gateway.plist.txt
+82693 /bin/sh -c pgrep -fal "openclaw.*gateway|gateway.*openclaw" || true
+85332 openclaw-gateway OSLogRateLimit=64 OPENCLAW_GATEWAY_PORT=18789 NODE_USE_SYSTEM_CA=1 OLLAMA_HOST=http://127.0.0.1:11434
