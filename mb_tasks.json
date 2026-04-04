@@ -957,5 +957,89 @@
       "Repo-side QA re-run on 2026-04-04: python3 scripts/prove-mb-092.py, python3 scripts/qa_agilitas_pipeline.py, python3 scripts/test_agilitas_redaction.py, and python3 scripts/test_agilitas_ingestor.py all passed on the current tree.",
       "Durable proof now includes PROOF_MB_092.md; deterministic extraction/report output was refreshed honestly without claiming a live Ollama pass."
     ]
+  },
+  {
+    "id": "MB-004",
+    "title": "Enable early local coding agents on Motherbrain",
+    "state": "blocked",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/cards/MB-004-enable-local-coding-agents.md",
+      "docs/updates/2026-03-30-agent-enablement.md"
+    ],
+    "notes": [
+      "Current-tree evidence says Motherbrain has the needed runtime pieces and manual foreground gateway startup worked, but the stable bootstrapped local-agent path is still not proved.",
+      "Reconciled into mb_tasks.json on 2026-04-04 so the queue reflects the real unresolved host-path prerequisite instead of silently omitting it."
+    ]
+  },
+  {
+    "id": "MB-022",
+    "title": "Fix Motherbrain gateway persistence",
+    "state": "blocked",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-004"
+    ],
+    "artifacts": [
+      "docs/cards/MB-022-fix-motherbrain-gateway-persistence.md",
+      "docs/motherbrain/gateway-persistence-diagnosis-runbook-2026-04-03.md",
+      "docs/motherbrain/gateway-persistence-findings-2026-04-03.md",
+      "scripts/collect-mb-022-persistence-diagnostics.sh",
+      "PROOF_MB_022.md"
+    ],
+    "notes": [
+      "Repo-side proof is current and honest: diagnostics helper, runbook, findings note, and PROOF_MB_022 exist on this tree.",
+      "Still blocked on operator-approved Motherbrain reload/restart verification to prove the loaded launchd environment matches the plist on disk and survives lifecycle events."
+    ]
+  },
+  {
+    "id": "MB-024",
+    "title": "Prove Motherbrain local coder reliability",
+    "state": "blocked",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-004",
+      "MB-022"
+    ],
+    "artifacts": [
+      "docs/cards/MB-024-prove-local-coder-reliability.md"
+    ],
+    "notes": [
+      "Historical card evidence says the live openclaw local-coder proof hung and did not produce validated artifacts.",
+      "Current checkout is missing the older bootstrap/evidence docs cited by the card, so this remains explicitly blocked instead of being quietly treated as done."
+    ]
+  },
+  {
+    "id": "MB-025",
+    "title": "Repair live model-mediated local coding path",
+    "state": "blocked",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-024"
+    ],
+    "artifacts": [
+      "docs/cards/MB-025-repair-live-local-coding-path.md"
+    ],
+    "notes": [
+      "The direct Ollama + executor harness became the practical workaround, but the native openclaw --local coding path is still not proved healthy on the current tree.",
+      "Keeping this blocked prevents downstream work from pretending the original trust test already passed."
+    ]
+  },
+  {
+    "id": "MB-026",
+    "title": "Build file-backed Motherbrain agent pipeline",
+    "state": "blocked",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-025"
+    ],
+    "artifacts": [
+      "docs/cards/MB-026-build-file-backed-agent-pipeline.md"
+    ],
+    "notes": [
+      "The repo contains later manager/runtime artifacts that imply pipeline evolution, but the specific card-cited design doc and runner files are absent on the current branch.",
+      "Reconciled as blocked on current-tree artifact drift so future passes either restore the missing design/runner files or update the card to point at the replacement implementation honestly."
+    ]
   }
 ]

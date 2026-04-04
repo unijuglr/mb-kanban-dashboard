@@ -56,3 +56,9 @@
 - Re-ran `python3 scripts/prove-mb-092.py`, `python3 scripts/qa_agilitas_pipeline.py`, `python3 scripts/test_agilitas_redaction.py`, and `python3 scripts/test_agilitas_ingestor.py`; all passed on the current tree.
 - Refreshed `docs/agilitas/mb-092-batch-report.json` with current proof output and added durable proof/state notes so MB-092 no longer depends on an implied or missing proof doc.
 - Left DTS excluded and did not sweep unrelated `artifacts/mb-022/*` diagnostics into the Agilitas tranche.
+
+## 🌙 Overnight Swarm Notes (2026-04-04 12:27 PT cron pass)
+- Audited `mb_tasks.json`, ready cards, and branch state again; there was still no clean non-DTS implementation tranche left that could be completed honestly without host/runtime access.
+- Reconciled five omitted host-path tasks back into `mb_tasks.json`: MB-004, MB-022, MB-024, MB-025, and MB-026.
+- Marked those tasks `blocked` instead of `ready` where the current tree only supports diagnosis/runbook evidence or where cited artifacts are missing, so the backlog now reflects actual prerequisites instead of implying easy executable work.
+- Kept the work on dedicated branch `feat/mb-taskstate-reconcile-host-paths`, left DTS untouched, and did not pull unrelated `artifacts/mb-022/*` local diagnostics into the commit.
