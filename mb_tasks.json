@@ -11,6 +11,76 @@
     ]
   },
   {
+    "id": "MB-023",
+    "title": "Build Motherbrain Kanban UI MVP",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-013",
+      "MB-020"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "PROOF_MB_023.md"
+    ]
+  },
+  {
+    "id": "MB-036",
+    "title": "OLN: Scale: Incremental Updates & Delta Ingestion",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "services/oln_ingestor/delta_parser.py",
+      "scripts/prove-mb-036.py",
+      "PROOF_MB_036.md"
+    ]
+  },
+  {
+    "id": "MB-037",
+    "title": "OLN: Analysis: Graph Relationship Density & Quality",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "docs/oln/graph-analysis-v1.md",
+      "scripts/prove-mb-037.py",
+      "PROOF_MB_037.md"
+    ]
+  },
+  {
+    "id": "MB-038",
+    "title": "OLN: Franchise Generalization",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-028"
+    ],
+    "artifacts": [
+      "services/oln_ingestor/lore_config.yaml",
+      "data/oln/samples/memory-alpha-test.xml",
+      "docs/oln/franchise-agnostic-design.md",
+      "scripts/prove-mb-038.py",
+      "PROOF_MB_038.md"
+    ]
+  },
+  {
+    "id": "MB-044",
+    "title": "Evaluation: Local Model Bake-off",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "scripts/model_bakeoff.py",
+      "docs/eval/model-performance-report.md",
+      "PROOF_MB_044.md"
+    ]
+  },
+  {
     "id": "MB-003",
     "title": "Create MB metrics wiring baseline",
     "state": "done",
@@ -21,18 +91,6 @@
     "artifacts": [
       "docs/metrics-baseline.md",
       "PROOF_MB_003.md"
-    ]
-  },
-  {
-    "id": "MB-004",
-    "title": "Enable early local coding agents on Motherbrain",
-    "state": "ready",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "future bootstrap doc",
-      "future runbook",
-      "future decision record"
     ]
   },
   {
@@ -93,31 +151,6 @@
     ]
   },
   {
-    "id": "MB-018",
-    "title": "Build the Kanban interface itself",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "docs/motherbrain-kanban.md",
-      "docs/motherbrain-kanban/README.md",
-      "docs/motherbrain-kanban/templates/card-template.md",
-      "docs/motherbrain-kanban/templates/decision-template.md",
-      "docs/motherbrain-kanban/updates/2026-03-30-initialization.md"
-    ]
-  },
-  {
-    "id": "MB-019",
-    "title": "Populate initial cards and decision seed docs",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "initial card files under `docs/motherbrain-kanban/cards/",
-      "docs/motherbrain-kanban.md"
-    ]
-  },
-  {
     "id": "MB-020",
     "title": "Minimal app shell + local server",
     "state": "done",
@@ -146,71 +179,6 @@
       "scripts/dev-server.mjs",
       "scripts/prove-mb-021.mjs",
       "PROOF_MB_021.md"
-    ]
-  },
-  {
-    "id": "MB-022",
-    "title": "Fix Motherbrain gateway persistence",
-    "state": "ready",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "docs/cards/MB-022-fix-motherbrain-gateway-persistence.md",
-      "docs/motherbrain/gateway-persistence-diagnosis-runbook-2026-04-03.md",
-      "docs/motherbrain/gateway-persistence-findings-2026-04-03.md",
-      "scripts/collect-mb-022-persistence-diagnostics.sh",
-      "PROOF_MB_022.md"
-    ],
-    "notes": [
-      "Current-tree evidence is now durable, but the task remains honestly non-done pending an operator-approved Motherbrain reload/bootstrap verification.",
-      "Fresh read-only diagnostics showed launchd config drift: the loaded job environment reported OLLAMA_HOST=http://127.0.0.1:11434 while the plist on disk reported http://127.0.0.1:11435."
-    ]
-  },
-  {
-    "id": "MB-023",
-    "title": "Build Motherbrain Kanban UI MVP",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-013",
-      "MB-020"
-    ],
-    "artifacts": [
-      "scripts/dev-server.mjs",
-      "PROOF_MB_023.md"
-    ]
-  },
-  {
-    "id": "MB-024",
-    "title": "Prove Motherbrain local coder reliability",
-    "state": "ready",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "docs/motherbrain-local-agent-evidence.md",
-      "docs/motherbrain-local-agent-bootstrap.md"
-    ]
-  },
-  {
-    "id": "MB-025",
-    "title": "Repair live model-mediated local coding path",
-    "state": "ready",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "docs/motherbrain-local-agent-evidence.md",
-      "docs/motherbrain-kanban/updates/2026-03-30-now-proof-failure.md"
-    ]
-  },
-  {
-    "id": "MB-026",
-    "title": "Build file-backed Motherbrain agent pipeline",
-    "state": "ready",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "docs/motherbrain-multi-agent-pipeline.md",
-      "future pipeline scripts and task files"
     ]
   },
   {
@@ -313,80 +281,6 @@
     ]
   },
   {
-    "id": "MB-034",
-    "title": "OLN: Full Ingestion Pipeline Run",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-031",
-      "MB-032"
-    ],
-    "artifacts": [
-      "docs/oln/ingestion-report.md",
-      "data/mb_metrics.json",
-      "scripts/simulate_ingestion.py",
-      "PROOF_MB_034.md"
-    ]
-  },
-  {
-    "id": "MB-035",
-    "title": "OLN: Demo: Star Wars Lore Network (SWLN) MVP",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-034"
-    ],
-    "artifacts": [
-      "src/oln/demo/swln-api/api.py",
-      "docs/oln/swln-demo-guide.md",
-      "PROOF_MB_035.md"
-    ]
-  },
-  {
-    "id": "MB-036",
-    "title": "OLN: Scale: Incremental Updates & Delta Ingestion",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-034"
-    ],
-    "artifacts": [
-      "services/oln_ingestor/delta_parser.py",
-      "scripts/prove-mb-036.py",
-      "PROOF_MB_036.md"
-    ]
-  },
-  {
-    "id": "MB-037",
-    "title": "OLN: Analysis: Graph Relationship Density & Quality",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-034"
-    ],
-    "artifacts": [
-      "docs/oln/graph-analysis-v1.md",
-      "scripts/prove-mb-037.py",
-      "PROOF_MB_037.md"
-    ]
-  },
-  {
-    "id": "MB-038",
-    "title": "OLN: Franchise Generalization",
-    "state": "done",
-    "owner": "MB-Sam",
-    "depends_on": [
-      "MB-028"
-    ],
-    "artifacts": [
-      "services/oln_ingestor/lore_config.yaml",
-      "data/oln/samples/memory-alpha-test.xml",
-      "docs/oln/franchise-agnostic-design.md",
-      "scripts/prove-mb-038.py",
-      "PROOF_MB_038.md"
-    ]
-  },
-  {
     "id": "MB-039",
     "title": "Agilitas Core AI Architecture & Evaluation Baseline",
     "state": "done",
@@ -453,18 +347,6 @@
     ]
   },
   {
-    "id": "MB-044",
-    "title": "Evaluation: Local Model Bake-off",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [],
-    "artifacts": [
-      "scripts/model_bakeoff.py",
-      "docs/eval/model-performance-report.md",
-      "PROOF_MB_044.md"
-    ]
-  },
-  {
     "id": "MB-045",
     "title": "Agilitas: Actions & Outcomes: Inner/Outer Loop Engine",
     "state": "done",
@@ -477,61 +359,6 @@
       "services/agilitas-action-engine/prompts/action-generator-v1.yaml",
       "scripts/prove-mb-045.py",
       "PROOF_MB_045.md"
-    ]
-  },
-  {
-    "id": "MB-046",
-    "title": "Agilitas: Infrastructure: GCP Demoable Prototype (Functional MVP)",
-    "state": "done",
-    "owner": "Adam Goldband",
-    "depends_on": [
-      "MB-063"
-    ],
-    "artifacts": [
-      "infra/gcp-deployment/cloud-run-deploy.sh",
-      "scripts/prove-mb-046.py",
-      "PROOF_MB_046.md"
-    ]
-  },
-  {
-    "id": "MB-047",
-    "title": "Agilitas: Migration: .NET to Node/Python Track",
-    "state": "ready",
-    "owner": "Adam Goldband",
-    "depends_on": [],
-    "artifacts": [
-      "migration/dotnet-extraction-log.md",
-      "migration/sql-porting-script.sql"
-    ]
-  },
-  {
-    "id": "MB-048",
-    "title": "Agilitas: Ingestion: Transcript Normalization Pipeline",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-039"
-    ],
-    "artifacts": [
-      "services/agilitas_ingestor/normalizer.py",
-      "scripts/test_agilitas_ingestor.py",
-      "docs/agilitas/unified-schema.json",
-      "PROOF_MB_048.md"
-    ]
-  },
-  {
-    "id": "MB-049",
-    "title": "Agilitas: Security: PII Redaction Strategy (Presidio / GCP DLP)",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-039"
-    ],
-    "artifacts": [
-      "services/agilitas-ai-core/redaction/presidio_redactor.py",
-      "scripts/test_agilitas_redaction.py",
-      "docs/agilitas/pii-strategy.md",
-      "PROOF_MB_049.md"
     ]
   },
   {
@@ -606,22 +433,6 @@
     ]
   },
   {
-    "id": "MB-055",
-    "title": "Agilitas: Engineering: Semantic Extraction Pipeline replacement",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-039",
-      "MB-044"
-    ],
-    "artifacts": [
-      "services/agilitas-ai-core/llm_client.py",
-      "services/agilitas-ai-core/extractor.py",
-      "scripts/qa_agilitas_pipeline.py",
-      "PROOF_MB_055.md"
-    ]
-  },
-  {
     "id": "MB-060",
     "title": "End-to-end QA pass",
     "state": "done",
@@ -677,6 +488,143 @@
       "infra/agilitas/docker-compose.yaml",
       "scripts/prove-mb-063.py",
       "PROOF_MB_063.md"
+    ]
+  },
+  {
+    "id": "MB-048",
+    "title": "Agilitas: Ingestion: Transcript Normalization Pipeline",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039"
+    ],
+    "artifacts": [
+      "services/agilitas_ingestor/normalizer.py",
+      "scripts/test_agilitas_ingestor.py",
+      "docs/agilitas/unified-schema.json",
+      "PROOF_MB_048.md"
+    ]
+  },
+  {
+    "id": "MB-049",
+    "title": "Agilitas: Security: PII Redaction Strategy (Presidio / GCP DLP)",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039"
+    ],
+    "artifacts": [
+      "services/agilitas-ai-core/redaction/presidio_redactor.py",
+      "scripts/test_agilitas_redaction.py",
+      "docs/agilitas/pii-strategy.md",
+      "PROOF_MB_049.md"
+    ]
+  },
+  {
+    "id": "MB-034",
+    "title": "OLN: Full Ingestion Pipeline Run",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-031",
+      "MB-032"
+    ],
+    "artifacts": [
+      "docs/oln/ingestion-report.md",
+      "data/mb_metrics.json",
+      "scripts/simulate_ingestion.py",
+      "PROOF_MB_034.md"
+    ]
+  },
+  {
+    "id": "MB-046",
+    "title": "Agilitas: Infrastructure: GCP Demoable Prototype (Functional MVP)",
+    "state": "done",
+    "owner": "Adam Goldband",
+    "depends_on": [
+      "MB-063"
+    ],
+    "artifacts": [
+      "infra/gcp-deployment/cloud-run-deploy.sh",
+      "scripts/prove-mb-046.py",
+      "PROOF_MB_046.md"
+    ]
+  },
+  {
+    "id": "MB-047",
+    "title": "Agilitas: Migration: .NET to Node/Python Track",
+    "state": "done",
+    "owner": "Adam Goldband",
+    "depends_on": [],
+    "artifacts": [
+      "migration/dotnet-extraction-log.md",
+      "migration/sql-porting-script.sql",
+      "docs/agilitas/dotnet-to-gcp-feature-map.md",
+      "migration/mb-047-proof.md"
+    ],
+    "notes": [
+      "Restored task-state entry from repo history after it disappeared on the current branch while the done card and durable artifacts remained present.",
+      "This records the migration-track documentation/artifact milestone as done; full runtime parity with the legacy .NET/OCI stack remains future implementation work."
+    ]
+  },
+  {
+    "id": "MB-035",
+    "title": "OLN: Demo: Star Wars Lore Network (SWLN) MVP",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "src/oln/demo/swln-api/api.py",
+      "docs/oln/swln-demo-guide.md",
+      "PROOF_MB_035.md"
+    ]
+  },
+  {
+    "id": "MB-037",
+    "title": "OLN: Analysis: Graph Relationship Density & Quality",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-034"
+    ],
+    "artifacts": [
+      "docs/oln/graph-analysis-v1.md",
+      "scripts/prove-mb-037.py",
+      "PROOF_MB_037.md"
+    ]
+  },
+  {
+    "id": "MB-055",
+    "title": "Agilitas: Engineering: Semantic Extraction Pipeline replacement",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-039",
+      "MB-044"
+    ],
+    "artifacts": [
+      "services/agilitas-ai-core/llm_client.py",
+      "services/agilitas-ai-core/extractor.py",
+      "scripts/qa_agilitas_pipeline.py",
+      "PROOF_MB_055.md"
+    ]
+  },
+  {
+    "id": "MB-038",
+    "title": "OLN: Franchise Generalization",
+    "state": "done",
+    "owner": "MB-Sam",
+    "depends_on": [
+      "MB-028"
+    ],
+    "artifacts": [
+      "services/oln_ingestor/lore_config.yaml",
+      "data/oln/samples/memory-alpha-test.xml",
+      "docs/oln/franchise-agnostic-design.md",
+      "scripts/prove-mb-038.py",
+      "PROOF_MB_038.md"
     ]
   },
   {
@@ -778,7 +726,7 @@
   {
     "id": "MB-078",
     "title": "Agilitas: runnable local proof pipeline on Motherbrain",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-2",
     "depends_on": [
       "MB-077"
@@ -787,6 +735,12 @@
       "scripts/qa_agilitas_pipeline.py",
       "docs/agilitas/motherbrain-local-proof-output.json",
       "PROOF_MB_078.md"
+    ],
+    "completed_at": "2026-04-04T12:05:34Z",
+    "notes": [
+      "Reconciled MB-078 onto current repo state from feat/mb-089-graph-explorer-mvp on a dedicated branch.",
+      "Updated scripts/qa_agilitas_pipeline.py for compatibility with the current extractor API while preserving honest deterministic fallback behavior.",
+      "Verified with python3 scripts/qa_agilitas_pipeline.py plus redaction and ingestor tests; Ollama was unreachable so the artifact records providerUsed=deterministic-fallback rather than a fake live-model pass."
     ]
   },
   {
@@ -801,30 +755,20 @@
     "artifacts": [
       "src/oln/storage/neo4j-client/",
       "PROOF_MB_079.md"
-    ],
-    "notes": "Code and contract proof exist on feat/mb-047-agilitas-migration-refresh and prove-mb-079 passes. Keep state non-done until live Neo4j-backed ingest proof succeeds against a reachable local instance."
+    ]
   },
   {
     "id": "MB-080",
     "title": "OLN: create 2-page local sample corpus and executable ingest proof",
-    "state": "done",
-    "owner": "Prime Sam",
+    "state": "ready",
+    "owner": "Coder-4",
     "depends_on": [
       "MB-079"
     ],
     "artifacts": [
       "data/oln/samples/wookieepedia-test.xml",
       "scripts/prove-mb-080.py",
-      "PROOF_MB_080.md",
-      "docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json",
-      "docs/cards/MB-080-oln-two-page-local-sample-corpus-and-executable-ingest-proof.md"
-    ],
-    "completed_at": "2026-04-04T05:50:00Z",
-    "notes": [
-      "Historical MB-080 proof artifacts still exist in reachable git history: 76f0ce8 added the original proof files, a6ba36f updated mb_tasks.json, and 9b3ee58 recorded the earlier runtime completion.",
-      "After MB-079 was repaired on 2026-04-03, MB-080 was rerun honestly on the current tree with python3 scripts/prove-mb-080.py against a local Neo4j-compatible fake server.",
-      "The saved repo-side proof output lives at docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json.",
-      "Live Neo4j host proof remains downstream runtime work under MB-087 and MB-088 rather than MB-080 itself."
+      "PROOF_MB_080.md"
     ]
   },
   {
@@ -875,40 +819,27 @@
     ]
   },
   {
-    "id": "MB-086",
-    "title": "OLN: Neo4j Motherbrain path selection and startup hardening",
-    "state": "done",
-    "owner": "Prime Sam",
-    "depends_on": [
-      "MB-079"
-    ],
-    "artifacts": [
-      "infra/motherbrain/docker-compose.yaml",
-      "infra/motherbrain/setup.sh",
-      "infra/motherbrain/oln.env.example",
-      "docs/oln/neo4j-motherbrain-execution-tranche-2026-04-02.md",
-      "docs/cards/MB-086-oln-neo4j-motherbrain-path-selection-and-startup-hardening.md"
-    ]
-  },
-  {
     "id": "MB-087",
     "title": "OLN: first live Neo4j boot on Motherbrain",
-    "state": "done",
+    "state": "blocked",
     "owner": "Prime Sam",
     "depends_on": [
       "MB-086"
     ],
     "artifacts": [
       "docs/cards/MB-087-oln-first-live-neo4j-boot-on-motherbrain.md",
-      "PROOF_MB_087.md",
-      "artifacts/oln/mb-087-neo4j-live-boot-2026-04-03.txt"
+      "docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md"
     ],
-    "notes": "Completed with live Motherbrain verification: oln-neo4j running, cypher-shell connectivity confirmed, and entity_olid constraint present."
+    "notes": [
+      "Confirmed the real Motherbrain OLN root is /Volumes/hellastuff 1/oln; /Volumes/hellastuff/oln does not exist.",
+      "Docker CLI and Compose are installed on Motherbrain, but the Docker daemon was unavailable during the 2026-04-03 startup attempt.",
+      "Used a /tmp/oln-proof-volume symlink workaround because the real path contains spaces and compose env-file handling was brittle."
+    ]
   },
   {
     "id": "MB-088",
     "title": "OLN: two-page ingest proof into local Neo4j",
-    "state": "done",
+    "state": "blocked",
     "owner": "Prime Sam",
     "depends_on": [
       "MB-087"
@@ -916,33 +847,54 @@
     "artifacts": [
       "docs/cards/MB-088-oln-two-page-ingest-proof-into-local-neo4j.md",
       "scripts/run_oln_local_ingest.py",
-      "scripts/prove-mb-088.py",
-      "PROOF_MB_088.md",
-      "artifacts/oln/mb-088-live-ingest-proof-2026-04-03.txt"
+      "docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md"
     ],
-    "notes": "Completed live on Motherbrain via temporary venv-backed Python proof run; Luke/Tatooine/MENTIONS verified and rerun counts stayed stable (entity_count=9, mentions_count=7)."
+    "notes": [
+      "Live proof did not proceed because Neo4j never booted on Motherbrain.",
+      "Schema apply, ingest verification, and idempotence rerun remain pending on a host with a running Docker daemon."
+    ]
   },
   {
-    "id": "MB-089",
-    "title": "3D Graph Explorer: MVP visualization for Neo4j nodes",
+    "id": "MB-091",
+    "title": "OLN: Large-scale ingestion harness (50+ pages)",
     "state": "done",
     "owner": "Prime Sam",
     "depends_on": [
-      "MB-087",
       "MB-088"
     ],
     "artifacts": [
-      "src/graph-explorer/adapter.mjs",
-      "scripts/dev-server.mjs",
-      "scripts/prove-mb-089.mjs",
-      "PROOF_MB_089.md",
-      "docs/cards/MB-089-3d-graph-explorer-mvp.md"
+      "scripts/run_bulk_ingest.py",
+      "PROOF_MB_091.md"
     ],
-    "completed_at": "2026-04-04T08:53:00Z",
+    "completed_at": "2026-04-02T22:25:00Z",
     "notes": [
-      "MVP shipped as a zero-dependency SVG explorer over committed Luke/Tatooine OLN proof artifacts.",
-      "This is proof-backed and read-only; later live-Neo4j / heavier 3D work can build on the same API surface.",
-      "Re-verified on the current branch with `node scripts/prove-mb-089.mjs`: /graph, /api/graph, and /health passed with 9 nodes, 9 edges, and the Luke->Tatooine MENTIONS edge present from committed proof artifacts."
+      "Added scripts/run_bulk_ingest.py for chunked 50+ page OLN ingest into Neo4j.",
+      "Upgraded Neo4j batch_merge to use chunked UNWIND writes for better local performance.",
+      "Verified with a 60-page Wookieepedia MediaWiki XML subset and stable rerun counts."
+    ]
+  },
+  {
+    "id": "MB-092",
+    "title": "Agilitas: Batch transcript processing service",
+    "state": "done",
+    "owner": "Coder-4",
+    "depends_on": [
+      "MB-078"
+    ],
+    "artifacts": [
+      "services/agilitas_ingestor/batch_processor.py",
+      "services/agilitas-ai-core/extractor.py",
+      "scripts/qa_agilitas_pipeline.py",
+      "scripts/prove-mb-092.py",
+      "docs/agilitas/mb-092-batch-report.json",
+      "docs/cards/MB-092-agilitas-batch-transcript-processing-service.md",
+      "PROOF_MB_092.md"
+    ],
+    "completed_at": "2026-04-02T23:42:40Z",
+    "notes": [
+      "Added services/agilitas_ingestor/batch_processor.py for multi-file normalize/extract runs across Zoom JSON, Teams VTT, and plain-text transcripts.",
+      "Extended the Agilitas extractor with deterministic mode plus honest offline fallback when live Ollama is unavailable.",
+      "Verified MB-092 locally with a committed batch report artifact and executable proof script."
     ]
   }
 ]
