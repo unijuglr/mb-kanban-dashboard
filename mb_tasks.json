@@ -162,13 +162,15 @@
     ],
     "artifacts": [
       "docs/cards/MB-022-fix-motherbrain-gateway-persistence.md",
+      "docs/motherbrain/gateway-persistence-findings-2026-04-03.md",
       "docs/motherbrain/gateway-persistence-diagnosis-runbook-2026-04-03.md",
       "scripts/collect-mb-022-persistence-diagnostics.sh",
       "PROOF_MB_022.md"
     ],
     "notes": [
       "2026-04-03 repo-side hardening pass added a current-tree diagnosis runbook and a read-only diagnostics helper so the next Motherbrain operator pass can classify launchd/bootstrap error 125 with evidence instead of guesswork.",
-      "State remains ready because no honest host-runtime proof exists yet: the failing plist, actual launchctl stderr, and post-restart persistence verification still need to be captured on Motherbrain."
+      "State remains ready because no honest host-runtime proof exists yet: the failing plist, actual launchctl stderr, and post-restart persistence verification still need to be captured on Motherbrain.",
+      "2026-04-03 fresh read-only host diagnostics confirmed the LaunchAgent is loaded and running, but the imported launchd job still shows OLLAMA_HOST=http://127.0.0.1:11434 while the plist on disk shows http://127.0.0.1:11435; this narrows MB-022 to stale launchd/import drift pending an operator-approved reload/restart verification."
     ]
   },
   {

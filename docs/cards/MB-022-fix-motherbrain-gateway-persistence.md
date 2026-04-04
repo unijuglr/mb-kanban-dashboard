@@ -35,13 +35,17 @@ The gateway runtime itself works, but service persistence currently fails, which
 - Historical repo evidence also says the LaunchAgent-managed path was broken/unreachable.
 - This checkout previously lacked the card-cited bootstrap artifact `docs/motherbrain-local-agent-bootstrap.md`, so old references were not enough to count as current-tree proof.
 - A new current-tree diagnosis runbook and safe diagnostics helper now exist, but they do **not** prove the host fix yet.
+- Fresh read-only diagnostics on the current host confirmed the LaunchAgent is loaded and running, but the loaded `launchctl` environment still shows `OLLAMA_HOST=http://127.0.0.1:11434` while the plist on disk shows `http://127.0.0.1:11435`.
+- That mismatch points to stale imported launchd state or reload/bootstrap drift, not just a missing plist file.
 
 ## Blockers
 - Need an actual Motherbrain runtime pass to collect the failing plist, `launchctl bootstrap` stderr, and related unified-log evidence.
+- Need one operator-approved reload/restart verification to prove whether the loaded job can be made to match the plist on disk and stay healthy across session lifecycle events.
 
 ## Artifacts
 - `docs/cards/MB-022-fix-motherbrain-gateway-persistence.md`
 - `docs/motherbrain/gateway-persistence-diagnosis-runbook-2026-04-03.md`
+- `docs/motherbrain/gateway-persistence-findings-2026-04-03.md`
 - `scripts/collect-mb-022-persistence-diagnostics.sh`
 - `PROOF_MB_022.md`
 - `docs/updates/2026-03-30-agent-enablement.md`
@@ -49,3 +53,4 @@ The gateway runtime itself works, but service persistence currently fails, which
 ## Update Log
 - 2026-03-30 — Card created after confirming manual gateway startup works but LaunchAgent startup does not.
 - 2026-04-03 — Added a current-tree runbook, safe diagnostics helper, and honest proof boundary so MB-022 is executable tonight without faking host-runtime completion.
+- 2026-04-03 — Captured a fresh read-only host diagnostics summary and narrowed the failure class to launchd/plist config drift (`11434` loaded vs `11435` on disk) plus shell-path ergonomics issues; task remains open pending an operator-approved reload/restart verification.

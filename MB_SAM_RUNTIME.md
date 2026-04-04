@@ -54,6 +54,13 @@
 - **Real Failure Captured:** The same proof seeded `mb-026-safe-proof-task-failure`, which intentionally required a missing file and landed in `motherbrain-pipeline/failed/` with durable `failure_tag: missing_outputs` evidence.
 - **Durable Truth Updated:** Added `PROOF_MB_026.md`, updated card/task state to done, and kept the limitation explicit: devops/integration is still out of scope and the model-backed MB-025 lane remains a separate repair track.
 
+## 📊 Quick Status (2026-04-03 7:35 PM MB-022 host-diagnostics pass)
+- **MB-022 Fresh Host Evidence:** Re-ran the read-only persistence diagnostics helper and preserved a new local bundle under `artifacts/mb-022/recheck/`.
+- **Config Drift Narrowed:** The on-disk LaunchAgent plist advertises `OLLAMA_HOST=http://127.0.0.1:11435`, but `launchctl print gui/$(id -u)/ai.openclaw.gateway` still reports the loaded job environment as `http://127.0.0.1:11434`.
+- **Interpretation:** This looks more like stale imported launchd state / reload drift than a missing plist or a dead service; the job is currently loaded and running.
+- **Artifact Hygiene Improved:** Hardened `scripts/collect-mb-022-persistence-diagnostics.sh` so plist/launchctl captures redact API-key fields before review, and so port checks fall back to `/usr/sbin/lsof` when plain shell PATH is thin.
+- **Truthful Boundary:** MB-022 remains open because no operator-approved bootout/bootstrap or reboot/relogin verification was performed in this pass.
+
 ## 📝 Developer Notes
 - LLM response parsing handles markdown code blocks vs raw JSON.
 - Deterministic extraction mode preserves the 7-dimension contract when a live provider is unavailable.

@@ -25,3 +25,4 @@ mb_metrics.db-journal
 logs/
 temp/
 *.tmp
+artifacts/mb-022/

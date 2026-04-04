@@ -25,6 +25,31 @@ run_capture() {
   } >"$OUTPUT_DIR/$name" 2>&1 || true
 }
 
+sanitize_capture() {
+  local file="$1"
+  [[ -f "$file" ]] || return 0
+
+  python3 - "$file" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(errors='ignore')
+patterns = [
+    r'(OPENAI_API_KEY"?\s*=>\s*")([^"]+)(")',
+    r'(OPENAI_API_KEY\s*=>\s*)([^\s\n]+)',
+    r'(OPENAI_API_KEY=)([^\s\n]+)',
+    r'(OLLAMA_API_KEY"?\s*=>\s*")([^"]+)(")',
+    r'(OLLAMA_API_KEY\s*=>\s*)([^\s\n]+)',
+    r'(OLLAMA_API_KEY=)([^\s\n]+)',
+]
+for pattern in patterns:
+    text = re.sub(pattern, lambda m: f"{m.group(1)}[REDACTED]{m.group(3) if m.lastindex and m.lastindex >= 3 else ''}", text)
+path.write_text(text)
+PY
+}
+
 LABEL_GUESS_FILE="$OUTPUT_DIR/label-guess.txt"
 PLIST_GUESS_FILE="$OUTPUT_DIR/plist-candidates.txt"
 
@@ -38,7 +63,7 @@ run_capture pwd.txt pwd
 run_capture env-path.txt /bin/sh -c 'printf "%s\n" "$PATH"'
 run_capture openclaw-which.txt /bin/sh -c 'command -v openclaw || which openclaw || true'
 run_capture openclaw-status.txt /bin/sh -c 'openclaw gateway status || true'
-run_capture ports.txt /bin/sh -c 'lsof -nP -iTCP:18789 -sTCP:LISTEN || true'
+run_capture ports.txt /bin/sh -c 'command -v lsof >/dev/null 2>&1 && lsof -nP -iTCP:18789 -sTCP:LISTEN || /usr/sbin/lsof -nP -iTCP:18789 -sTCP:LISTEN || true'
 run_capture processes.txt /bin/sh -c 'pgrep -fal "openclaw.*gateway|gateway.*openclaw" || true'
 run_capture launchagents-user.txt /bin/sh -c 'ls -la ~/Library/LaunchAgents || true'
 run_capture launchagents-system.txt /bin/sh -c 'ls -la /Library/LaunchAgents || true'
@@ -55,12 +80,14 @@ if [[ -s "$PLIST_GUESS_FILE" ]]; then
     base="$(basename "$plist")"
     run_capture "plutil-lint-$base.txt" plutil -lint "$plist"
     run_capture "plutil-print-$base.txt" plutil -p "$plist"
+    sanitize_capture "$OUTPUT_DIR/plutil-print-$base.txt"
     run_capture "stat-$base.txt" stat -f '%N %Su:%Sg %Sp' "$plist"
 
     label="$(/usr/libexec/PlistBuddy -c 'Print :Label' "$plist" 2>/dev/null || true)"
     if [[ -n "$label" ]]; then
       printf '%s\n' "$plist :: $label" >> "$LABEL_GUESS_FILE"
       run_capture "launchctl-print-label-${base}.txt" /bin/sh -c "launchctl print gui/$(id -u)/$label || true"
+      sanitize_capture "$OUTPUT_DIR/launchctl-print-label-${base}.txt"
     fi
   done < "$PLIST_GUESS_FILE"
 fi
