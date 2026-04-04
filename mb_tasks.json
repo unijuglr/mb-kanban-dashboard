@@ -33,6 +33,11 @@
     ],
     "artifacts": [
       "docs/cards/MB-004-enable-local-coding-agents.md"
+    ],
+    "notes": [
+      "Manual foreground gateway startup is still historically evidenced in current-tree updates, so MB-004 is not blocked on proving the runtime can ever work.",
+      "MB-022 remains the active persistence blocker: fresh diagnostics show the loaded launchd job still disagrees with the plist on disk about OLLAMA_HOST, and no operator-approved reload/restart proof exists yet.",
+      "MB-024 and MB-025 remain the active reliability blockers: the freshest bounded local proof run produced zero outputs and narrowed the failure to shell PATH drift plus unreachable/unregistered Ollama local-provider wiring."
     ]
   },
   {
