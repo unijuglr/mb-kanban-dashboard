@@ -44,3 +44,9 @@
 - Re-ran `python3 scripts/prove-mb-079.py` and `python3 scripts/prove-mb-080.py`; both passed on the current branch, confirming the repo-side Neo4j write-path and two-page ingest contract are still executable.
 - Reconciled stale task drift in `mb_tasks.json`: MB-079 is now marked done with current-tree QA notes, and MB-087/MB-088 now match the already-committed live Motherbrain proof artifacts instead of still reading as blocked.
 - Left unrelated untracked `artifacts/mb-022/*` diagnostics alone rather than sweeping them into this OLN tranche.
+
+## 🌙 Overnight Swarm Notes (2026-04-04 09:10 PT cron pass)
+- Audited `mb_tasks.json`, cards, and branch state for non-DTS executable work; all currently actionable implementation tasks were already landed, so I chose backlog-shaping/state-integrity work instead of inventing churn.
+- Verified MB-086 already has durable proof-backed artifacts in-tree: the done card, `infra/motherbrain/docker-compose.yaml`, `infra/motherbrain/setup.sh`, `infra/motherbrain/oln.env.example`, and the execution-tranche doc that unblocked the later live-host proof.
+- Reconciled the missing MB-086 entry back into `mb_tasks.json` so task state now matches the repo evidence and the downstream MB-087/MB-088 lineage reads truthfully.
+- Kept DTS excluded and left unrelated untracked `artifacts/mb-022/*` diagnostics untouched.

@@ -832,6 +832,27 @@
     ]
   },
   {
+    "id": "MB-086",
+    "title": "OLN: Neo4j Motherbrain path selection and startup hardening",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-075"
+    ],
+    "artifacts": [
+      "infra/motherbrain/docker-compose.yaml",
+      "infra/motherbrain/setup.sh",
+      "infra/motherbrain/oln.env.example",
+      "docs/oln/neo4j-motherbrain-execution-tranche-2026-04-02.md",
+      "docs/cards/MB-086-oln-neo4j-motherbrain-path-selection-and-startup-hardening.md"
+    ],
+    "completed_at": "2026-04-02T12:10:00-07:00",
+    "notes": [
+      "Reconciled missing durable task-state entry on 2026-04-04 after verifying the repo already contains the MB-086 card plus all listed startup-hardening artifacts.",
+      "This tranche is repo-side only and honestly unblocks the live-host proof work later captured by MB-087 and MB-088."
+    ]
+  },
+  {
     "id": "MB-087",
     "title": "OLN: first live Neo4j boot on Motherbrain",
     "state": "done",
