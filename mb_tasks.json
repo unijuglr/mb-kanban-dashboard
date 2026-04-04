@@ -746,15 +746,21 @@
   {
     "id": "MB-079",
     "title": "OLN: implement real local Neo4j write path for vertical slice",
-    "state": "ready",
+    "state": "done",
     "owner": "Coder-3",
     "depends_on": [
       "MB-072",
       "MB-075"
     ],
     "artifacts": [
-      "src/oln/storage/neo4j-client/",
+      "src/oln/storage/neo4j_client/",
+      "scripts/run_oln_local_ingest.py",
+      "scripts/prove-mb-079.py",
       "PROOF_MB_079.md"
+    ],
+    "notes": [
+      "Repo-side QA re-run on 2026-04-04: `python3 scripts/prove-mb-079.py` passed on the current tree.",
+      "MB-079 delivers the honest real write path and bounded ingest entrypoint; live-host proof is downstream MB-087/MB-088."
     ]
   },
   {
@@ -828,25 +834,26 @@
   {
     "id": "MB-087",
     "title": "OLN: first live Neo4j boot on Motherbrain",
-    "state": "blocked",
+    "state": "done",
     "owner": "Prime Sam",
     "depends_on": [
       "MB-086"
     ],
     "artifacts": [
       "docs/cards/MB-087-oln-first-live-neo4j-boot-on-motherbrain.md",
-      "docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md"
+      "PROOF_MB_087.md",
+      "artifacts/oln/mb-087-neo4j-live-boot-2026-04-03.txt"
     ],
     "notes": [
-      "Confirmed the real Motherbrain OLN root is /Volumes/hellastuff 1/oln; /Volumes/hellastuff/oln does not exist.",
-      "Docker CLI and Compose are installed on Motherbrain, but the Docker daemon was unavailable during the 2026-04-03 startup attempt.",
-      "Used a /tmp/oln-proof-volume symlink workaround because the real path contains spaces and compose env-file handling was brittle."
+      "Confirmed Motherbrain Neo4j boot with `oln-neo4j` running and accepting `cypher-shell` queries.",
+      "Schema readiness was verified via the `entity_olid` constraint during the 2026-04-03 live proof run.",
+      "Task state reconciled on 2026-04-04 so mb_tasks.json matches the committed proof/card evidence."
     ]
   },
   {
     "id": "MB-088",
     "title": "OLN: two-page ingest proof into local Neo4j",
-    "state": "blocked",
+    "state": "done",
     "owner": "Prime Sam",
     "depends_on": [
       "MB-087"
@@ -854,11 +861,14 @@
     "artifacts": [
       "docs/cards/MB-088-oln-two-page-ingest-proof-into-local-neo4j.md",
       "scripts/run_oln_local_ingest.py",
-      "docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md"
+      "scripts/prove-mb-088.py",
+      "PROOF_MB_088.md",
+      "artifacts/oln/mb-088-live-ingest-proof-2026-04-03.txt"
     ],
     "notes": [
-      "Live proof did not proceed because Neo4j never booted on Motherbrain.",
-      "Schema apply, ingest verification, and idempotence rerun remain pending on a host with a running Docker daemon."
+      "Live Motherbrain ingest proof passed on 2026-04-03 with Luke, Tatooine, and a Luke→Tatooine MENTIONS edge verified in Neo4j.",
+      "Idempotence rerun stayed stable at entity_count=9 and mentions_count=7.",
+      "Task state reconciled on 2026-04-04 so mb_tasks.json matches the committed proof/card evidence."
     ]
   },
   {

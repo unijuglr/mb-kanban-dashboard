@@ -39,3 +39,8 @@
 - Reconciled MB-078 onto current repo state on `feat/mb-078-reconcile-local-proof`; restored the card/proof/artifact set and fixed `scripts/qa_agilitas_pipeline.py` for the current extractor API so the proof still passes honestly with `providerUsed: deterministic-fallback` when Ollama is down.
 - Re-verified MB-080 and MB-089 on the current tree before dawn: `python3 scripts/prove-mb-080.py` still passes the bounded two-page OLN ingest contract, and `node scripts/prove-mb-089.mjs` still passes the proof-backed `/graph` explorer path. Reconciled durable state so MB-080 is no longer stuck in `ready` and MB-089 is back in `mb_tasks.json` with truthful artifacts/notes.
 
+## 🌙 Overnight Swarm Notes (2026-04-04 08:06 PT pass)
+- Audited the remaining non-DTS ready queue and found no new coding tranche cleaner than OLN state reconciliation on the current tree.
+- Re-ran `python3 scripts/prove-mb-079.py` and `python3 scripts/prove-mb-080.py`; both passed on the current branch, confirming the repo-side Neo4j write-path and two-page ingest contract are still executable.
+- Reconciled stale task drift in `mb_tasks.json`: MB-079 is now marked done with current-tree QA notes, and MB-087/MB-088 now match the already-committed live Motherbrain proof artifacts instead of still reading as blocked.
+- Left unrelated untracked `artifacts/mb-022/*` diagnostics alone rather than sweeping them into this OLN tranche.
