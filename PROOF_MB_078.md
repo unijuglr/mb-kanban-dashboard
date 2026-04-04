@@ -130,6 +130,13 @@ Observed results:
 - `MB_SAM_RUNTIME.md`
 - `docs/cards/MB-078-agilitas-runnable-local-proof-pipeline-on-motherbrain.md`
 
+## 2026-04-04 overnight re-verification
+A fresh QA rerun on `feat/mb-078-agilitas-local-proof-pipeline` reconfirmed the branch is still honest and executable:
+- `python3 scripts/qa_agilitas_pipeline.py` passed and rewrote `docs/agilitas/motherbrain-local-proof-output.json`
+- `python3 scripts/test_agilitas_redaction.py` passed using `FallbackRedactor`
+- `python3 scripts/test_agilitas_ingestor.py` passed for Zoom JSON and Teams VTT normalization
+- Ollama at `127.0.0.1:11434` was still unavailable during the rerun, and the artifact again recorded `providerUsed: deterministic-fallback` plus the connection-refused warning instead of claiming a live-model pass
+
 ## Outcome
 MB-078 should be marked **done**.
 

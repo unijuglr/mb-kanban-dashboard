@@ -31,3 +31,9 @@
 - LLM response parsing handles markdown code blocks vs raw JSON.
 - Deterministic extraction mode preserves the 7-dimension contract when a live provider is unavailable.
 - Batch processor writes durable JSON report artifacts for local proof runs.
+## 🌙 Overnight Swarm Notes (2026-04-04 03:57 PT pass)
+- Audited ready non-DTS work and chose existing branch-backed MB-078 instead of opening speculative new work.
+- Re-verified `feat/mb-078-agilitas-local-proof-pipeline` in a clean temp worktree with `python3 scripts/qa_agilitas_pipeline.py`, `python3 scripts/test_agilitas_redaction.py`, and `python3 scripts/test_agilitas_ingestor.py`; all passed.
+- Confirmed the proof remains honest: fallback redaction path works, normalization tests pass, and the output artifact still records local Ollama at `127.0.0.1:11434` as unavailable rather than faking a live-model success.
+- Left MB-078 on its own pushed feature branch; no DTS work touched and no half-local implementation stranded.
+
