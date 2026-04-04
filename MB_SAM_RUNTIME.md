@@ -55,3 +55,10 @@
 - Verified Luke Skywalker, Tatooine, and a Luke→Tatooine `MENTIONS` relationship with both `cypher-shell` and `scripts/prove-mb-088.py`.
 - Reconciled durable repo state by updating `PROOF_MB_087.md`, `PROOF_MB_088.md`, both cards, raw artifact logs under `artifacts/oln/`, and restoring missing `MB-087` / `MB-088` entries to `mb_tasks.json`.
 - Follow-up remains for reproducible Motherbrain Python bootstrap (`PyYAML`) and for cleaning duplicate-title/canonicalization behavior around Tatooine, but the live bounded proof itself is now real and done.
+
+## 🌙 Overnight Swarm Notes (2026-04-04 01:53 PT pass)
+- Audited current non-DTS ready/review work on `feat/mb-089-graph-explorer-mvp` and chose the fastest honest ship path instead of opening speculative new branches.
+- Re-ran `node scripts/prove-mb-089.mjs`; `/graph`, `/api/graph`, and `/health` all passed on the current tree.
+- QA proof confirmed the read-only graph explorer serves 9 nodes, 9 edges, and the Luke Skywalker → Tatooine `MENTIONS` edge from committed OLN proof artifacts.
+- Reconciled durable task state drift by marking `MB-089` done in `mb_tasks.json` and recording the verification details so the scheduler stops treating shipped work as still pending review.
+- Left unrelated `artifacts/mb-022/` local diagnostic directories uncommitted on this branch because they belong to gateway-persistence follow-up, not the graph explorer feature branch.
