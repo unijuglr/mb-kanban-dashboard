@@ -723,15 +723,26 @@
   {
     "id": "MB-079",
     "title": "OLN: implement real local Neo4j write path for vertical slice",
-    "state": "ready",
-    "owner": "Coder-3",
+    "state": "done",
+    "owner": "Prime Sam",
     "depends_on": [
       "MB-072",
       "MB-075"
     ],
     "artifacts": [
-      "src/oln/storage/neo4j-client/",
+      "src/oln/storage/neo4j_client/client.py",
+      "src/oln/demo/swln-api/api.py",
+      "scripts/run_oln_local_ingest.py",
+      "scripts/prove-mb-079.py",
+      "docs/cards/MB-079-oln-real-local-neo4j-write-path-for-vertical-slice.md",
       "PROOF_MB_079.md"
+    ],
+    "completed_at": "2026-04-04T14:05:00Z",
+    "notes": [
+      "Reconciled MB-079 onto a clean branch from origin/main and re-verified the proof on current repo state.",
+      "python3 scripts/prove-mb-079.py passes against the current chunked UNWIND batch-merge contract.",
+      "python3 scripts/run_oln_local_ingest.py --sample data/oln/samples/wookieepedia-test.xml still fails honestly with Neo4j connection refused when 127.0.0.1:7474 is unavailable.",
+      "Live local Neo4j boot and live ingest proof remain downstream environment work under MB-087 and MB-088."
     ]
   },
   {
@@ -789,18 +800,11 @@
     ],
     "artifacts": [
       "scripts/dev-server.mjs",
-<<<<<<< HEAD
       "PROOF_MB_085.md",
       "src/decision-response-store.mjs",
       "scripts/prove-mb-085.mjs",
       "data/decision-responses.json"
-=======
-      "src/decision-models.mjs",
-      "scripts/prove-mb-090.mjs",
-      "PROOF_MB_090.md"
-    ],
-    "completed_at": "2026-04-02",
-    "notes": "Implemented typed decision classification, unified the live response path onto the file-backed decision response writer, and verified DEC-001 through the direct /respond route via fixture-backed QA."
+    ]
   },
   {
     "id": "MB-091",
