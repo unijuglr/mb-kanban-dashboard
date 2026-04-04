@@ -1,0 +1,1 @@
+Capture PATH and Ollama diagnostics only without running a main command.

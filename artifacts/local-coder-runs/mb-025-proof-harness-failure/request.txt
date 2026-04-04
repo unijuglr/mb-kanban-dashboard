@@ -1,0 +1,1 @@
+Run an intentionally failing bounded command so the harness preserves the failure honestly.

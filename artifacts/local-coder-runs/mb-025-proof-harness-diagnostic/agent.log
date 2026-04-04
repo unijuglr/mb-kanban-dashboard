@@ -1,0 +1,20 @@
+=== proof harness metadata ===
+run_id=mb-025-proof-harness-diagnostic
+started_at=2026-04-04T03:35:03.786Z
+workspace=/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/artifacts/local-coder-runs/mb-025-proof-harness-diagnostic/workspace
+diagnostic_only=true
+
+=== path diagnostics ===
+PATH=/Users/adamgoldband/.openclaw/workspace/projects/mb-kanban-dashboard/node_modules/.bin:/Users/adamgoldband/.openclaw/workspace/projects/node_modules/.bin:/Users/adamgoldband/.openclaw/workspace/node_modules/.bin:/Users/adamgoldband/.openclaw/node_modules/.bin:/Users/adamgoldband/node_modules/.bin:/Users/node_modules/.bin:/node_modules/.bin:/opt/homebrew/Cellar/node@22/22.22.0/lib/node_modules/npm/node_modules/@npmcli/run-script/lib/node-gyp-bin:/usr/bin:/bin:/opt/homebrew/bin:/Users/adamgoldband/.nvm:/Users/adamgoldband/.local/bin:/Users/adamgoldband/.npm-global/bin:/Users/adamgoldband/bin:/Users/adamgoldband/.volta/bin:/Users/adamgoldband/.asdf/shims:/Users/adamgoldband/.bun/bin:/Users/adamgoldband/Library/Application Support/fnm/aliases/default/bin:/Users/adamgoldband/.fnm/aliases/default/bin:/Users/adamgoldband/Library/pnpm:/Users/adamgoldband/.local/share/pnpm:/usr/local/bin
+openclaw_on_path=/Users/adamgoldband/.nvm/versions/node/v22.22.0/bin/openclaw
+node_on_path=/Users/adamgoldband/.nvm/versions/node/v22.22.0/bin/node
+ollama_cli_on_path=/opt/homebrew/bin/ollama
+
+=== ollama endpoint ===
+url=http://127.0.0.1:11434/
+reachable=false
+error=connect ECONNREFUSED 127.0.0.1:11434
+
+=== command skipped ===
+diagnostic-only mode
+

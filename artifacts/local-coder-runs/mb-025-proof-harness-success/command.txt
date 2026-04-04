@@ -1,0 +1,3 @@
+cat <<'EOF' > artifacts/local-coder-runs/mb-025-proof-harness-success/workspace/hello.txt
+proof ok
+EOF

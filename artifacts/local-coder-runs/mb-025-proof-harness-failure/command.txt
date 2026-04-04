@@ -1,0 +1,1 @@
+echo 'about to fail' > artifacts/local-coder-runs/mb-025-proof-harness-failure/workspace/notes.txt; exit 7

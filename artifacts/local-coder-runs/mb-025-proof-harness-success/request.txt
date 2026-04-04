@@ -1,0 +1,1 @@
+Create a tiny proof workspace, write a file, and validate its contents.

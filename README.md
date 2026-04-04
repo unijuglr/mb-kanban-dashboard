@@ -80,11 +80,39 @@ MB-053 adds repo-backed decision creation:
 - `src/` — parser/read-model code
 - `public/` — static assets
 - `scripts/` — utility scripts and local dev server
+- `artifacts/local-coder-runs/` — bounded proof-run artifacts for MB-024 / MB-025 local-coder validation
 
 ## Run
 ```bash
 npm run dev
 ```
+
+## Local coder proof harness
+
+Run the reusable local-coder artifact harness:
+
+```bash
+node scripts/local_coder_proof_run.mjs \
+  --run-id my-proof-run \
+  --request "Write a tiny file and validate it" \
+  --command "echo ok > artifacts/local-coder-runs/my-proof-run/workspace/output.txt" \
+  --validation-command "grep -q ok artifacts/local-coder-runs/my-proof-run/workspace/output.txt"
+```
+
+Or run the built-in self-proof that exercises success, failure, and diagnostic-only cases:
+
+```bash
+npm run proof:mb-025
+```
+
+Each run writes a bounded artifact set under `artifacts/local-coder-runs/<run-id>/`:
+- `request.txt`
+- `command.txt`
+- `agent.log`
+- `manifest.json`
+- `validation.txt`
+- `result.md`
+- `workspace/`
 
 Then open:
 - `http://127.0.0.1:4187/`

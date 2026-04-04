@@ -1,0 +1,12 @@
+validation_command=test -f artifacts/local-coder-runs/mb-025-proof-harness-success/workspace/hello.txt && grep -q "proof ok" artifacts/local-coder-runs/mb-025-proof-harness-success/workspace/hello.txt
+exit_code=0
+signal=
+timed_out=false
+started_at=2026-04-04T03:35:02.332Z
+ended_at=2026-04-04T03:35:02.548Z
+
+--- stdout ---
+
+--- stderr ---
+nvm is not compatible with the "npm_config_prefix" environment variable: currently set to "/opt/homebrew"
+Run `unset npm_config_prefix` to unset it.
