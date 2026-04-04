@@ -1041,5 +1041,40 @@
       "The repo contains later manager/runtime artifacts that imply pipeline evolution, but the specific card-cited design doc and runner files are absent on the current branch.",
       "Reconciled as blocked on current-tree artifact drift so future passes either restore the missing design/runner files or update the card to point at the replacement implementation honestly."
     ]
+  },
+  {
+    "id": "MB-018",
+    "title": "Build the Kanban interface itself",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [],
+    "artifacts": [
+      "docs/motherbrain-kanban.md",
+      "docs/motherbrain-kanban/README.md",
+      "docs/motherbrain-kanban/templates/card-template.md",
+      "docs/motherbrain-kanban/templates/decision-template.md",
+      "docs/motherbrain-kanban/updates/2026-03-30-initialization.md"
+    ],
+    "notes": [
+      "Reconciled into mb_tasks.json on 2026-04-04 after audit found the done card existed but the task-state entry was missing.",
+      "This is historical board/bootstrap work, not a newly executed implementation tranche."
+    ]
+  },
+  {
+    "id": "MB-019",
+    "title": "Populate initial cards and decision seed docs",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-018"
+    ],
+    "artifacts": [
+      "docs/motherbrain-kanban/cards/",
+      "docs/motherbrain-kanban.md"
+    ],
+    "notes": [
+      "Reconciled into mb_tasks.json on 2026-04-04 after audit found the done card existed but the task-state entry was missing.",
+      "This preserves early Kanban seed history so later queue reports stop silently dropping the board setup lineage."
+    ]
   }
 ]

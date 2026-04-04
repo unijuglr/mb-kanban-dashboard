@@ -62,3 +62,11 @@
 - Reconciled five omitted host-path tasks back into `mb_tasks.json`: MB-004, MB-022, MB-024, MB-025, and MB-026.
 - Marked those tasks `blocked` instead of `ready` where the current tree only supports diagnosis/runbook evidence or where cited artifacts are missing, so the backlog now reflects actual prerequisites instead of implying easy executable work.
 - Kept the work on dedicated branch `feat/mb-taskstate-reconcile-host-paths`, left DTS untouched, and did not pull unrelated `artifacts/mb-022/*` local diagnostics into the commit.
+
+
+## 🌙 Overnight Swarm Notes (2026-04-04 13:24 PT cron pass)
+- Audited `mb_tasks.json`, `docs/cards`, and branch state again for non-DTS executable work; there is still no honest ready-now implementation tranche on the current tree, so I stayed in backlog-shaping / truth-maintenance mode instead of fabricating churn.
+- Reconciled two omitted historical board-bootstrap tasks back into `mb_tasks.json`: MB-018 and MB-019, both already marked done in their cards but previously invisible to queue/state tooling.
+- Confirmed the current non-DTS queue is effectively exhausted on repo-side work: remaining unresolved items are the blocked Motherbrain host-path tasks MB-004, MB-022, MB-024, MB-025, and MB-026.
+- Left unrelated untracked `artifacts/mb-022/*` local smoke outputs alone; no DTS work touched.
+
