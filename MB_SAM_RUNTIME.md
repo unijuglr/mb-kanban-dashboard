@@ -102,3 +102,10 @@
 - Audited the non-DTS queue again and confirmed there is still no honest repo-side ready implementation tranche beyond blocked Motherbrain host-path work.
 - Reconciled graph-explorer state drift: restored missing `MB-093` into `mb_tasks.json` from its already-committed done card/proof, and updated `docs/cards/MB-096-graph-explorer-adaptive-expansion-and-intent-modes.md` from `Status: Ready` to `Status: Done` so card/task/runtime truth matches.
 - QA for this pass: parity scan now shows no missing task entry for MB-093 and no card/task mismatch for MB-096. DTS remained untouched.
+
+## 🌙 Overnight Swarm Notes (2026-04-05 01:11 PT queue-audit pass)
+- Re-audited `mb_tasks.json`, `docs/cards`, branch state, and repo parity for non-DTS work on `feat/mb-096-graph-explorer-intent-modes`.
+- Confirmed the current repo-side queue is still exhausted honestly: there are **0** non-DTS tasks in `state=ready`, **0** non-DTS cards with `Status: Ready`, and no remaining card/task mismatch or duplicate task IDs.
+- Verified the current branch is clean and already pushed (`ahead/behind = 0/0`), so no completed repo-side work is stranded half-local on this pass.
+- Durable blocker truth remains unchanged: the only unresolved non-DTS tranche is the Motherbrain host-path/runtime chain (`MB-004`, `MB-022`, `MB-024`, `MB-025`, `MB-026`), which still requires host/runtime access rather than more repo-only implementation theater.
+- DTS stayed untouched.
