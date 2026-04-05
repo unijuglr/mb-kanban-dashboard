@@ -1,4 +1,4 @@
-export const GRAPH_INTENT_MODES = ['facts', 'story', 'relationships', 'debug'];
+export const GRAPH_INTENT_MODES = ['facts', 'story', 'relationships', 'debug', 'path'];
 export const DEFAULT_GRAPH_INTENT_MODE = 'facts';
 
 function round(value) {
@@ -51,6 +51,8 @@ function edgeReasons(edge, { degreeById, starter, selectedId }) {
 
 function scoreNodeForIntent(intentMode, reasons) {
   switch (intentMode) {
+    case 'path':
+      return reasons.selected * 10 + reasons.degree * 2 + reasons.searchHit * 2;
     case 'story':
       return reasons.degree * 1.2 + reasons.storyBias * 5 + reasons.primary * 3 + reasons.linked * 2 + reasons.starter * 1.5 + reasons.searchHit * 2 + reasons.selected * 2;
     case 'relationships':
@@ -65,6 +67,8 @@ function scoreNodeForIntent(intentMode, reasons) {
 
 function scoreEdgeForIntent(intentMode, reasons) {
   switch (intentMode) {
+    case 'path':
+      return reasons.selected * 10 + reasons.connectivity * 2;
     case 'story':
       return reasons.mentions * 4 + reasons.starter * 2 + reasons.selected * 2 + reasons.connectivity * 0.8;
     case 'relationships':
@@ -109,7 +113,7 @@ export function rankGraphForIntent(graph, { intentMode = DEFAULT_GRAPH_INTENT_MO
     };
   }).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
 
-  const visibleNodeLimit = safeIntent === 'debug' ? graph?.nodes?.length || 0 : safeIntent === 'relationships' ? 8 : 6;
+  const visibleNodeLimit = (safeIntent === 'debug' || safeIntent === 'path') ? graph?.nodes?.length || 0 : safeIntent === 'relationships' ? 8 : 6;
   const visibleNodeIds = rankedNodes.slice(0, visibleNodeLimit).map((node) => node.id);
 
   return {

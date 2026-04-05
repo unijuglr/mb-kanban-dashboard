@@ -1,0 +1,33 @@
+{
+  "inputPath": "data/agilitas/samples/teams-sample.vtt",
+  "normalized": {
+    "dateTime": "2026-04-05T17:59:01.680369+00:00",
+    "agent": "Adam",
+    "customer": "Client",
+    "fullTranscript": "Adam: Welcome to the meeting.\nClient: Thanks for having me. I wanted to discuss the new features.",
+    "customerTranscript": "Thanks for having me. I wanted to discuss the new features.",
+    "parts": [
+      {
+        "type": "Agent",
+        "text": "Welcome to the meeting."
+      },
+      {
+        "type": "Customer",
+        "text": "Thanks for having me. I wanted to discuss the new features."
+      }
+    ],
+    "sourceFormat": "teams_vtt",
+    "sourcePath": "data/agilitas/samples/teams-sample.vtt"
+  },
+  "extraction": {
+    "sentiment": "Negative",
+    "pain_points": [],
+    "emotion": null,
+    "effort": "High",
+    "competitors": null,
+    "innovation": null,
+    "summary": null,
+    "providerUsed": "ollama",
+    "deterministic": false
+  }
+}

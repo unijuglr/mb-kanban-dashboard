@@ -1,0 +1,89 @@
+{
+  "batchId": "agilitas-batch-20260405T175842Z",
+  "processedAt": "2026-04-05T17:58:42.043064+00:00",
+  "deterministicOfflineFriendly": true,
+  "requestedProvider": "ollama",
+  "resultCounts": {
+    "total": 2,
+    "ok": 2,
+    "error": 0
+  },
+  "results": [
+    {
+      "input_path": "data/agilitas/samples/teams-sample.vtt",
+      "format": "teams_vtt",
+      "status": "ok",
+      "normalized": {
+        "dateTime": "2026-04-05T17:58:40.351387+00:00",
+        "agent": "Adam",
+        "customer": "Client",
+        "fullTranscript": "Adam: Welcome to the meeting.\nClient: Thanks for having me. I wanted to discuss the new features.",
+        "customerTranscript": "Thanks for having me. I wanted to discuss the new features.",
+        "parts": [
+          {
+            "type": "Agent",
+            "text": "Welcome to the meeting."
+          },
+          {
+            "type": "Customer",
+            "text": "Thanks for having me. I wanted to discuss the new features."
+          }
+        ],
+        "sourceFormat": "teams_vtt",
+        "sourcePath": "data/agilitas/samples/teams-sample.vtt"
+      },
+      "extraction": {
+        "sentiment": null,
+        "pain_points": null,
+        "emotion": null,
+        "effort": null,
+        "competitors": null,
+        "innovation": null,
+        "summary": null,
+        "providerUsed": "ollama",
+        "deterministic": false
+      },
+      "output_path": "artifacts/agilitas-batch-live-test/teams-sample.batch-result.json",
+      "error": null
+    },
+    {
+      "input_path": "data/agilitas/samples/zoom-sample.json",
+      "format": "zoom_json",
+      "status": "ok",
+      "normalized": {
+        "dateTime": "2026-04-02T10:00:00Z",
+        "agent": "Adam",
+        "customer": "Client",
+        "fullTranscript": "Adam: Hello, how can I help you today?\nClient: I'm having trouble with the dashboard.",
+        "customerTranscript": "I'm having trouble with the dashboard.",
+        "parts": [
+          {
+            "type": "Agent",
+            "text": "Hello, how can I help you today?"
+          },
+          {
+            "type": "Customer",
+            "text": "I'm having trouble with the dashboard."
+          }
+        ],
+        "sourceFormat": "zoom_json",
+        "sourcePath": "data/agilitas/samples/zoom-sample.json"
+      },
+      "extraction": {
+        "sentiment": "Negative",
+        "pain_points": [
+          "Dashboard"
+        ],
+        "emotion": "Frustration",
+        "effort": "High",
+        "competitors": [],
+        "innovation": [],
+        "summary": "Having trouble with the dashboard",
+        "providerUsed": "ollama",
+        "deterministic": false
+      },
+      "output_path": "artifacts/agilitas-batch-live-test/zoom-sample.batch-result.json",
+      "error": null
+    }
+  ]
+}

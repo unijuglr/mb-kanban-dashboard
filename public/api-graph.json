@@ -1,0 +1,575 @@
+{
+  "generatedAt": "2026-04-05T18:04:33.260Z",
+  "source": {
+    "mode": "proof-artifact",
+    "proofPath": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json",
+    "cardPath": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/cards/MB-088-oln-two-page-ingest-proof-into-local-neo4j.md",
+    "liveProbeAttempted": false,
+    "liveProbeReason": "not requested; live Neo4j proof remains downstream MB-087/MB-088 work"
+  },
+  "starter": {
+    "id": "starter:luke-tatooine-proof-slice",
+    "label": "Luke / Tatooine starter slice",
+    "description": "Curated default subgraph from the committed MB-080 + MB-088 proof artifacts.",
+    "selectedId": "entity:luke-skywalker",
+    "intentMode": "facts",
+    "nodeIds": [
+      "entity:luke-skywalker",
+      "entity:tatooine",
+      "proof:mb-088-card"
+    ]
+  },
+  "intentModes": [
+    "facts",
+    "story",
+    "relationships",
+    "debug"
+  ],
+  "summary": {
+    "nodeCount": 9,
+    "edgeCount": 9,
+    "typeCounts": {
+      "Primary Entity": 2,
+      "Linked Entity": 6,
+      "Proof Card": 1
+    },
+    "primaryCount": 2,
+    "linkedCount": 6
+  },
+  "filters": {
+    "groups": [
+      "primary",
+      "linked",
+      "proof"
+    ],
+    "types": [
+      "Primary Entity",
+      "Linked Entity",
+      "Proof Card"
+    ],
+    "sources": [
+      "MB-080 offline proof",
+      "docs/cards"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "entity:luke-skywalker",
+      "key": "Luke Skywalker",
+      "label": "Luke Skywalker",
+      "type": "Primary Entity",
+      "group": "primary",
+      "source": "MB-080 offline proof",
+      "franchise": "Star Wars",
+      "rank": 0,
+      "properties": {
+        "title": "Luke Skywalker",
+        "role": "focus entity",
+        "proofArtifact": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json",
+        "lukeOrTatooineSlice": true
+      }
+    },
+    {
+      "id": "entity:tatooine",
+      "key": "Tatooine",
+      "label": "Tatooine",
+      "type": "Primary Entity",
+      "group": "primary",
+      "source": "MB-080 offline proof",
+      "franchise": "Star Wars",
+      "rank": 1,
+      "properties": {
+        "title": "Tatooine",
+        "role": "secondary focus entity",
+        "proofArtifact": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json",
+        "lukeOrTatooineSlice": true
+      }
+    },
+    {
+      "id": "entity:galactic-civil-war",
+      "key": "Galactic Civil War",
+      "label": "Galactic Civil War",
+      "type": "Linked Entity",
+      "group": "linked",
+      "source": "MB-080 offline proof",
+      "franchise": "Star Wars",
+      "properties": {
+        "title": "Galactic Civil War",
+        "linkedFrom": "Luke Skywalker",
+        "proofArtifact": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json"
+      }
+    },
+    {
+      "id": "entity:human",
+      "key": "Human",
+      "label": "Human",
+      "type": "Linked Entity",
+      "group": "linked",
+      "source": "MB-080 offline proof",
+      "franchise": "Star Wars",
+      "properties": {
+        "title": "Human",
+        "linkedFrom": "Luke Skywalker",
+        "proofArtifact": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json"
+      }
+    },
+    {
+      "id": "entity:jedi-master",
+      "key": "Jedi Master",
+      "label": "Jedi Master",
+      "type": "Linked Entity",
+      "group": "linked",
+      "source": "MB-080 offline proof",
+      "franchise": "Star Wars",
+      "properties": {
+        "title": "Jedi Master",
+        "linkedFrom": "Luke Skywalker",
+        "proofArtifact": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json"
+      }
+    },
+    {
+      "id": "entity:arkanis-sector",
+      "key": "Arkanis sector",
+      "label": "Arkanis sector",
+      "type": "Linked Entity",
+      "group": "linked",
+      "source": "MB-080 offline proof",
+      "franchise": "Star Wars",
+      "properties": {
+        "title": "Arkanis sector",
+        "linkedFrom": "Tatooine",
+        "proofArtifact": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json"
+      }
+    },
+    {
+      "id": "entity:outer-rim",
+      "key": "Outer Rim",
+      "label": "Outer Rim",
+      "type": "Linked Entity",
+      "group": "linked",
+      "source": "MB-080 offline proof",
+      "franchise": "Star Wars",
+      "properties": {
+        "title": "Outer Rim",
+        "linkedFrom": "Tatooine",
+        "proofArtifact": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json"
+      }
+    },
+    {
+      "id": "entity:outer-rim-territories",
+      "key": "Outer Rim Territories",
+      "label": "Outer Rim Territories",
+      "type": "Linked Entity",
+      "group": "linked",
+      "source": "MB-080 offline proof",
+      "franchise": "Star Wars",
+      "properties": {
+        "title": "Outer Rim Territories",
+        "linkedFrom": "Tatooine",
+        "proofArtifact": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json"
+      }
+    },
+    {
+      "id": "proof:mb-088-card",
+      "key": "MB-088",
+      "label": "MB-088",
+      "type": "Proof Card",
+      "group": "proof",
+      "source": "docs/cards",
+      "franchise": "OLN",
+      "properties": {
+        "status": "Done",
+        "updatedAt": "2026-04-03",
+        "file": "/Users/darthg/dev/samiverse/mb-kanban-dashboard/docs/cards/MB-088-oln-two-page-ingest-proof-into-local-neo4j.md"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "entity:luke-skywalker",
+      "target": "entity:galactic-civil-war",
+      "type": "MENTIONS",
+      "sourceTitle": "Luke Skywalker",
+      "targetTitle": "Galactic Civil War",
+      "proof": "offline_contract_proof.primary_link_titles",
+      "id": "entity:luke-skywalker->entity:galactic-civil-war:MENTIONS"
+    },
+    {
+      "source": "entity:luke-skywalker",
+      "target": "entity:human",
+      "type": "MENTIONS",
+      "sourceTitle": "Luke Skywalker",
+      "targetTitle": "Human",
+      "proof": "offline_contract_proof.primary_link_titles",
+      "id": "entity:luke-skywalker->entity:human:MENTIONS"
+    },
+    {
+      "source": "entity:luke-skywalker",
+      "target": "entity:jedi-master",
+      "type": "MENTIONS",
+      "sourceTitle": "Luke Skywalker",
+      "targetTitle": "Jedi Master",
+      "proof": "offline_contract_proof.primary_link_titles",
+      "id": "entity:luke-skywalker->entity:jedi-master:MENTIONS"
+    },
+    {
+      "source": "entity:luke-skywalker",
+      "target": "entity:tatooine",
+      "type": "MENTIONS",
+      "sourceTitle": "Luke Skywalker",
+      "targetTitle": "Tatooine",
+      "proof": "offline_contract_proof.primary_link_titles",
+      "id": "entity:luke-skywalker->entity:tatooine:MENTIONS"
+    },
+    {
+      "source": "entity:tatooine",
+      "target": "entity:arkanis-sector",
+      "type": "MENTIONS",
+      "sourceTitle": "Tatooine",
+      "targetTitle": "Arkanis sector",
+      "proof": "offline_contract_proof.primary_link_titles",
+      "id": "entity:tatooine->entity:arkanis-sector:MENTIONS"
+    },
+    {
+      "source": "entity:tatooine",
+      "target": "entity:outer-rim",
+      "type": "MENTIONS",
+      "sourceTitle": "Tatooine",
+      "targetTitle": "Outer Rim",
+      "proof": "offline_contract_proof.primary_link_titles",
+      "id": "entity:tatooine->entity:outer-rim:MENTIONS"
+    },
+    {
+      "source": "entity:tatooine",
+      "target": "entity:outer-rim-territories",
+      "type": "MENTIONS",
+      "sourceTitle": "Tatooine",
+      "targetTitle": "Outer Rim Territories",
+      "proof": "offline_contract_proof.primary_link_titles",
+      "id": "entity:tatooine->entity:outer-rim-territories:MENTIONS"
+    },
+    {
+      "source": "proof:mb-088-card",
+      "target": "entity:luke-skywalker",
+      "type": "VERIFIES",
+      "proof": "MB-088",
+      "id": "proof:mb-088-card->entity:luke-skywalker:VERIFIES"
+    },
+    {
+      "source": "proof:mb-088-card",
+      "target": "entity:tatooine",
+      "type": "VERIFIES",
+      "proof": "MB-088",
+      "id": "proof:mb-088-card->entity:tatooine:VERIFIES"
+    }
+  ],
+  "adaptive": {
+    "intentMode": "facts",
+    "visibleNodeLimit": 6,
+    "selectedId": null,
+    "query": "",
+    "rankedNodes": [
+      {
+        "id": "entity:luke-skywalker",
+        "label": "Luke Skywalker",
+        "score": 15.5,
+        "reasons": {
+          "degree": 5,
+          "starter": 1,
+          "primary": 1,
+          "linked": 0,
+          "proof": 0,
+          "verified": 1,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 1
+        }
+      },
+      {
+        "id": "entity:tatooine",
+        "label": "Tatooine",
+        "score": 15.5,
+        "reasons": {
+          "degree": 5,
+          "starter": 1,
+          "primary": 1,
+          "linked": 0,
+          "proof": 0,
+          "verified": 1,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 1
+        }
+      },
+      {
+        "id": "proof:mb-088-card",
+        "label": "MB-088",
+        "score": 8.2,
+        "reasons": {
+          "degree": 2,
+          "starter": 1,
+          "primary": 0,
+          "linked": 0,
+          "proof": 1,
+          "verified": 0,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 0
+        }
+      },
+      {
+        "id": "entity:arkanis-sector",
+        "label": "Arkanis sector",
+        "score": 1.1,
+        "reasons": {
+          "degree": 1,
+          "starter": 0,
+          "primary": 0,
+          "linked": 1,
+          "proof": 0,
+          "verified": 0,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 1
+        }
+      },
+      {
+        "id": "entity:galactic-civil-war",
+        "label": "Galactic Civil War",
+        "score": 1.1,
+        "reasons": {
+          "degree": 1,
+          "starter": 0,
+          "primary": 0,
+          "linked": 1,
+          "proof": 0,
+          "verified": 0,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 1
+        }
+      },
+      {
+        "id": "entity:human",
+        "label": "Human",
+        "score": 1.1,
+        "reasons": {
+          "degree": 1,
+          "starter": 0,
+          "primary": 0,
+          "linked": 1,
+          "proof": 0,
+          "verified": 0,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 1
+        }
+      },
+      {
+        "id": "entity:jedi-master",
+        "label": "Jedi Master",
+        "score": 1.1,
+        "reasons": {
+          "degree": 1,
+          "starter": 0,
+          "primary": 0,
+          "linked": 1,
+          "proof": 0,
+          "verified": 0,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 1
+        }
+      },
+      {
+        "id": "entity:outer-rim",
+        "label": "Outer Rim",
+        "score": 1.1,
+        "reasons": {
+          "degree": 1,
+          "starter": 0,
+          "primary": 0,
+          "linked": 1,
+          "proof": 0,
+          "verified": 0,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 1
+        }
+      },
+      {
+        "id": "entity:outer-rim-territories",
+        "label": "Outer Rim Territories",
+        "score": 1.1,
+        "reasons": {
+          "degree": 1,
+          "starter": 0,
+          "primary": 0,
+          "linked": 1,
+          "proof": 0,
+          "verified": 0,
+          "selected": 0,
+          "searchHit": 0,
+          "storyBias": 1
+        }
+      }
+    ],
+    "rankedEdges": [
+      {
+        "id": "proof:mb-088-card->entity:luke-skywalker:VERIFIES",
+        "source": "proof:mb-088-card",
+        "target": "entity:luke-skywalker",
+        "type": "VERIFIES",
+        "score": 15.6,
+        "reasons": {
+          "selected": 0,
+          "verified": 1,
+          "mentions": 0,
+          "verifies": 1,
+          "starter": 1,
+          "connectivity": 7
+        }
+      },
+      {
+        "id": "proof:mb-088-card->entity:tatooine:VERIFIES",
+        "source": "proof:mb-088-card",
+        "target": "entity:tatooine",
+        "type": "VERIFIES",
+        "score": 15.6,
+        "reasons": {
+          "selected": 0,
+          "verified": 1,
+          "mentions": 0,
+          "verifies": 1,
+          "starter": 1,
+          "connectivity": 7
+        }
+      },
+      {
+        "id": "entity:luke-skywalker->entity:tatooine:MENTIONS",
+        "source": "entity:luke-skywalker",
+        "target": "entity:tatooine",
+        "type": "MENTIONS",
+        "score": 10,
+        "reasons": {
+          "selected": 0,
+          "verified": 0,
+          "mentions": 1,
+          "verifies": 0,
+          "starter": 1,
+          "connectivity": 10
+        }
+      },
+      {
+        "id": "entity:luke-skywalker->entity:galactic-civil-war:MENTIONS",
+        "source": "entity:luke-skywalker",
+        "target": "entity:galactic-civil-war",
+        "type": "MENTIONS",
+        "score": 4.8,
+        "reasons": {
+          "selected": 0,
+          "verified": 0,
+          "mentions": 1,
+          "verifies": 0,
+          "starter": 0,
+          "connectivity": 6
+        }
+      },
+      {
+        "id": "entity:luke-skywalker->entity:human:MENTIONS",
+        "source": "entity:luke-skywalker",
+        "target": "entity:human",
+        "type": "MENTIONS",
+        "score": 4.8,
+        "reasons": {
+          "selected": 0,
+          "verified": 0,
+          "mentions": 1,
+          "verifies": 0,
+          "starter": 0,
+          "connectivity": 6
+        }
+      },
+      {
+        "id": "entity:luke-skywalker->entity:jedi-master:MENTIONS",
+        "source": "entity:luke-skywalker",
+        "target": "entity:jedi-master",
+        "type": "MENTIONS",
+        "score": 4.8,
+        "reasons": {
+          "selected": 0,
+          "verified": 0,
+          "mentions": 1,
+          "verifies": 0,
+          "starter": 0,
+          "connectivity": 6
+        }
+      },
+      {
+        "id": "entity:tatooine->entity:arkanis-sector:MENTIONS",
+        "source": "entity:tatooine",
+        "target": "entity:arkanis-sector",
+        "type": "MENTIONS",
+        "score": 4.8,
+        "reasons": {
+          "selected": 0,
+          "verified": 0,
+          "mentions": 1,
+          "verifies": 0,
+          "starter": 0,
+          "connectivity": 6
+        }
+      },
+      {
+        "id": "entity:tatooine->entity:outer-rim-territories:MENTIONS",
+        "source": "entity:tatooine",
+        "target": "entity:outer-rim-territories",
+        "type": "MENTIONS",
+        "score": 4.8,
+        "reasons": {
+          "selected": 0,
+          "verified": 0,
+          "mentions": 1,
+          "verifies": 0,
+          "starter": 0,
+          "connectivity": 6
+        }
+      },
+      {
+        "id": "entity:tatooine->entity:outer-rim:MENTIONS",
+        "source": "entity:tatooine",
+        "target": "entity:outer-rim",
+        "type": "MENTIONS",
+        "score": 4.8,
+        "reasons": {
+          "selected": 0,
+          "verified": 0,
+          "mentions": 1,
+          "verifies": 0,
+          "starter": 0,
+          "connectivity": 6
+        }
+      }
+    ],
+    "visibleNodeIds": [
+      "entity:luke-skywalker",
+      "entity:tatooine",
+      "proof:mb-088-card",
+      "entity:arkanis-sector",
+      "entity:galactic-civil-war",
+      "entity:human"
+    ],
+    "rankingSummary": {
+      "topNodeIds": [
+        "entity:luke-skywalker",
+        "entity:tatooine",
+        "proof:mb-088-card"
+      ],
+      "topEdgeIds": [
+        "proof:mb-088-card->entity:luke-skywalker:VERIFIES",
+        "proof:mb-088-card->entity:tatooine:VERIFIES",
+        "entity:luke-skywalker->entity:tatooine:MENTIONS"
+      ]
+    }
+  }
+}
