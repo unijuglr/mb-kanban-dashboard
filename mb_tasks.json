@@ -1161,5 +1161,20 @@
       "QA on this branch: node --check scripts/dev-server.mjs && node --check src/graph-explorer/adapter.mjs && node --check src/graph-explorer/state.mjs && node --check src/graph-explorer/scoring.mjs && node --check scripts/prove-mb-089.mjs && node --check scripts/prove-mb-094.mjs && node --check scripts/prove-mb-095.mjs && node --check scripts/prove-mb-096.mjs; node scripts/prove-mb-089.mjs; node scripts/prove-mb-094.mjs; node scripts/prove-mb-095.mjs; node scripts/prove-mb-096.mjs."
     ],
     "completed_at": "2026-04-04T23:35:00-07:00"
+  },
+  {
+    "id": "MB-097",
+    "title": "Graph Explorer: pathfinding and connectivity queries",
+    "state": "ready",
+    "owner": "Coder-2",
+    "depends_on": [
+      "MB-096"
+    ],
+    "artifacts": [
+      "docs/cards/MB-097-graph-explorer-pathfinding-and-connectivity.md"
+    ],
+    "notes": [
+      "Queued as the next logical evolution of the proof-backed explorer to enable multi-node connectivity insights before live Neo4j migration."
+    ]
   }
 ]
