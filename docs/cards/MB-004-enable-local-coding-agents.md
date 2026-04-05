@@ -27,7 +27,7 @@ This creates compounding leverage early and aligns with the goal of Motherbrain 
 - [ ] ensure shared workspace conventions exist
 - [x] verify coding-capable model/tool path
 - [ ] create initial bootstrap/run instructions
-- [ ] run a first validation task locally on Motherbrain
+- [x] run a first validation task locally on Motherbrain (2026-04-05: Verified Luke/Tatooine ingest into local Neo4j)
 
 ## Current Findings
 - Motherbrain has Node, npm, Python, git, and OpenClaw installed.

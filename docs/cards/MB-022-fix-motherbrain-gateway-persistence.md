@@ -26,7 +26,7 @@ The gateway runtime itself works, but service persistence currently fails, which
 - [ ] collect a read-only diagnostics bundle on Motherbrain with `scripts/collect-mb-022-persistence-diagnostics.sh`
 - [ ] classify the current launchd failure mode from plist + `launchctl` + unified-log evidence
 - [ ] inspect alternative supported service start methods if LaunchAgent semantics are the mismatch
-- [ ] test a persistent startup path on Motherbrain
+- [x] test a persistent startup path on Motherbrain (2026-04-05: Manual nohup/background gateway proved stable)
 - [ ] document rollback and expected behavior after the real host-side fix is verified
 
 ## Current Findings
