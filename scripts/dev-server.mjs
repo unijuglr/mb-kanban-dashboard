@@ -18,7 +18,7 @@ function json(res, statusCode, payload) {
 }
 
 const port = Number(process.env.PORT || 4187);
-const host = process.env.HOST || '127.0.0.1';
+const host = process.env.HOST || '0.0.0.0';
 const startedAt = new Date().toISOString();
 const root = process.env.MB_ROOT
   ? path.resolve(process.env.MB_ROOT)
