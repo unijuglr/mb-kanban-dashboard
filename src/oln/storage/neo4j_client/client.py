@@ -123,12 +123,26 @@ class Neo4jClient:
         title = entity.get("title") or olid.replace("OLID:", "").replace("_", " ")
         entity_type = entity.get("type") or "Entity"
         metadata = entity.get("metadata") or {}
-        links = [self._normalize_link_title(link) for link in metadata.get("links", []) if str(link).strip()]
+        links = []
+        for link in metadata.get("links", []):
+            lt = self._normalize_link_title(link)
+            if lt and lt.strip():
+                # Correctly resolve the link OLID to prevent duplicates
+                # We don't have the olid_manager here easily, but we can use the same slugify logic
+                # However, for now, let's just make the Cypher smarter.
+                links.append(lt)
+
         source = metadata.get("source")
         franchise = metadata.get("franchise")
         raw_text_snippet = entity.get("raw_text_snippet")
         now_ms = int(time.time() * 1000)
 
+        # Logic to prevent duplicates: 
+        # 1. Match/Merge the primary entity by OLID.
+        # 2. For each link, try to find an existing entity by TITLE first, then fall back to OLID.
+        # 3. This ensures that if 'Tatooine' exists as 'oln-star-wars-tatooine', we link to it 
+        #    instead of creating 'OLID:Tatooine'.
+        
         cypher = """
         MERGE (e:Entity {olid: $olid})
         ON CREATE SET e.created_at = $now_ms
@@ -140,19 +154,50 @@ class Neo4jClient:
             e.last_updated = $now_ms
         WITH e
         UNWIND $links AS link_title
-        MERGE (target:Entity {olid: 'OLID:' + replace(link_title, ' ', '_')})
-        ON CREATE SET target.created_at = $now_ms
-        SET target.title = coalesce(target.title, link_title),
-            target.type = coalesce(target.type, 'LinkedEntity'),
-            target.source = coalesce(target.source, $source),
-            target.franchise = coalesce(target.franchise, $franchise),
-            target.last_updated = $now_ms
+        OPTIONAL MATCH (existing:Entity {title: link_title})
+        WITH e, link_title, collect(existing)[0] AS target_node
+        CALL apoc.do.when(
+          target_node IS NOT NULL,
+          'MERGE (e)-[:MENTIONS]->(target_node) RETURN target_node',
+          'MERGE (target:Entity {olid: "OLID:" + replace(link_title, " ", "_")})
+           ON CREATE SET target.created_at = $now_ms,
+                         target.title = link_title,
+                         target.type = "LinkedEntity",
+                         target.source = $source,
+                         target.franchise = $franchise
+           SET target.last_updated = $now_ms
+           MERGE (e)-[:MENTIONS]->(target)
+           RETURN target',
+          {e: e, target_node: target_node, link_title: link_title, now_ms: $now_ms, source: $source, franchise: $franchise}
+        ) YIELD value
+        RETURN count(*)
+        """
+        
+        # Simplest version that doesn't require APOC for now (since we might not have it):
+        cypher_no_apoc = """
+        MERGE (e:Entity {olid: $olid})
+        ON CREATE SET e.created_at = $now_ms
+        SET e.title = $title,
+            e.type = $type,
+            e.source = $source,
+            e.franchise = $franchise,
+            e.raw_text_snippet = $raw_text_snippet,
+            e.last_updated = $now_ms
+        WITH e
+        UNWIND $links AS link_title
+        MERGE (target:Entity {title: link_title})
+        ON CREATE SET target.olid = 'OLID:' + replace(link_title, ' ', '_'),
+                      target.created_at = $now_ms,
+                      target.type = 'LinkedEntity',
+                      target.source = $source,
+                      target.franchise = $franchise
+        SET target.last_updated = $now_ms
         MERGE (e)-[:MENTIONS]->(target)
-        RETURN e.olid AS olid, e.title AS title, size($links) AS link_count
+        RETURN count(*)
         """
 
         self.query(
-            cypher,
+            cypher_no_apoc,
             {
                 "olid": olid,
                 "title": title,
@@ -174,16 +219,3 @@ class Neo4jClient:
     def clear_entities(self) -> bool:
         self.query("MATCH (n:Entity) DETACH DELETE n RETURN count(n) AS deleted")
         return True
-
-
-if __name__ == "__main__":
-    client = Neo4jClient()
-    test_entity = {
-        "olid": "OLID:Luke_Skywalker",
-        "title": "Luke Skywalker",
-        "type": "Character",
-        "metadata": {"source": "Wookieepedia", "franchise": "star_wars", "links": ["Tatooine", "Jedi Master"]},
-    }
-    client.ensure_schema()
-    client.merge_entity(test_entity)
-    print(client.query("MATCH (e:Entity {title: $title}) RETURN e.olid AS olid, e.title AS title", {"title": "Luke Skywalker"}))
