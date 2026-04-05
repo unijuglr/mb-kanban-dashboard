@@ -26,6 +26,7 @@
     "proof:mb-094": "node scripts/prove-mb-094.mjs",
     "proof:mb-095": "node scripts/prove-mb-095.mjs",
     "updates:timeline": "node scripts/read-updates-timeline.mjs",
-    "metrics:backfill": "python3 scripts/mb_metrics_backfill.py"
+    "metrics:backfill": "python3 scripts/mb_metrics_backfill.py",
+    "proof:mb-096": "node scripts/prove-mb-096.mjs"
   }
 }

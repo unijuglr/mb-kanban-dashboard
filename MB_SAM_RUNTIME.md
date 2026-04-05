@@ -27,6 +27,11 @@
 - **Host Runtime:** Motherbrain Docker CLI/Compose are installed, but the Docker daemon was unavailable during the live Neo4j boot attempt.
 - **QA Status:** MB-087/MB-088 remain blocked honestly; durable evidence and rerun instructions captured in `docs/oln/neo4j-motherbrain-live-proof-2026-04-03.md`.
 
+## 🌙 Overnight Swarm Notes (2026-04-04 23:35 PT graph intent pass)
+- Implemented MB-096 on `feat/mb-096-graph-explorer-intent-modes` without touching DTS or live Neo4j paths.
+- Added deterministic graph-explorer intent scoring/helpers plus live `/graph` intent-mode UI for `facts`, `story`, `relationships`, and `debug`, all backed only by committed OLN proof artifacts.
+- Re-ran the graph explorer regression stack honestly: `node scripts/prove-mb-089.mjs`, `node scripts/prove-mb-094.mjs`, `node scripts/prove-mb-095.mjs`, and new proof `node scripts/prove-mb-096.mjs`; all passed on the current tree.
+
 ## 📝 Developer Notes
 - LLM response parsing handles markdown code blocks vs raw JSON.
 - Deterministic extraction mode preserves the 7-dimension contract when a live provider is unavailable.

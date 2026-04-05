@@ -10,6 +10,7 @@ import { appendUpdate } from '../src/update-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
 import { loadGraphExplorerModel } from '../src/graph-explorer/adapter.mjs';
 import { GRAPH_EXPLORER_STORAGE_KEY, resolveInitialGraphState } from '../src/graph-explorer/state.mjs';
+import { DEFAULT_GRAPH_INTENT_MODE, rankGraphForIntent, sanitizeIntentMode } from '../src/graph-explorer/scoring.mjs';
 
 function json(res, statusCode, payload) {
   res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -762,14 +763,26 @@ function renderMetricsScreen(model, metrics) {
   });
 }
 
-function renderGraphExplorer(initialSelectedId = null) {
+function renderGraphExplorer(initialSelectedId = null, initialIntentMode = null) {
   const graph = loadGraphExplorerModel(root);
-  const serverBootstrap = resolveInitialGraphState({ graph, urlSelectedId: initialSelectedId, persistedState: null });
+  const serverBootstrap = resolveInitialGraphState({
+    graph,
+    urlSelectedId: initialSelectedId,
+    urlIntentMode: initialIntentMode,
+    persistedState: null
+  });
+  const initialAdaptive = rankGraphForIntent(graph, {
+    intentMode: serverBootstrap.intentMode,
+    selectedId: serverBootstrap.selectedId,
+    query: serverBootstrap.searchQuery
+  });
   const graphData = JSON.stringify(graph).replace(/</g, '\\u003c');
   const bootstrapData = JSON.stringify({
     storageKey: GRAPH_EXPLORER_STORAGE_KEY,
     initialSelectedId: initialSelectedId || null,
-    serverBootstrap
+    initialIntentMode: serverBootstrap.intentMode,
+    serverBootstrap,
+    initialAdaptive
   }).replace(/</g, '\\u003c');
 
   return shell({
@@ -779,7 +792,7 @@ function renderGraphExplorer(initialSelectedId = null) {
       <section class="hero">
         <div>
           <h1>Graph explorer</h1>
-          <p>Proof-backed OLN graph explorer v1: search-first exploration with a curated starter subgraph, local return-to-context persistence, double-click deep-link navigation, and lightweight relationship/path highlighting on the live route.</p>
+          <p>Proof-backed OLN graph explorer v1: search-first exploration with a curated starter subgraph, local return-to-context persistence, double-click deep-link navigation, lightweight relationship/path highlighting on the live route, and deterministic adaptive expansion by intent mode.</p>
         </div>
         <div class="muted">${escapeHtml(graph.summary.nodeCount)} node(s) · ${escapeHtml(graph.summary.edgeCount)} edge(s)</div>
       </section>
@@ -802,10 +815,13 @@ function renderGraphExplorer(initialSelectedId = null) {
         <article class="panel stack">
           <h2>Search & results</h2>
           <label class="stack"><span class="muted">Search</span><input id="graph-search" type="search" placeholder="Luke, Tatooine, mentions, path…" /></label>
+          <label class="stack"><span class="muted">Intent mode</span><select id="graph-intent-mode">${graph.intentModes.map((mode) => `<option value="${escapeHtml(mode)}">${escapeHtml(mode)}</option>`).join('')}</select></label>
+          <div class="muted tiny" id="graph-intent-copy">facts = verified proof-first · story = world exploration · relationships = edge/path emphasis · debug = raw metadata</div>
           <label class="stack"><span class="muted">Group</span><select id="graph-group-filter"><option value="">All groups</option>${graph.filters.groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join('')}</select></label>
           <label class="stack"><span class="muted">Type</span><select id="graph-type-filter"><option value="">All types</option>${graph.filters.types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('')}</select></label>
           <div class="button-row"><button id="graph-reset" class="button" type="button">Reset filters</button></div>
           <div class="muted tiny" id="graph-filter-state">Showing all proof-backed nodes.</div>
+          <div class="muted tiny" id="graph-ranking-summary">Intent scoring ready.</div>
           <div class="stack" id="graph-search-results"></div>
         </article>
         <article class="panel">
@@ -828,10 +844,12 @@ function renderGraphExplorer(initialSelectedId = null) {
           const graph = JSON.parse(document.getElementById('graph-data').textContent);
           const bootstrap = JSON.parse(document.getElementById('graph-bootstrap').textContent);
           const searchEl = document.getElementById('graph-search');
+          const intentEl = document.getElementById('graph-intent-mode');
           const groupEl = document.getElementById('graph-group-filter');
           const typeEl = document.getElementById('graph-type-filter');
           const resetEl = document.getElementById('graph-reset');
           const stateEl = document.getElementById('graph-filter-state');
+          const rankingEl = document.getElementById('graph-ranking-summary');
           const listEl = document.getElementById('graph-node-list');
           const resultsEl = document.getElementById('graph-search-results');
           const detailEl = document.getElementById('graph-detail-panel');
@@ -846,19 +864,23 @@ function renderGraphExplorer(initialSelectedId = null) {
           } catch {
             persistedState = null;
           }
+          const sanitizeIntentMode = (value) => graph.intentModes.includes(value) ? value : 'facts';
           const sanitizePersisted = (value) => ({
             selectedId: typeof value?.selectedId === 'string' && allowedIds.has(value.selectedId) ? value.selectedId : null,
-            searchQuery: typeof value?.searchQuery === 'string' ? value.searchQuery.slice(0, 200) : ''
+            searchQuery: typeof value?.searchQuery === 'string' ? value.searchQuery.slice(0, 200) : '',
+            intentMode: sanitizeIntentMode(value?.intentMode)
           });
           const safePersisted = sanitizePersisted(persistedState);
-          const hasStoredContext = Boolean(safePersisted.selectedId || safePersisted.searchQuery);
+          const hasStoredContext = Boolean(safePersisted.selectedId || safePersisted.searchQuery || safePersisted.intentMode !== 'facts');
           let selectedId = (params.get('selected') && allowedIds.has(params.get('selected')) ? params.get('selected') : null)
             || safePersisted.selectedId
             || bootstrap.serverBootstrap?.selectedId
             || graph.nodes[0]?.id
             || null;
+          let intentMode = sanitizeIntentMode(params.get('intent') || safePersisted.intentMode || bootstrap.serverBootstrap?.intentMode || bootstrap.initialIntentMode || 'facts');
           let starterMode = !params.get('selected') && !hasStoredContext;
           searchEl.value = safePersisted.searchQuery || '';
+          intentEl.value = intentMode;
           let activeRelationshipId = null;
           let activePathNodeIds = [];
           let activePathEdgeIds = [];
@@ -875,11 +897,19 @@ function renderGraphExplorer(initialSelectedId = null) {
             neighborMap.get(edge.source).push({ nodeId: edge.target, edgeId: edge.id });
             neighborMap.get(edge.target).push({ nodeId: edge.source, edgeId: edge.id });
           }
+          const degreeMap = new Map(graph.nodes.map((node) => [node.id, 0]));
+          graph.edges.forEach((edge) => {
+            degreeMap.set(edge.source, (degreeMap.get(edge.source) || 0) + 1);
+            degreeMap.set(edge.target, (degreeMap.get(edge.target) || 0) + 1);
+          });
+          const starterNodeIds = new Set((graph.starter?.nodeIds || []).filter((nodeId) => allowedIds.has(nodeId)));
 
           function syncUrl() {
             const next = new URL(window.location.href);
             if (selectedId) next.searchParams.set('selected', selectedId);
             else next.searchParams.delete('selected');
+            if (intentMode && intentMode !== 'facts') next.searchParams.set('intent', intentMode);
+            else next.searchParams.delete('intent');
             window.history.replaceState({}, '', next);
           }
 
@@ -887,21 +917,72 @@ function renderGraphExplorer(initialSelectedId = null) {
             try {
               window.localStorage.setItem(storageKey, JSON.stringify({
                 selectedId,
-                searchQuery: searchEl.value || ''
+                searchQuery: searchEl.value || '',
+                intentMode
               }));
             } catch {}
+          }
+
+          function rankGraph() {
+            const query = norm(searchEl.value).trim();
+            const nodeScores = graph.nodes.map((node) => {
+              const reasons = {
+                degree: degreeMap.get(node.id) || 0,
+                starter: starterNodeIds.has(node.id) ? 1 : 0,
+                primary: node.group === 'primary' ? 1 : 0,
+                linked: node.group === 'linked' ? 1 : 0,
+                proof: node.group === 'proof' ? 1 : 0,
+                verified: node.properties?.lukeOrTatooineSlice ? 1 : 0,
+                selected: node.id === selectedId ? 1 : 0,
+                searchHit: query && [node.label, node.type, node.group, JSON.stringify(node.properties || {})].join(' ').toLowerCase().includes(query) ? 1 : 0,
+                storyBias: /skywalker|tatooine|star wars/i.test([node.label, node.type, JSON.stringify(node.properties || {})].join(' ')) ? 1 : 0
+              };
+              let score = 0;
+              if (intentMode === 'story') score = reasons.degree * 1.2 + reasons.storyBias * 5 + reasons.primary * 3 + reasons.linked * 2 + reasons.starter * 1.5 + reasons.searchHit * 2 + reasons.selected * 2;
+              else if (intentMode === 'relationships') score = reasons.degree * 2.5 + reasons.selected * 4 + reasons.searchHit * 2 + reasons.starter + reasons.primary;
+              else if (intentMode === 'debug') score = reasons.degree * 2 + reasons.proof * 4 + reasons.verified * 3 + reasons.selected * 2 + reasons.searchHit;
+              else score = reasons.verified * 5 + reasons.proof * 4 + reasons.primary * 3 + reasons.starter * 2 + reasons.degree * 1.1 + reasons.searchHit * 2 + reasons.selected * 2;
+              return { id: node.id, score, reasons };
+            }).sort((a, b) => b.score - a.score || (nodeById.get(a.id)?.label || '').localeCompare(nodeById.get(b.id)?.label || ''));
+            const edgeScores = graph.edges.map((edge) => {
+              const reasons = {
+                selected: edge.source === selectedId || edge.target === selectedId ? 1 : 0,
+                verified: edge.emphasis === 'verified' || edge.type === 'VERIFIES' ? 1 : 0,
+                mentions: edge.type === 'MENTIONS' ? 1 : 0,
+                verifies: edge.type === 'VERIFIES' ? 1 : 0,
+                starter: starterNodeIds.has(edge.source) && starterNodeIds.has(edge.target) ? 1 : 0,
+                connectivity: (degreeMap.get(edge.source) || 0) + (degreeMap.get(edge.target) || 0)
+              };
+              let score = 0;
+              if (intentMode === 'story') score = reasons.mentions * 4 + reasons.starter * 2 + reasons.selected * 2 + reasons.connectivity * 0.8;
+              else if (intentMode === 'relationships') score = reasons.selected * 5 + reasons.connectivity * 1.5 + reasons.mentions * 3 + reasons.verifies;
+              else if (intentMode === 'debug') score = reasons.verifies * 5 + reasons.verified * 3 + reasons.connectivity * 1.2 + reasons.selected * 1.5;
+              else score = reasons.verified * 5 + reasons.verifies * 3 + reasons.selected * 2 + reasons.starter * 2 + reasons.connectivity * 0.8;
+              return { id: edge.id, score, reasons };
+            }).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+            const visibleNodeLimit = intentMode === 'debug' ? graph.nodes.length : intentMode === 'relationships' ? 8 : 6;
+            return {
+              nodeScores,
+              edgeScores,
+              visibleNodeIds: new Set(nodeScores.slice(0, visibleNodeLimit).map((item) => item.id)),
+              visibleNodeLimit
+            };
           }
 
           function filteredNodes() {
             const search = norm(searchEl.value).trim();
             const usingStarter = starterMode && !search && !groupEl.value && !typeEl.value;
-            const starterNodeIds = new Set((graph.starter?.nodeIds || []).filter((nodeId) => allowedIds.has(nodeId)));
+            const ranking = rankGraph();
             return graph.nodes.filter((node) => {
               const matchesSearch = !search || [node.label, node.type, node.group, node.source, JSON.stringify(node.properties || {})].map(norm).join(' ').includes(search);
               const matchesGroup = !groupEl.value || node.group === groupEl.value;
               const matchesType = !typeEl.value || node.type === typeEl.value;
               const matchesStarter = !usingStarter || starterNodeIds.has(node.id);
-              return matchesSearch && matchesGroup && matchesType && matchesStarter;
+              const matchesIntent = intentMode === 'debug' || ranking.visibleNodeIds.has(node.id) || node.id === selectedId || starterNodeIds.has(node.id);
+              return matchesSearch && matchesGroup && matchesType && matchesStarter && matchesIntent;
+            }).sort((a, b) => {
+              const scores = ranking.nodeScores;
+              return scores.findIndex((item) => item.id === a.id) - scores.findIndex((item) => item.id === b.id);
             });
           }
 
@@ -936,127 +1017,59 @@ function renderGraphExplorer(initialSelectedId = null) {
           function currentSearchResults(visibleNodes) {
             const search = norm(searchEl.value).trim();
             const visibleIds = new Set(visibleNodes.map((node) => node.id));
+            const ranking = rankGraph();
             const entityResults = visibleNodes.filter((node) => !search || [node.label, node.type, JSON.stringify(node.properties || {})].map(norm).join(' ').includes(search));
             const relationshipResults = graph.edges.filter((edge) => {
               if (!visibleIds.has(edge.source) || !visibleIds.has(edge.target)) return false;
               const source = nodeById.get(edge.source);
               const target = nodeById.get(edge.target);
               return !search || [edge.type, edge.proof, source?.label, target?.label].map(norm).join(' ').includes(search);
-            });
+            }).sort((a, b) => ranking.edgeScores.findIndex((item) => item.id === a.id) - ranking.edgeScores.findIndex((item) => item.id === b.id));
             const anchors = entityResults.slice(0, 4);
             const pathResults = [];
             if (selectedId && visibleIds.has(selectedId)) {
               for (const node of anchors) {
                 if (node.id === selectedId) continue;
                 const path = bfsPath(selectedId, node.id);
-                if (path.nodeIds.length > 1) {
-                  pathResults.push({
-                    id: 'path:' + selectedId + '->' + node.id,
-                    fromId: selectedId,
-                    toId: node.id,
-                    label: (nodeById.get(selectedId)?.label || selectedId) + ' → ' + node.label,
-                    nodeIds: path.nodeIds,
-                    edgeIds: path.edgeIds
-                  });
-                }
+                if (path.nodeIds.length > 1) pathResults.push({ id: 'path:' + selectedId + '->' + node.id, fromId: selectedId, toId: node.id, label: (nodeById.get(selectedId)?.label || selectedId) + ' → ' + node.label, nodeIds: path.nodeIds, edgeIds: path.edgeIds });
               }
             } else if (anchors.length >= 2) {
               const path = bfsPath(anchors[0].id, anchors[1].id);
-              if (path.nodeIds.length > 1) {
-                pathResults.push({
-                  id: 'path:' + anchors[0].id + '->' + anchors[1].id,
-                  fromId: anchors[0].id,
-                  toId: anchors[1].id,
-                  label: anchors[0].label + ' → ' + anchors[1].label,
-                  nodeIds: path.nodeIds,
-                  edgeIds: path.edgeIds
-                });
-              }
+              if (path.nodeIds.length > 1) pathResults.push({ id: 'path:' + anchors[0].id + '->' + anchors[1].id, fromId: anchors[0].id, toId: anchors[1].id, label: anchors[0].label + ' → ' + anchors[1].label, nodeIds: path.nodeIds, edgeIds: path.edgeIds });
             }
-            return { entityResults, relationshipResults, pathResults };
+            return { entityResults, relationshipResults, pathResults, ranking };
           }
 
-          function focusNode(nodeId) {
-            selectedId = nodeId;
-            starterMode = false;
-            activeRelationshipId = null;
-            activePathNodeIds = [];
-            activePathEdgeIds = [];
-            syncUrl();
-            persistState();
-            render();
-          }
+          function focusNode(nodeId) { selectedId = nodeId; starterMode = false; activeRelationshipId = null; activePathNodeIds = []; activePathEdgeIds = []; syncUrl(); persistState(); render(); }
+          function activateRelationship(edgeId) { const edge = edgeById.get(edgeId); if (!edge) return; selectedId = edge.source; starterMode = false; activeRelationshipId = edgeId; activePathNodeIds = [edge.source, edge.target]; activePathEdgeIds = [edgeId]; syncUrl(); persistState(); render(); }
+          function activatePath(pathId, nodeIds, edgeIds) { selectedId = nodeIds[0] || selectedId; starterMode = false; activeRelationshipId = null; activePathNodeIds = nodeIds.slice(); activePathEdgeIds = edgeIds.slice(); syncUrl(); persistState(); render(); }
+          function navigateToNode(nodeId) { const url = '/graph?selected=' + encodeURIComponent(nodeId) + (intentMode && intentMode !== 'facts' ? ('&intent=' + encodeURIComponent(intentMode)) : ''); window.location.href = url; }
 
-          function activateRelationship(edgeId) {
-            const edge = edgeById.get(edgeId);
-            if (!edge) return;
-            selectedId = edge.source;
-            starterMode = false;
-            activeRelationshipId = edgeId;
-            activePathNodeIds = [edge.source, edge.target];
-            activePathEdgeIds = [edgeId];
-            syncUrl();
-            persistState();
-            render();
-          }
-
-          function activatePath(pathId, nodeIds, edgeIds) {
-            selectedId = nodeIds[0] || selectedId;
-            starterMode = false;
-            activeRelationshipId = null;
-            activePathNodeIds = nodeIds.slice();
-            activePathEdgeIds = edgeIds.slice();
-            syncUrl();
-            persistState();
-            render();
-          }
-
-          function navigateToNode(nodeId) {
-            const url = '/graph?selected=' + encodeURIComponent(nodeId);
-            window.location.href = url;
-          }
-
-          function renderDetail(node, visibleIds) {
+          function renderDetail(node, visibleIds, ranking) {
             if (!node) {
               detailEl.innerHTML = '<h2>Inspector</h2><p class="muted">No visible node selected.</p>';
               return;
             }
+            const nodeScore = ranking.nodeScores.find((item) => item.id === node.id);
             const neighbors = (neighborMap.get(node.id) || []).map(({ nodeId, edgeId }) => ({ node: nodeById.get(nodeId), edge: edgeById.get(edgeId) })).filter((item) => item.node);
-            const pathSummary = activePathNodeIds.length > 1
-              ? '<p class="muted">Highlighted path: ' + activePathNodeIds.map((id) => esc(nodeById.get(id)?.label || id)).join(' → ') + '</p>'
-              : activeRelationshipId
-                ? '<p class="muted">Highlighted relationship active.</p>'
-                : '<p class="muted">No relationship/path highlight active.</p>';
+            const pathSummary = activePathNodeIds.length > 1 ? '<p class="muted">Highlighted path: ' + activePathNodeIds.map((id) => esc(nodeById.get(id)?.label || id)).join(' → ') + '</p>' : activeRelationshipId ? '<p class="muted">Highlighted relationship active.</p>' : '<p class="muted">No relationship/path highlight active.</p>';
             detailEl.innerHTML = '<h2>' + esc(node.label) + '</h2>'
-              + '<div><span class="chip">' + esc(node.type) + '</span><span class="chip">' + esc(node.group) + '</span></div>'
+              + '<div><span class="chip">' + esc(node.type) + '</span><span class="chip">' + esc(node.group) + '</span><span class="chip">intent: ' + esc(intentMode) + '</span></div>'
               + '<p class="muted">Source: ' + esc(node.source || 'unknown') + '</p>'
+              + '<p class="muted">Adaptive score: ' + esc(nodeScore?.score ?? 0) + '</p>'
               + pathSummary
               + '<div class="button-row"><button class="button" type="button" data-double-nav="' + esc(node.id) + '">Open deep link</button></div>'
+              + '<h3>Ranking reasons</h3><pre>' + esc(JSON.stringify(nodeScore?.reasons || {}, null, 2)) + '</pre>'
               + '<h3>Properties</h3><pre>' + esc(JSON.stringify(node.properties || {}, null, 2)) + '</pre>'
               + '<h3>Visible neighbors</h3>'
-              + (neighbors.filter((item) => visibleIds.has(item.node.id)).length
-                  ? '<div class="stack">' + neighbors.filter((item) => visibleIds.has(item.node.id)).map((item) => '<div class="card-item"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;"><button class="button" type="button" data-select-node="' + esc(item.node.id) + '">' + esc(item.node.label) + '</button><button class="button" type="button" data-select-edge="' + esc(item.edge.id) + '">' + esc(item.edge.type || 'RELATES_TO') + '</button></div></div>').join('') + '</div>'
-                  : '<p class="muted">No visible neighbors under the current filters.</p>');
+              + (neighbors.filter((item) => visibleIds.has(item.node.id)).length ? '<div class="stack">' + neighbors.filter((item) => visibleIds.has(item.node.id)).map((item) => '<div class="card-item"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;"><button class="button" type="button" data-select-node="' + esc(item.node.id) + '">' + esc(item.node.label) + '</button><button class="button" type="button" data-select-edge="' + esc(item.edge.id) + '">' + esc(item.edge.type || 'RELATES_TO') + '</button></div></div>').join('') + '</div>' : '<p class="muted">No visible neighbors under the current filters.</p>');
           }
 
           function renderResults(results) {
             const sections = [
-              {
-                title: 'Entities',
-                items: results.entityResults.slice(0, 8).map((node) => '<button class="button" type="button" data-select-node="' + esc(node.id) + '" data-node-row="1" style="justify-content:flex-start;text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + '</span></button>')
-              },
-              {
-                title: 'Relationships',
-                items: results.relationshipResults.slice(0, 8).map((edge) => {
-                  const source = nodeById.get(edge.source);
-                  const target = nodeById.get(edge.target);
-                  return '<button class="button" type="button" data-select-edge="' + esc(edge.id) + '" style="justify-content:flex-start;text-align:left;">' + esc(source?.label || edge.source) + ' → ' + esc(target?.label || edge.target) + ' <span class="muted tiny">· ' + esc(edge.type || 'RELATES_TO') + '</span></button>';
-                })
-              },
-              {
-                title: 'Paths',
-                items: results.pathResults.slice(0, 8).map((path) => '<button class="button" type="button" data-select-path="' + esc(path.id) + '" data-path-nodes="' + esc(path.nodeIds.join('|')) + '" data-path-edges="' + esc(path.edgeIds.join('|')) + '" style="justify-content:flex-start;text-align:left;">' + esc(path.label) + ' <span class="muted tiny">· ' + path.edgeIds.length + ' edge(s)</span></button>')
-              }
+              { title: 'Entities', items: results.entityResults.slice(0, 8).map((node) => '<button class="button" type="button" data-select-node="' + esc(node.id) + '" data-node-row="1" style="justify-content:flex-start;text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + '</span></button>') },
+              { title: 'Relationships', items: results.relationshipResults.slice(0, 8).map((edge) => { const source = nodeById.get(edge.source); const target = nodeById.get(edge.target); return '<button class="button" type="button" data-select-edge="' + esc(edge.id) + '" style="justify-content:flex-start;text-align:left;">' + esc(source?.label || edge.source) + ' → ' + esc(target?.label || edge.target) + ' <span class="muted tiny">· ' + esc(edge.type || 'RELATES_TO') + '</span></button>'; }) },
+              { title: 'Paths', items: results.pathResults.slice(0, 8).map((path) => '<button class="button" type="button" data-select-path="' + esc(path.id) + '" data-path-nodes="' + esc(path.nodeIds.join('|')) + '" data-path-edges="' + esc(path.edgeIds.join('|')) + '" style="justify-content:flex-start;text-align:left;">' + esc(path.label) + ' <span class="muted tiny">· ' + path.edgeIds.length + ' edge(s)</span></button>') }
             ];
             resultsEl.innerHTML = sections.map((section) => '<div class="card"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;"><strong>' + section.title + '</strong><span class="chip" style="margin-right:0;">' + section.items.length + '</span></div><div class="stack" style="margin-top:10px;">' + (section.items.length ? section.items.join('') : '<div class="muted tiny">No matches.</div>') + '</div></div>').join('');
           }
@@ -1071,74 +1084,50 @@ function renderGraphExplorer(initialSelectedId = null) {
             const centerX = width / 2;
             const centerY = height / 2;
             const radius = 190;
+            const results = currentSearchResults(nodes);
             const focusNodeIds = new Set(activePathNodeIds.length ? activePathNodeIds : (selected ? [selected.id, ...(neighborMap.get(selected.id) || []).map((item) => item.nodeId)] : []));
             const positions = new Map();
             nodes.forEach((node, index) => {
               const angle = (Math.PI * 2 * index) / Math.max(nodes.length, 1);
               const baseOrbit = node.group === 'primary' ? radius * 0.42 : node.group === 'proof' ? radius * 0.18 : radius;
               const orbit = focusNodeIds.size && focusNodeIds.has(node.id) ? Math.max(70, baseOrbit * 0.62) : baseOrbit;
-              positions.set(node.id, {
-                x: centerX + Math.cos(angle) * orbit,
-                y: centerY + Math.sin(angle) * orbit
-              });
+              positions.set(node.id, { x: centerX + Math.cos(angle) * orbit, y: centerY + Math.sin(angle) * orbit });
             });
             const visibleEdges = graph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
-            svg.innerHTML = '<g>' + visibleEdges.map((edge) => {
+            const rankedEdgeIndex = new Map(results.ranking.edgeScores.map((edge, index) => [edge.id, index]));
+            svg.innerHTML = '<g>' + visibleEdges.sort((a, b) => (rankedEdgeIndex.get(a.id) || 999) - (rankedEdgeIndex.get(b.id) || 999)).map((edge) => {
               const source = positions.get(edge.source);
               const target = positions.get(edge.target);
               if (!source || !target) return '';
               const isRelationship = edge.id === activeRelationshipId;
               const isPath = activePathEdgeIds.includes(edge.id);
               const isSelectedNeighbor = selected && (edge.source === selected.id || edge.target === selected.id);
-              const stroke = isPath ? '#ff7b7b' : isRelationship ? '#ffd166' : edge.emphasis === 'verified' ? '#d3b04f' : isSelectedNeighbor ? '#79b8ff' : '#38507e';
-              const widthPx = isPath ? '5' : isRelationship ? '4' : edge.emphasis === 'verified' ? '3' : isSelectedNeighbor ? '2.5' : '1.5';
+              const ranked = results.ranking.edgeScores.find((item) => item.id === edge.id);
+              const stroke = isPath ? '#ff7b7b' : isRelationship ? '#ffd166' : intentMode === 'relationships' ? '#9fc8ff' : edge.emphasis === 'verified' ? '#d3b04f' : isSelectedNeighbor ? '#79b8ff' : '#38507e';
+              const widthPx = isPath ? '5' : isRelationship ? '4' : String(Math.max(1.5, 1.5 + ((ranked?.score || 0) / 6)));
               return '<line data-edge-id="' + esc(edge.id) + '" x1="' + source.x + '" y1="' + source.y + '" x2="' + target.x + '" y2="' + target.y + '" stroke="' + stroke + '" stroke-width="' + widthPx + '" opacity="0.95" />';
             }).join('') + '</g><g>' + nodes.map((node) => {
               const pos = positions.get(node.id);
+              const ranked = results.ranking.nodeScores.find((item) => item.id === node.id);
               const selectedStroke = node.id === selectedId ? '#ffffff' : activePathNodeIds.includes(node.id) ? '#ff7b7b' : '#0b1020';
-              const radiusPx = node.id === selectedId ? 33 : activePathNodeIds.includes(node.id) ? 31 : focusNodeIds.has(node.id) ? 30 : 28;
-              return '<g data-node-id="' + esc(node.id) + '" style="cursor:pointer;">'
-                + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + radiusPx + '" fill="' + colorFor(node.group) + '" stroke="' + selectedStroke + '" stroke-width="3"></circle>'
-                + '<text x="' + pos.x + '" y="' + (pos.y + 50) + '" text-anchor="middle" fill="#dfe9fb" font-size="15" font-family="Inter, sans-serif">' + esc(node.label) + '</text>'
-                + '</g>';
+              const radiusPx = node.id === selectedId ? 33 : activePathNodeIds.includes(node.id) ? 31 : Math.min(32, 24 + ((ranked?.score || 0) * 0.7));
+              return '<g data-node-id="' + esc(node.id) + '" style="cursor:pointer;">' + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + radiusPx + '" fill="' + colorFor(node.group) + '" stroke="' + selectedStroke + '" stroke-width="3"></circle>' + '<text x="' + pos.x + '" y="' + (pos.y + 50) + '" text-anchor="middle" fill="#dfe9fb" font-size="15" font-family="Inter, sans-serif">' + esc(node.label) + '</text>' + '</g>';
             }).join('') + '</g>';
-            listEl.innerHTML = nodes.length
-              ? nodes.map((node) => '<button class="button" type="button" data-select-node="' + esc(node.id) + '" data-node-row="1" style="justify-content:flex-start; text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + '</span></button>').join('')
-              : '<p class="muted">No graph nodes match the current filters.</p>';
-            const results = currentSearchResults(nodes);
+            listEl.innerHTML = nodes.length ? nodes.map((node) => { const ranked = results.ranking.nodeScores.find((item) => item.id === node.id); return '<button class="button" type="button" data-select-node="' + esc(node.id) + '" data-node-row="1" style="justify-content:flex-start; text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + ' · score ' + esc(ranked?.score ?? 0) + '</span></button>'; }).join('') : '<p class="muted">No graph nodes match the current filters.</p>';
             renderResults(results);
-            stateEl.textContent = nodes.length
-              ? ((starterMode ? 'Showing curated starter subgraph. ' : 'Showing restored explorer context. ') + nodes.length + ' node(s), ' + visibleEdges.length + ' visible edge(s), and grouped entity/relationship/path results.')
-              : 'No nodes match the current filters.';
-            renderDetail(selected, visibleIds);
+            stateEl.textContent = nodes.length ? ((starterMode ? 'Showing curated starter subgraph. ' : 'Showing restored explorer context. ') + nodes.length + ' node(s), ' + visibleEdges.length + ' visible edge(s), grouped entity/relationship/path results, and intent mode ' + intentMode + '.') : 'No nodes match the current filters.';
+            rankingEl.textContent = 'Intent mode: ' + intentMode + ' · top nodes: ' + results.ranking.nodeScores.slice(0, 3).map((item) => nodeById.get(item.id)?.label || item.id).join(', ') + ' · visible node cap: ' + results.ranking.visibleNodeLimit + '.';
+            renderDetail(selected, visibleIds, results.ranking);
           }
 
           document.addEventListener('click', (event) => {
             const button = event.target.closest('[data-select-node], [data-select-edge], [data-select-path], [data-double-nav]');
             const nodeGroup = event.target.closest('[data-node-id]');
-            if (button?.hasAttribute('data-double-nav')) {
-              navigateToNode(button.getAttribute('data-double-nav'));
-              return;
-            }
-            if (button?.hasAttribute('data-select-node')) {
-              focusNode(button.getAttribute('data-select-node'));
-              return;
-            }
-            if (button?.hasAttribute('data-select-edge')) {
-              activateRelationship(button.getAttribute('data-select-edge'));
-              return;
-            }
-            if (button?.hasAttribute('data-select-path')) {
-              activatePath(
-                button.getAttribute('data-select-path'),
-                String(button.getAttribute('data-path-nodes') || '').split('|').filter(Boolean),
-                String(button.getAttribute('data-path-edges') || '').split('|').filter(Boolean)
-              );
-              return;
-            }
-            if (nodeGroup) {
-              focusNode(nodeGroup.getAttribute('data-node-id'));
-            }
+            if (button?.hasAttribute('data-double-nav')) { navigateToNode(button.getAttribute('data-double-nav')); return; }
+            if (button?.hasAttribute('data-select-node')) { focusNode(button.getAttribute('data-select-node')); return; }
+            if (button?.hasAttribute('data-select-edge')) { activateRelationship(button.getAttribute('data-select-edge')); return; }
+            if (button?.hasAttribute('data-select-path')) { activatePath(button.getAttribute('data-select-path'), String(button.getAttribute('data-path-nodes') || '').split('|').filter(Boolean), String(button.getAttribute('data-path-edges') || '').split('|').filter(Boolean)); return; }
+            if (nodeGroup) focusNode(nodeGroup.getAttribute('data-node-id'));
           });
 
           document.addEventListener('dblclick', (event) => {
@@ -1148,11 +1137,13 @@ function renderGraphExplorer(initialSelectedId = null) {
             if (nodeId) navigateToNode(nodeId);
           });
 
-          [searchEl, groupEl, typeEl].forEach((el) => el.addEventListener('input', () => {
+          [searchEl, groupEl, typeEl, intentEl].forEach((el) => el.addEventListener('input', () => {
+            if (el === intentEl) intentMode = sanitizeIntentMode(intentEl.value);
             starterMode = false;
             activeRelationshipId = null;
             activePathNodeIds = [];
             activePathEdgeIds = [];
+            syncUrl();
             persistState();
             render();
           }));
@@ -1160,6 +1151,8 @@ function renderGraphExplorer(initialSelectedId = null) {
             searchEl.value = '';
             groupEl.value = '';
             typeEl.value = '';
+            intentMode = sanitizeIntentMode(graph.starter?.intentMode || 'facts');
+            intentEl.value = intentMode;
             starterMode = true;
             selectedId = graph.starter?.selectedId || graph.nodes[0]?.id || null;
             activeRelationshipId = null;
@@ -3247,7 +3240,14 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname === '/api/graph') {
-    json(res, 200, loadGraphExplorerModel(root));
+    const graph = loadGraphExplorerModel(root);
+    const intentMode = sanitizeIntentMode(url.searchParams.get('intent'));
+    const selectedId = url.searchParams.get('selected') || null;
+    const query = url.searchParams.get('q') || '';
+    json(res, 200, {
+      ...graph,
+      adaptive: rankGraphForIntent(graph, { intentMode, selectedId, query })
+    });
     return;
   }
 
@@ -3364,7 +3364,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname === '/graph') {
-    sendHtml(res, 200, renderGraphExplorer(url.searchParams.get('selected')));
+    sendHtml(res, 200, renderGraphExplorer(url.searchParams.get('selected'), url.searchParams.get('intent')));
     return;
   }
 

@@ -1118,8 +1118,8 @@
   {
     "id": "MB-096",
     "title": "Graph Explorer: adaptive expansion and intent modes",
-    "state": "ready",
-    "owner": "Motherbrain local coding agents",
+    "state": "done",
+    "owner": "Coder-2",
     "depends_on": [
       "MB-094",
       "MB-095"
@@ -1127,11 +1127,17 @@
     "artifacts": [
       "docs/cards/MB-096-graph-explorer-adaptive-expansion-and-intent-modes.md",
       "PROOF_MB_096.md",
+      "README.md",
+      "MB_SAM_RUNTIME.md",
+      "scripts/dev-server.mjs",
+      "scripts/prove-mb-096.mjs",
       "src/graph-explorer/"
     ],
     "notes": [
-      "Restored to the queue alongside MB-094/095 so the explorer tranche matches the intended dependency chain again.",
-      "Adaptive expansion should stay downstream of the repaired live route and the baseline interaction/persistence contracts."
-    ]
+      "Added deterministic intent-mode scoring for the proof-backed graph explorer with four explicit modes: facts, story, relationships, and debug.",
+      "The live /graph route now exposes a global intent selector, persists intent mode locally, honors intent deep links, and adapts visible ranking/edge emphasis without inventing live Neo4j data.",
+      "QA on this branch: node --check scripts/dev-server.mjs && node --check src/graph-explorer/adapter.mjs && node --check src/graph-explorer/state.mjs && node --check src/graph-explorer/scoring.mjs && node --check scripts/prove-mb-089.mjs && node --check scripts/prove-mb-094.mjs && node --check scripts/prove-mb-095.mjs && node --check scripts/prove-mb-096.mjs; node scripts/prove-mb-089.mjs; node scripts/prove-mb-094.mjs; node scripts/prove-mb-095.mjs; node scripts/prove-mb-096.mjs."
+    ],
+    "completed_at": "2026-04-04T23:35:00-07:00"
   }
 ]

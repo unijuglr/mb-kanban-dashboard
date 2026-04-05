@@ -165,8 +165,10 @@ export function loadGraphExplorerModel(rootDir) {
       label: 'Luke / Tatooine starter slice',
       description: 'Curated default subgraph from the committed MB-080 + MB-088 proof artifacts.',
       selectedId: 'entity:luke-skywalker',
+      intentMode: 'facts',
       nodeIds: ['entity:luke-skywalker', 'entity:tatooine', 'proof:mb-088-card']
     },
+    intentModes: ['facts', 'story', 'relationships', 'debug'],
     summary: {
       nodeCount: nodes.length,
       edgeCount: edges.length,

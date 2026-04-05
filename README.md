@@ -58,12 +58,14 @@ MB-089/MB-094 add a proof-backed graph explorer route:
 - single-click selects, inspects, and focuses the graph state
 - last selected node and last search query persist locally on the device and restore on reload
 - double-click navigates to a defined deep-link destination: `/graph?selected=:id`
+- global intent modes (`facts`, `story`, `relationships`, `debug`) adapt ranking/visible context on the live route
+- intent mode persists locally and can be deep-linked with `?intent=` alongside `?selected=`
 - seeded from the Luke/Tatooine vertical-slice evidence already in-tree
 
 ## Routes
 - `/` — overview shell
 - `/board` — status-grouped card board
-- `/graph` — read-only OLN proof graph explorer with starter-slice + local context restore
+- `/graph` — read-only OLN proof graph explorer with starter-slice, local context restore, and adaptive intent modes
 - `/metrics` — metrics timeline + comparison screen
 - `/cards/:id` — card detail view
 - `/decisions` — decision list
@@ -103,7 +105,7 @@ Then open:
 - `http://127.0.0.1:4187/`
 - `http://127.0.0.1:4187/board`
 - `http://127.0.0.1:4187/graph`
-- `http://127.0.0.1:4187/graph`
+- `http://127.0.0.1:4187/graph?intent=story&selected=entity:luke-skywalker`
 
 Or inspect the API directly:
 - `http://127.0.0.1:4187/api/board`
