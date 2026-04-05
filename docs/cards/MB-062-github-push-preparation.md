@@ -1,5 +1,10 @@
 # MB-062 — GitHub Push Preparation
 
+Status: Done
+Priority: P2
+Owner: MB-Sam
+Last Updated: 2026-04-04
+
 ## Goal
 Prepare the standalone MB Kanban repository for primary integration or handover, ensuring branch hygiene, clean documentation, and baseline CI-ready proof scripts.
 

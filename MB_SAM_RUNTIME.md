@@ -86,3 +86,9 @@
 - Reconciled `docs/cards/MB-023-kanban-ui-mvp.md` from `Status: Ready` to `Status: Done` so the card matches the long-complete proof/task state.
 - Removed duplicate `MB-037` and `MB-038` entries from `mb_tasks.json`; the queue now reports 68 unique tasks instead of inflated duplicate counts.
 - QA for this pass: ran a repo-side parity check confirming no remaining card/task status mismatch and no duplicate task IDs; DTS remained untouched.
+
+## 🌙 Overnight Swarm Notes (2026-04-04 18:58 PT truth-maintenance pass)
+- Audited the non-DTS ready queue again: there are still no honest repo-side `ready` tasks; remaining unresolved work is the blocked Motherbrain host-path tranche (`MB-004`, `MB-022`, `MB-024`, `MB-025`, `MB-026`).
+- Found one remaining metadata gap: `docs/cards/MB-062-github-push-preparation.md` existed as a completed card but was missing a canonical `Status:` header, which made card-state scans report an `UNKNOWN` bucket.
+- Reconciled MB-062 to `Status: Done` with explicit owner/priority/update metadata so card scans and `mb_tasks.json` now agree cleanly.
+- QA for this pass: reran repo-side parity/status scan confirming zero `Ready` cards, zero `Ready` tasks, and no remaining missing-status card headers. DTS remained untouched.
