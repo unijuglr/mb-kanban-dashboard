@@ -97,3 +97,8 @@
 - Found one remaining metadata gap: `docs/cards/MB-062-github-push-preparation.md` existed as a completed card but was missing a canonical `Status:` header, which made card-state scans report an `UNKNOWN` bucket.
 - Reconciled MB-062 to `Status: Done` with explicit owner/priority/update metadata so card scans and `mb_tasks.json` now agree cleanly.
 - QA for this pass: reran repo-side parity/status scan confirming zero `Ready` cards, zero `Ready` tasks, and no remaining missing-status card headers. DTS remained untouched.
+
+## 🌙 Overnight Swarm Notes (2026-04-05 00:09 PT backlog-truth pass)
+- Audited the non-DTS queue again and confirmed there is still no honest repo-side ready implementation tranche beyond blocked Motherbrain host-path work.
+- Reconciled graph-explorer state drift: restored missing `MB-093` into `mb_tasks.json` from its already-committed done card/proof, and updated `docs/cards/MB-096-graph-explorer-adaptive-expansion-and-intent-modes.md` from `Status: Ready` to `Status: Done` so card/task/runtime truth matches.
+- QA for this pass: parity scan now shows no missing task entry for MB-093 and no card/task mismatch for MB-096. DTS remained untouched.

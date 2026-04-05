@@ -1072,6 +1072,28 @@
     ]
   },
   {
+    "id": "MB-093",
+    "title": "Graph Explorer: repair live route/API mismatch and prove `/graph` end-to-end",
+    "state": "done",
+    "owner": "Coder-2",
+    "depends_on": [
+      "MB-089"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "src/graph-explorer/adapter.mjs",
+      "scripts/prove-mb-089.mjs",
+      "PROOF_MB_093.md",
+      "docs/cards/MB-093-graph-explorer-route-and-proof-repair.md"
+    ],
+    "notes": [
+      "Repaired the missing live /graph and /api/graph route registration in scripts/dev-server.mjs so the running dashboard stopped returning 404 for the proof-backed explorer.",
+      "Verified against the actual local dev server on port 4187 with live 200 responses for /graph, /api/graph, and health route listing.",
+      "This task corrects the earlier MB-089 overclaim: proof-backed explorer artifacts existed, but the live route/API truth was only established after MB-093."
+    ],
+    "completed_at": "2026-04-04T21:00:00-07:00"
+  },
+  {
     "id": "MB-094",
     "title": "Graph Explorer: interaction model v1 for search, inspect, and exploration",
     "state": "done",

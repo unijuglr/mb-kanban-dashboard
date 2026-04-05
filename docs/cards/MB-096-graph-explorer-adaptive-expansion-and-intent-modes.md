@@ -1,6 +1,6 @@
 # MB-096 — Graph Explorer: adaptive expansion and intent modes
 
-Status: Ready
+Status: Done
 Priority: P0 critical
 Project: OLN
 Owner: Motherbrain local coding agents
