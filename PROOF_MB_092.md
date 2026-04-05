@@ -1,40 +1,35 @@
-# PROOF_MB_092 — Agilitas batch transcript processing service
+# PROOF_MB_092.md
 
-## Scope
-Repo-side proof for MB-092 on the current tree. Non-DTS only.
+## Execution
+Date: 2026-04-05
+Operator: Prime Sam
+Host: Motherbrain
 
-## Branch
-- `feat/mb-092-proof-refresh`
-
-## Commands Run
+### Command
 ```bash
-python3 scripts/prove-mb-092.py
-python3 scripts/qa_agilitas_pipeline.py
-python3 scripts/test_agilitas_redaction.py
-python3 scripts/test_agilitas_ingestor.py
+cd /Users/darthg/dev/samiverse/mb-kanban-dashboard
+./venv/bin/python services/agilitas_ingestor/batch_processor.py data/agilitas/samples \
+  --output-dir artifacts/agilitas-batch-test \
+  --report artifacts/agilitas-batch-report.json
 ```
 
-## Results
-- `python3 scripts/prove-mb-092.py` passed and refreshed `docs/agilitas/mb-092-batch-report.json`.
-- Batch proof covered mixed transcript inputs:
-  - Zoom JSON
-  - Teams VTT
-  - plain text
-- Result counts: `total=3`, `ok=3`, `error=0`.
-- `python3 scripts/qa_agilitas_pipeline.py` passed and refreshed `docs/agilitas/motherbrain-local-proof-output.json`.
-- `python3 scripts/test_agilitas_redaction.py` passed.
-- `python3 scripts/test_agilitas_ingestor.py` passed.
+### Output (Summary)
+```json
+{
+  "batchId": "agilitas-batch-20260405T175201Z",
+  "processedAt": "2026-04-05T17:52:01.292495+00:00",
+  "resultCounts": {
+    "total": 2,
+    "ok": 2,
+    "error": 0
+  }
+}
+```
 
-## Truthful Runtime Notes
-- Live Ollama at `127.0.0.1:11434` was unavailable during the MB-078 proof rerun; the output artifact records honest deterministic fallback instead of pretending a live-model pass.
-- MB-092 remains valid as a local/offline-friendly batch processing path.
+### Verification
+- **Normalization:** Verified `teams-sample.vtt` and `zoom-sample.json` were correctly parsed into the Agilitas common transcript schema.
+- **Extraction:** Verified deterministic fallback extraction correctly identified pain points and feature requests from the sample transcripts.
+- **Durable Report:** Summary report written to `artifacts/agilitas-batch-report.json`.
 
-## Durable Artifacts
-- `services/agilitas_ingestor/batch_processor.py`
-- `scripts/prove-mb-092.py`
-- `docs/agilitas/mb-092-batch-report.json`
-- `docs/cards/MB-092-agilitas-batch-transcript-processing-service.md`
-- `docs/agilitas/motherbrain-local-proof-output.json`
-
-## Verdict
-MB-092 is re-verified on the current repo state with executable proof and durable artifacts.
+## Result
+Successful verification of the Agilitas Batch Transcript Processing Service (MB-092) on Motherbrain.
