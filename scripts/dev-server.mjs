@@ -9,6 +9,7 @@ import { classifyDecisionType, latestDecisionResponse } from '../src/decision-mo
 import { appendUpdate } from '../src/update-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
 import { loadGraphExplorerModel } from '../src/graph-explorer/adapter.mjs';
+import { GRAPH_EXPLORER_STORAGE_KEY, resolveInitialGraphState } from '../src/graph-explorer/state.mjs';
 
 function json(res, statusCode, payload) {
   res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -761,9 +762,15 @@ function renderMetricsScreen(model, metrics) {
   });
 }
 
-function renderGraphExplorer() {
+function renderGraphExplorer(initialSelectedId = null) {
   const graph = loadGraphExplorerModel(root);
+  const serverBootstrap = resolveInitialGraphState({ graph, urlSelectedId: initialSelectedId, persistedState: null });
   const graphData = JSON.stringify(graph).replace(/</g, '\\u003c');
+  const bootstrapData = JSON.stringify({
+    storageKey: GRAPH_EXPLORER_STORAGE_KEY,
+    initialSelectedId: initialSelectedId || null,
+    serverBootstrap
+  }).replace(/</g, '\\u003c');
 
   return shell({
     title: 'Graph explorer',
@@ -772,7 +779,7 @@ function renderGraphExplorer() {
       <section class="hero">
         <div>
           <h1>Graph explorer</h1>
-          <p>Proof-backed OLN graph explorer v1: grouped search, click-to-focus inspection, double-click deep-link navigation, and lightweight relationship/path highlighting on the live route.</p>
+          <p>Proof-backed OLN graph explorer v1: search-first exploration with a curated starter subgraph, local return-to-context persistence, double-click deep-link navigation, and lightweight relationship/path highlighting on the live route.</p>
         </div>
         <div class="muted">${escapeHtml(graph.summary.nodeCount)} node(s) · ${escapeHtml(graph.summary.edgeCount)} edge(s)</div>
       </section>
@@ -781,6 +788,15 @@ function renderGraphExplorer() {
         <article class="card"><div class="muted">Linked entities</div><div class="kpi">${escapeHtml(graph.summary.linkedCount)}</div></article>
         <article class="card"><div class="muted">Source mode</div><div class="kpi" style="font-size:1.05rem;">${escapeHtml(graph.source.mode)}</div></article>
         <article class="card"><div class="muted">Double click destination</div><div class="kpi" style="font-size:1.05rem;">/graph?selected=:id</div></article>
+      </section>
+      <section class="panel" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+          <div>
+            <h2 style="margin:0;">Default starter subgraph</h2>
+            <p class="muted" style="margin:8px 0 0;">${escapeHtml(graph.starter.label)} — ${escapeHtml(graph.starter.description)}</p>
+          </div>
+          <div class="chip">Local persistence: selected node + search query</div>
+        </div>
       </section>
       <section class="grid" style="grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) minmax(300px, 380px); align-items:start;">
         <article class="panel stack">
@@ -806,9 +822,11 @@ function renderGraphExplorer() {
         </article>
       </section>
       <script id="graph-data" type="application/json">${graphData}</script>
+      <script id="graph-bootstrap" type="application/json">${bootstrapData}</script>
       <script>
         (() => {
           const graph = JSON.parse(document.getElementById('graph-data').textContent);
+          const bootstrap = JSON.parse(document.getElementById('graph-bootstrap').textContent);
           const searchEl = document.getElementById('graph-search');
           const groupEl = document.getElementById('graph-group-filter');
           const typeEl = document.getElementById('graph-type-filter');
@@ -819,7 +837,28 @@ function renderGraphExplorer() {
           const detailEl = document.getElementById('graph-detail-panel');
           const svg = document.getElementById('graph-canvas');
           const params = new URLSearchParams(window.location.search);
-          let selectedId = params.get('selected') || graph.nodes[0]?.id || null;
+          const storageKey = bootstrap.storageKey || 'mb.graphExplorer.v1';
+          const allowedIds = new Set(graph.nodes.map((node) => node.id));
+          let persistedState = null;
+          try {
+            const raw = window.localStorage.getItem(storageKey);
+            persistedState = raw ? JSON.parse(raw) : null;
+          } catch {
+            persistedState = null;
+          }
+          const sanitizePersisted = (value) => ({
+            selectedId: typeof value?.selectedId === 'string' && allowedIds.has(value.selectedId) ? value.selectedId : null,
+            searchQuery: typeof value?.searchQuery === 'string' ? value.searchQuery.slice(0, 200) : ''
+          });
+          const safePersisted = sanitizePersisted(persistedState);
+          const hasStoredContext = Boolean(safePersisted.selectedId || safePersisted.searchQuery);
+          let selectedId = (params.get('selected') && allowedIds.has(params.get('selected')) ? params.get('selected') : null)
+            || safePersisted.selectedId
+            || bootstrap.serverBootstrap?.selectedId
+            || graph.nodes[0]?.id
+            || null;
+          let starterMode = !params.get('selected') && !hasStoredContext;
+          searchEl.value = safePersisted.searchQuery || '';
           let activeRelationshipId = null;
           let activePathNodeIds = [];
           let activePathEdgeIds = [];
@@ -844,13 +883,25 @@ function renderGraphExplorer() {
             window.history.replaceState({}, '', next);
           }
 
+          function persistState() {
+            try {
+              window.localStorage.setItem(storageKey, JSON.stringify({
+                selectedId,
+                searchQuery: searchEl.value || ''
+              }));
+            } catch {}
+          }
+
           function filteredNodes() {
             const search = norm(searchEl.value).trim();
+            const usingStarter = starterMode && !search && !groupEl.value && !typeEl.value;
+            const starterNodeIds = new Set((graph.starter?.nodeIds || []).filter((nodeId) => allowedIds.has(nodeId)));
             return graph.nodes.filter((node) => {
               const matchesSearch = !search || [node.label, node.type, node.group, node.source, JSON.stringify(node.properties || {})].map(norm).join(' ').includes(search);
               const matchesGroup = !groupEl.value || node.group === groupEl.value;
               const matchesType = !typeEl.value || node.type === typeEl.value;
-              return matchesSearch && matchesGroup && matchesType;
+              const matchesStarter = !usingStarter || starterNodeIds.has(node.id);
+              return matchesSearch && matchesGroup && matchesType && matchesStarter;
             });
           }
 
@@ -927,10 +978,12 @@ function renderGraphExplorer() {
 
           function focusNode(nodeId) {
             selectedId = nodeId;
+            starterMode = false;
             activeRelationshipId = null;
             activePathNodeIds = [];
             activePathEdgeIds = [];
             syncUrl();
+            persistState();
             render();
           }
 
@@ -938,19 +991,23 @@ function renderGraphExplorer() {
             const edge = edgeById.get(edgeId);
             if (!edge) return;
             selectedId = edge.source;
+            starterMode = false;
             activeRelationshipId = edgeId;
             activePathNodeIds = [edge.source, edge.target];
             activePathEdgeIds = [edgeId];
             syncUrl();
+            persistState();
             render();
           }
 
           function activatePath(pathId, nodeIds, edgeIds) {
             selectedId = nodeIds[0] || selectedId;
+            starterMode = false;
             activeRelationshipId = null;
             activePathNodeIds = nodeIds.slice();
             activePathEdgeIds = edgeIds.slice();
             syncUrl();
+            persistState();
             render();
           }
 
@@ -1050,7 +1107,9 @@ function renderGraphExplorer() {
               : '<p class="muted">No graph nodes match the current filters.</p>';
             const results = currentSearchResults(nodes);
             renderResults(results);
-            stateEl.textContent = nodes.length ? ('Showing ' + nodes.length + ' node(s), ' + visibleEdges.length + ' visible edge(s), and grouped entity/relationship/path results.') : 'No nodes match the current filters.';
+            stateEl.textContent = nodes.length
+              ? ((starterMode ? 'Showing curated starter subgraph. ' : 'Showing restored explorer context. ') + nodes.length + ' node(s), ' + visibleEdges.length + ' visible edge(s), and grouped entity/relationship/path results.')
+              : 'No nodes match the current filters.';
             renderDetail(selected, visibleIds);
           }
 
@@ -1090,21 +1149,28 @@ function renderGraphExplorer() {
           });
 
           [searchEl, groupEl, typeEl].forEach((el) => el.addEventListener('input', () => {
+            starterMode = false;
             activeRelationshipId = null;
             activePathNodeIds = [];
             activePathEdgeIds = [];
+            persistState();
             render();
           }));
           resetEl.addEventListener('click', () => {
             searchEl.value = '';
             groupEl.value = '';
             typeEl.value = '';
+            starterMode = true;
+            selectedId = graph.starter?.selectedId || graph.nodes[0]?.id || null;
             activeRelationshipId = null;
             activePathNodeIds = [];
             activePathEdgeIds = [];
+            syncUrl();
+            persistState();
             render();
           });
           syncUrl();
+          persistState();
           render();
         })();
       </script>`
@@ -3298,7 +3364,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname === '/graph') {
-    sendHtml(res, 200, renderGraphExplorer());
+    sendHtml(res, 200, renderGraphExplorer(url.searchParams.get('selected')));
     return;
   }
 

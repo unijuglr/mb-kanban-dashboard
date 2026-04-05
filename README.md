@@ -54,14 +54,16 @@ MB-089/MB-094 add a proof-backed graph explorer route:
 - `/graph` renders an interactive read-only node/link explorer
 - `/api/graph` emits graph JSON sourced from committed OLN proof artifacts
 - grouped search results are split into entity / relationship / path buckets
+- cold loads start in a curated Luke / Tatooine starter subgraph
 - single-click selects, inspects, and focuses the graph state
+- last selected node and last search query persist locally on the device and restore on reload
 - double-click navigates to a defined deep-link destination: `/graph?selected=:id`
 - seeded from the Luke/Tatooine vertical-slice evidence already in-tree
 
 ## Routes
 - `/` — overview shell
 - `/board` — status-grouped card board
-- `/graph` — read-only OLN proof graph explorer
+- `/graph` — read-only OLN proof graph explorer with starter-slice + local context restore
 - `/metrics` — metrics timeline + comparison screen
 - `/cards/:id` — card detail view
 - `/decisions` — decision list

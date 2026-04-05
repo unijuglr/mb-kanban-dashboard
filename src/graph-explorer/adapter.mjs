@@ -160,6 +160,13 @@ export function loadGraphExplorerModel(rootDir) {
       liveProbeAttempted: Boolean(liveProbe.attempted),
       liveProbeReason: liveProbe.reason || null
     },
+    starter: {
+      id: 'starter:luke-tatooine-proof-slice',
+      label: 'Luke / Tatooine starter slice',
+      description: 'Curated default subgraph from the committed MB-080 + MB-088 proof artifacts.',
+      selectedId: 'entity:luke-skywalker',
+      nodeIds: ['entity:luke-skywalker', 'entity:tatooine', 'proof:mb-088-card']
+    },
     summary: {
       nodeCount: nodes.length,
       edgeCount: edges.length,

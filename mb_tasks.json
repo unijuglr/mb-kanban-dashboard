@@ -1096,20 +1096,24 @@
   {
     "id": "MB-095",
     "title": "Graph Explorer: persistence, default state, and return-to-context behavior",
-    "state": "ready",
-    "owner": "Motherbrain local coding agents",
+    "state": "done",
+    "owner": "Coder-2",
     "depends_on": [
       "MB-094"
     ],
     "artifacts": [
       "docs/cards/MB-095-graph-explorer-persistence-and-default-state.md",
       "PROOF_MB_095.md",
-      "src/graph-explorer/"
+      "src/graph-explorer/",
+      "scripts/prove-mb-095.mjs"
     ],
     "notes": [
-      "Restored to the queue alongside MB-094/096 so downstream explorer work is visible again.",
-      "Keep this sequenced after MB-094 so persistence is restoring a real interaction contract rather than a speculative one."
-    ]
+      "Cold-load `/graph` now opens into a curated Luke / Tatooine starter slice sourced only from committed OLN proof artifacts.",
+      "Local device persistence now restores the last selected node and last search query when no explicit deep link is present.",
+      "Deep-link `selected` still takes precedence over persisted selected-node state while preserving the search-query restore contract.",
+      "QA on this branch: node --check scripts/dev-server.mjs && node --check src/graph-explorer/adapter.mjs && node --check src/graph-explorer/state.mjs && node --check scripts/prove-mb-095.mjs; node scripts/prove-mb-089.mjs; node scripts/prove-mb-094.mjs; node scripts/prove-mb-095.mjs."
+    ],
+    "completed_at": "2026-04-04T22:00:00-07:00"
   },
   {
     "id": "MB-096",
