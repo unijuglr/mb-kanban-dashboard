@@ -1070,5 +1070,80 @@
       "Reconciled into mb_tasks.json on 2026-04-04 after audit found the done card existed but the task-state entry was missing.",
       "This preserves early Kanban seed history so later queue reports stop silently dropping the board setup lineage."
     ]
+  },
+  {
+    "id": "MB-093",
+    "title": "Graph Explorer: repair live route/API mismatch and prove /graph end-to-end",
+    "state": "in_progress",
+    "owner": "Coder-overnight",
+    "depends_on": [
+      "MB-089"
+    ],
+    "artifacts": [
+      "docs/cards/MB-093-graph-explorer-route-and-proof-repair.md",
+      "PROOF_MB_093.md",
+      "scripts/dev-server.mjs",
+      "src/graph-explorer/adapter.mjs",
+      "src/index.ts"
+    ],
+    "notes": [
+      "Promoted from ready card into mb_tasks.json during the 2026-04-04 overnight swarm pass so queue/state tooling can see the graph-explorer repair tranche.",
+      "Implementation delegated to subagent on branch feat/mb-093-graph-route-repair; do not mark done without live dev-server proof for both /graph and /api/graph."
+    ]
+  },
+  {
+    "id": "MB-094",
+    "title": "Graph Explorer: interaction model v1 for search, inspect, and exploration",
+    "state": "ready",
+    "owner": "Motherbrain local coding agents",
+    "depends_on": [
+      "MB-093"
+    ],
+    "artifacts": [
+      "docs/cards/MB-094-graph-explorer-interaction-model-v1.md",
+      "PROOF_MB_094.md",
+      "src/graph-explorer/"
+    ],
+    "notes": [
+      "Backlog card existed but task-state entry was missing; restored on 2026-04-04 overnight swarm pass.",
+      "Keep this sequenced after MB-093 so interaction work lands on a truthful reachable explorer surface."
+    ]
+  },
+  {
+    "id": "MB-095",
+    "title": "Graph Explorer: persistence, default state, and return-to-context behavior",
+    "state": "ready",
+    "owner": "Motherbrain local coding agents",
+    "depends_on": [
+      "MB-094"
+    ],
+    "artifacts": [
+      "docs/cards/MB-095-graph-explorer-persistence-and-default-state.md",
+      "PROOF_MB_095.md",
+      "src/graph-explorer/"
+    ],
+    "notes": [
+      "Backlog card existed but task-state entry was missing; restored on 2026-04-04 overnight swarm pass.",
+      "Persistence/default-state work stays downstream of the MB-094 interaction contract so saved state matches the actual explorer behavior."
+    ]
+  },
+  {
+    "id": "MB-096",
+    "title": "Graph Explorer: adaptive expansion and intent modes",
+    "state": "ready",
+    "owner": "Motherbrain local coding agents",
+    "depends_on": [
+      "MB-094",
+      "MB-095"
+    ],
+    "artifacts": [
+      "docs/cards/MB-096-graph-explorer-adaptive-expansion-and-intent-modes.md",
+      "PROOF_MB_096.md",
+      "src/graph-explorer/"
+    ],
+    "notes": [
+      "Backlog card existed but task-state entry was missing; restored on 2026-04-04 overnight swarm pass.",
+      "Adaptive expansion should follow the repaired reachable explorer plus baseline interaction/persistence contracts instead of being layered onto route drift."
+    ]
   }
 ]

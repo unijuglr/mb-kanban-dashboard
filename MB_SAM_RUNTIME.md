@@ -92,3 +92,10 @@
 - Found one remaining metadata gap: `docs/cards/MB-062-github-push-preparation.md` existed as a completed card but was missing a canonical `Status:` header, which made card-state scans report an `UNKNOWN` bucket.
 - Reconciled MB-062 to `Status: Done` with explicit owner/priority/update metadata so card scans and `mb_tasks.json` now agree cleanly.
 - QA for this pass: reran repo-side parity/status scan confirming zero `Ready` cards, zero `Ready` tasks, and no remaining missing-status card headers. DTS remained untouched.
+
+## 🌙 Overnight Swarm Notes (2026-04-04 19:56 PT graph-explorer activation pass)
+- Audited newly added non-DTS graph-explorer cards and found a real executable tranche: MB-093 route/API repair, followed by MB-094/095/096 as downstream explorer work.
+- Restored MB-093, MB-094, MB-095, and MB-096 into `mb_tasks.json`; the cards existed but were invisible to queue/state tooling, which would have caused the overnight swarm to idle on false "no ready work" assumptions.
+- Marked MB-093 `in_progress` and kept MB-094/095/096 sequenced behind it so the queue now reflects the truthful dependency chain instead of piling UX work onto a broken `/graph` surface.
+- Spawned one coder subagent for MB-093 implementation/proof on branch `feat/mb-093-graph-route-repair` and one QA/spec audit subagent to rank MB-094/095/096 for the next honest shipping tranche.
+- DTS remained excluded.
