@@ -49,9 +49,15 @@ Seeing the "facts" in a spatial, interactive format is critical for validating t
 - Added `scripts/prove-mb-089.mjs` and `PROOF_MB_089.md` for reproducible QA proof.
 - Honest MVP scope: this is a real graph explorer path now, but the rendering layer is zero-dependency SVG rather than a bundled 3D library.
 
+## Correction Note (2026-04-04)
+- This card was materially overstated on 2026-04-04: the repo contained the graph adapter, proof script, and documentation, but the actual running dev server still returned 404 for `/graph` and `/api/graph` because route registration was missing in `scripts/dev-server.mjs`.
+- MB-093 repaired that live wiring and re-proved both endpoints against the real local server on port 4187.
+- Treat the current graph route/API claim as true only after the MB-093 repair, not before it.
+
 ## Completion Notes (2026-04-04)
 - Shipped a minimal read-only graph explorer at `/graph` backed by committed OLN proof artifacts instead of inventing synthetic demo data.
 - Added `/api/graph` and `src/graph-explorer/adapter.mjs` to translate the Luke/Tatooine proof bundle plus MB-088 card metadata into explorable nodes and edges.
 - Used a zero-dependency SVG interaction layer for the MVP to stay cost-disciplined and avoid pulling in Three.js at this stage.
 - Added `scripts/prove-mb-089.mjs` plus `npm run proof:mb-089` to verify the route, API, and Luke→Tatooine edge end to end.
+- Live route truth was repaired afterward by MB-093 when the missing dev-server registration was discovered.
 - This closes the MVP read-only explorer lane, not the later live-Neo4j/3D-heavy follow-on work.
