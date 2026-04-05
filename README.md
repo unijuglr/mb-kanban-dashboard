@@ -50,9 +50,12 @@ MB-053 adds repo-backed decision creation:
 - creates a new markdown decision record from a fixed template
 - duplicate decision IDs are rejected before write
 
-MB-089 adds a proof-backed graph explorer route:
+MB-089/MB-094 add a proof-backed graph explorer route:
 - `/graph` renders an interactive read-only node/link explorer
 - `/api/graph` emits graph JSON sourced from committed OLN proof artifacts
+- grouped search results are split into entity / relationship / path buckets
+- single-click selects, inspects, and focuses the graph state
+- double-click navigates to a defined deep-link destination: `/graph?selected=:id`
 - seeded from the Luke/Tatooine vertical-slice evidence already in-tree
 
 ## Routes

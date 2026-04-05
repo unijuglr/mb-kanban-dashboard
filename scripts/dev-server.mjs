@@ -772,7 +772,7 @@ function renderGraphExplorer() {
       <section class="hero">
         <div>
           <h1>Graph explorer</h1>
-          <p>Read-only OLN proof graph sourced from the Luke/Tatooine vertical-slice artifacts already committed in-repo.</p>
+          <p>Proof-backed OLN graph explorer v1: grouped search, click-to-focus inspection, double-click deep-link navigation, and lightweight relationship/path highlighting on the live route.</p>
         </div>
         <div class="muted">${escapeHtml(graph.summary.nodeCount)} node(s) · ${escapeHtml(graph.summary.edgeCount)} edge(s)</div>
       </section>
@@ -780,28 +780,29 @@ function renderGraphExplorer() {
         <article class="card"><div class="muted">Primary entities</div><div class="kpi">${escapeHtml(graph.summary.primaryCount)}</div></article>
         <article class="card"><div class="muted">Linked entities</div><div class="kpi">${escapeHtml(graph.summary.linkedCount)}</div></article>
         <article class="card"><div class="muted">Source mode</div><div class="kpi" style="font-size:1.05rem;">${escapeHtml(graph.source.mode)}</div></article>
-        <article class="card"><div class="muted">Live probe</div><div class="kpi" style="font-size:1.05rem;">${graph.source.liveProbeAttempted ? 'attempted' : 'offline proof only'}</div></article>
+        <article class="card"><div class="muted">Double click destination</div><div class="kpi" style="font-size:1.05rem;">/graph?selected=:id</div></article>
       </section>
-      <section class="grid" style="grid-template-columns: minmax(260px, 320px) minmax(0, 1fr) minmax(280px, 360px); align-items:start;">
+      <section class="grid" style="grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) minmax(300px, 380px); align-items:start;">
         <article class="panel stack">
-          <h2>Controls</h2>
-          <label class="stack"><span class="muted">Search</span><input id="graph-search" type="search" placeholder="Luke, Tatooine, Jedi…" /></label>
+          <h2>Search & results</h2>
+          <label class="stack"><span class="muted">Search</span><input id="graph-search" type="search" placeholder="Luke, Tatooine, mentions, path…" /></label>
           <label class="stack"><span class="muted">Group</span><select id="graph-group-filter"><option value="">All groups</option>${graph.filters.groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join('')}</select></label>
           <label class="stack"><span class="muted">Type</span><select id="graph-type-filter"><option value="">All types</option>${graph.filters.types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('')}</select></label>
           <div class="button-row"><button id="graph-reset" class="button" type="button">Reset filters</button></div>
           <div class="muted tiny" id="graph-filter-state">Showing all proof-backed nodes.</div>
+          <div class="stack" id="graph-search-results"></div>
         </article>
         <article class="panel">
           <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
             <h2 style="margin:0;">Explorer canvas</h2>
-            <div class="muted tiny">Click a node or its badge to inspect neighbors and properties.</div>
+            <div class="muted tiny">Single click = select + inspect + focus. Double click = navigate to a deep-linkable graph state.</div>
           </div>
           <svg id="graph-canvas" viewBox="0 0 900 560" width="100%" role="img" aria-label="Graph explorer canvas" style="background: radial-gradient(circle at top, #15203b, #0b1020 68%); border:1px solid #26304a; border-radius:14px;"></svg>
           <div class="stack" style="margin-top:12px;" id="graph-node-list"></div>
         </article>
         <article class="panel stack" id="graph-detail-panel">
-          <h2>Node detail</h2>
-          <p class="muted">Select a node to inspect its properties and direct neighbors.</p>
+          <h2>Inspector</h2>
+          <p class="muted">Select a node, relationship, or path result to inspect it and highlight it.</p>
         </article>
       </section>
       <script id="graph-data" type="application/json">${graphData}</script>
@@ -814,19 +815,33 @@ function renderGraphExplorer() {
           const resetEl = document.getElementById('graph-reset');
           const stateEl = document.getElementById('graph-filter-state');
           const listEl = document.getElementById('graph-node-list');
+          const resultsEl = document.getElementById('graph-search-results');
           const detailEl = document.getElementById('graph-detail-panel');
           const svg = document.getElementById('graph-canvas');
-          let selectedId = graph.nodes[0]?.id || null;
+          const params = new URLSearchParams(window.location.search);
+          let selectedId = params.get('selected') || graph.nodes[0]?.id || null;
+          let activeRelationshipId = null;
+          let activePathNodeIds = [];
+          let activePathEdgeIds = [];
 
           const esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#39;');
           const norm = (value) => String(value ?? '').toLowerCase();
           const colorFor = (group) => ({ primary: '#8ad4ff', linked: '#c6a2ff', proof: '#ffd166' }[group] || '#8fb3ff');
+          const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
+          const edgeById = new Map(graph.edges.map((edge) => [edge.id, edge]));
           const neighborMap = new Map();
           for (const edge of graph.edges) {
             if (!neighborMap.has(edge.source)) neighborMap.set(edge.source, []);
             if (!neighborMap.has(edge.target)) neighborMap.set(edge.target, []);
-            neighborMap.get(edge.source).push(edge.target);
-            neighborMap.get(edge.target).push(edge.source);
+            neighborMap.get(edge.source).push({ nodeId: edge.target, edgeId: edge.id });
+            neighborMap.get(edge.target).push({ nodeId: edge.source, edgeId: edge.id });
+          }
+
+          function syncUrl() {
+            const next = new URL(window.location.href);
+            if (selectedId) next.searchParams.set('selected', selectedId);
+            else next.searchParams.delete('selected');
+            window.history.replaceState({}, '', next);
           }
 
           function filteredNodes() {
@@ -839,20 +854,154 @@ function renderGraphExplorer() {
             });
           }
 
+          function bfsPath(startId, targetId) {
+            if (!startId || !targetId || startId === targetId) return { nodeIds: startId ? [startId] : [], edgeIds: [] };
+            const queue = [[startId]];
+            const seen = new Set([startId]);
+            while (queue.length) {
+              const path = queue.shift();
+              const current = path[path.length - 1];
+              const neighbors = neighborMap.get(current) || [];
+              for (const neighbor of neighbors) {
+                if (seen.has(neighbor.nodeId)) continue;
+                const nextPath = [...path, neighbor.nodeId];
+                if (neighbor.nodeId === targetId) {
+                  const edgeIds = [];
+                  for (let i = 0; i < nextPath.length - 1; i += 1) {
+                    const from = nextPath[i];
+                    const to = nextPath[i + 1];
+                    const edge = graph.edges.find((item) => (item.source === from && item.target === to) || (item.source === to && item.target === from));
+                    if (edge) edgeIds.push(edge.id);
+                  }
+                  return { nodeIds: nextPath, edgeIds };
+                }
+                seen.add(neighbor.nodeId);
+                queue.push(nextPath);
+              }
+            }
+            return { nodeIds: [], edgeIds: [] };
+          }
+
+          function currentSearchResults(visibleNodes) {
+            const search = norm(searchEl.value).trim();
+            const visibleIds = new Set(visibleNodes.map((node) => node.id));
+            const entityResults = visibleNodes.filter((node) => !search || [node.label, node.type, JSON.stringify(node.properties || {})].map(norm).join(' ').includes(search));
+            const relationshipResults = graph.edges.filter((edge) => {
+              if (!visibleIds.has(edge.source) || !visibleIds.has(edge.target)) return false;
+              const source = nodeById.get(edge.source);
+              const target = nodeById.get(edge.target);
+              return !search || [edge.type, edge.proof, source?.label, target?.label].map(norm).join(' ').includes(search);
+            });
+            const anchors = entityResults.slice(0, 4);
+            const pathResults = [];
+            if (selectedId && visibleIds.has(selectedId)) {
+              for (const node of anchors) {
+                if (node.id === selectedId) continue;
+                const path = bfsPath(selectedId, node.id);
+                if (path.nodeIds.length > 1) {
+                  pathResults.push({
+                    id: 'path:' + selectedId + '->' + node.id,
+                    fromId: selectedId,
+                    toId: node.id,
+                    label: (nodeById.get(selectedId)?.label || selectedId) + ' → ' + node.label,
+                    nodeIds: path.nodeIds,
+                    edgeIds: path.edgeIds
+                  });
+                }
+              }
+            } else if (anchors.length >= 2) {
+              const path = bfsPath(anchors[0].id, anchors[1].id);
+              if (path.nodeIds.length > 1) {
+                pathResults.push({
+                  id: 'path:' + anchors[0].id + '->' + anchors[1].id,
+                  fromId: anchors[0].id,
+                  toId: anchors[1].id,
+                  label: anchors[0].label + ' → ' + anchors[1].label,
+                  nodeIds: path.nodeIds,
+                  edgeIds: path.edgeIds
+                });
+              }
+            }
+            return { entityResults, relationshipResults, pathResults };
+          }
+
+          function focusNode(nodeId) {
+            selectedId = nodeId;
+            activeRelationshipId = null;
+            activePathNodeIds = [];
+            activePathEdgeIds = [];
+            syncUrl();
+            render();
+          }
+
+          function activateRelationship(edgeId) {
+            const edge = edgeById.get(edgeId);
+            if (!edge) return;
+            selectedId = edge.source;
+            activeRelationshipId = edgeId;
+            activePathNodeIds = [edge.source, edge.target];
+            activePathEdgeIds = [edgeId];
+            syncUrl();
+            render();
+          }
+
+          function activatePath(pathId, nodeIds, edgeIds) {
+            selectedId = nodeIds[0] || selectedId;
+            activeRelationshipId = null;
+            activePathNodeIds = nodeIds.slice();
+            activePathEdgeIds = edgeIds.slice();
+            syncUrl();
+            render();
+          }
+
+          function navigateToNode(nodeId) {
+            const url = '/graph?selected=' + encodeURIComponent(nodeId);
+            window.location.href = url;
+          }
+
           function renderDetail(node, visibleIds) {
             if (!node) {
-              detailEl.innerHTML = '<h2>Node detail</h2><p class="muted">No visible node selected.</p>';
+              detailEl.innerHTML = '<h2>Inspector</h2><p class="muted">No visible node selected.</p>';
               return;
             }
-            const neighbors = (neighborMap.get(node.id) || []).map((id) => graph.nodes.find((item) => item.id === id)).filter(Boolean);
+            const neighbors = (neighborMap.get(node.id) || []).map(({ nodeId, edgeId }) => ({ node: nodeById.get(nodeId), edge: edgeById.get(edgeId) })).filter((item) => item.node);
+            const pathSummary = activePathNodeIds.length > 1
+              ? '<p class="muted">Highlighted path: ' + activePathNodeIds.map((id) => esc(nodeById.get(id)?.label || id)).join(' → ') + '</p>'
+              : activeRelationshipId
+                ? '<p class="muted">Highlighted relationship active.</p>'
+                : '<p class="muted">No relationship/path highlight active.</p>';
             detailEl.innerHTML = '<h2>' + esc(node.label) + '</h2>'
               + '<div><span class="chip">' + esc(node.type) + '</span><span class="chip">' + esc(node.group) + '</span></div>'
               + '<p class="muted">Source: ' + esc(node.source || 'unknown') + '</p>'
+              + pathSummary
+              + '<div class="button-row"><button class="button" type="button" data-double-nav="' + esc(node.id) + '">Open deep link</button></div>'
               + '<h3>Properties</h3><pre>' + esc(JSON.stringify(node.properties || {}, null, 2)) + '</pre>'
               + '<h3>Visible neighbors</h3>'
-              + (neighbors.filter((item) => visibleIds.has(item.id)).length
-                  ? '<div>' + neighbors.filter((item) => visibleIds.has(item.id)).map((item) => '<button class="button" type="button" data-select-node="' + esc(item.id) + '">' + esc(item.label) + '</button>').join(' ') + '</div>'
+              + (neighbors.filter((item) => visibleIds.has(item.node.id)).length
+                  ? '<div class="stack">' + neighbors.filter((item) => visibleIds.has(item.node.id)).map((item) => '<div class="card-item"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;"><button class="button" type="button" data-select-node="' + esc(item.node.id) + '">' + esc(item.node.label) + '</button><button class="button" type="button" data-select-edge="' + esc(item.edge.id) + '">' + esc(item.edge.type || 'RELATES_TO') + '</button></div></div>').join('') + '</div>'
                   : '<p class="muted">No visible neighbors under the current filters.</p>');
+          }
+
+          function renderResults(results) {
+            const sections = [
+              {
+                title: 'Entities',
+                items: results.entityResults.slice(0, 8).map((node) => '<button class="button" type="button" data-select-node="' + esc(node.id) + '" data-node-row="1" style="justify-content:flex-start;text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + '</span></button>')
+              },
+              {
+                title: 'Relationships',
+                items: results.relationshipResults.slice(0, 8).map((edge) => {
+                  const source = nodeById.get(edge.source);
+                  const target = nodeById.get(edge.target);
+                  return '<button class="button" type="button" data-select-edge="' + esc(edge.id) + '" style="justify-content:flex-start;text-align:left;">' + esc(source?.label || edge.source) + ' → ' + esc(target?.label || edge.target) + ' <span class="muted tiny">· ' + esc(edge.type || 'RELATES_TO') + '</span></button>';
+                })
+              },
+              {
+                title: 'Paths',
+                items: results.pathResults.slice(0, 8).map((path) => '<button class="button" type="button" data-select-path="' + esc(path.id) + '" data-path-nodes="' + esc(path.nodeIds.join('|')) + '" data-path-edges="' + esc(path.edgeIds.join('|')) + '" style="justify-content:flex-start;text-align:left;">' + esc(path.label) + ' <span class="muted tiny">· ' + path.edgeIds.length + ' edge(s)</span></button>')
+              }
+            ];
+            resultsEl.innerHTML = sections.map((section) => '<div class="card"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;"><strong>' + section.title + '</strong><span class="chip" style="margin-right:0;">' + section.items.length + '</span></div><div class="stack" style="margin-top:10px;">' + (section.items.length ? section.items.join('') : '<div class="muted tiny">No matches.</div>') + '</div></div>').join('');
           }
 
           function render() {
@@ -865,10 +1014,12 @@ function renderGraphExplorer() {
             const centerX = width / 2;
             const centerY = height / 2;
             const radius = 190;
+            const focusNodeIds = new Set(activePathNodeIds.length ? activePathNodeIds : (selected ? [selected.id, ...(neighborMap.get(selected.id) || []).map((item) => item.nodeId)] : []));
             const positions = new Map();
             nodes.forEach((node, index) => {
               const angle = (Math.PI * 2 * index) / Math.max(nodes.length, 1);
-              const orbit = node.group === 'primary' ? radius * 0.45 : node.group === 'proof' ? radius * 0.2 : radius;
+              const baseOrbit = node.group === 'primary' ? radius * 0.42 : node.group === 'proof' ? radius * 0.18 : radius;
+              const orbit = focusNodeIds.size && focusNodeIds.has(node.id) ? Math.max(70, baseOrbit * 0.62) : baseOrbit;
               positions.set(node.id, {
                 x: centerX + Math.cos(angle) * orbit,
                 y: centerY + Math.sin(angle) * orbit
@@ -879,41 +1030,81 @@ function renderGraphExplorer() {
               const source = positions.get(edge.source);
               const target = positions.get(edge.target);
               if (!source || !target) return '';
-              return '<line x1="' + source.x + '" y1="' + source.y + '" x2="' + target.x + '" y2="' + target.y + '" stroke="' + (edge.emphasis === 'verified' ? '#ffd166' : '#38507e') + '" stroke-width="' + (edge.emphasis === 'verified' ? '3' : '1.5') + '" opacity="0.9" />';
+              const isRelationship = edge.id === activeRelationshipId;
+              const isPath = activePathEdgeIds.includes(edge.id);
+              const isSelectedNeighbor = selected && (edge.source === selected.id || edge.target === selected.id);
+              const stroke = isPath ? '#ff7b7b' : isRelationship ? '#ffd166' : edge.emphasis === 'verified' ? '#d3b04f' : isSelectedNeighbor ? '#79b8ff' : '#38507e';
+              const widthPx = isPath ? '5' : isRelationship ? '4' : edge.emphasis === 'verified' ? '3' : isSelectedNeighbor ? '2.5' : '1.5';
+              return '<line data-edge-id="' + esc(edge.id) + '" x1="' + source.x + '" y1="' + source.y + '" x2="' + target.x + '" y2="' + target.y + '" stroke="' + stroke + '" stroke-width="' + widthPx + '" opacity="0.95" />';
             }).join('') + '</g><g>' + nodes.map((node) => {
               const pos = positions.get(node.id);
-              const selectedStroke = node.id === selectedId ? '#ffffff' : '#0b1020';
+              const selectedStroke = node.id === selectedId ? '#ffffff' : activePathNodeIds.includes(node.id) ? '#ff7b7b' : '#0b1020';
+              const radiusPx = node.id === selectedId ? 33 : activePathNodeIds.includes(node.id) ? 31 : focusNodeIds.has(node.id) ? 30 : 28;
               return '<g data-node-id="' + esc(node.id) + '" style="cursor:pointer;">'
-                + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="28" fill="' + colorFor(node.group) + '" stroke="' + selectedStroke + '" stroke-width="3"></circle>'
-                + '<text x="' + pos.x + '" y="' + (pos.y + 48) + '" text-anchor="middle" fill="#dfe9fb" font-size="15" font-family="Inter, sans-serif">' + esc(node.label) + '</text>'
+                + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + radiusPx + '" fill="' + colorFor(node.group) + '" stroke="' + selectedStroke + '" stroke-width="3"></circle>'
+                + '<text x="' + pos.x + '" y="' + (pos.y + 50) + '" text-anchor="middle" fill="#dfe9fb" font-size="15" font-family="Inter, sans-serif">' + esc(node.label) + '</text>'
                 + '</g>';
             }).join('') + '</g>';
             listEl.innerHTML = nodes.length
-              ? nodes.map((node) => '<button class="button" type="button" data-select-node="' + esc(node.id) + '" style="justify-content:flex-start; text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + '</span></button>').join('')
+              ? nodes.map((node) => '<button class="button" type="button" data-select-node="' + esc(node.id) + '" data-node-row="1" style="justify-content:flex-start; text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + '</span></button>').join('')
               : '<p class="muted">No graph nodes match the current filters.</p>';
-            stateEl.textContent = nodes.length ? ('Showing ' + nodes.length + ' node(s) and ' + visibleEdges.length + ' visible edge(s).') : 'No nodes match the current filters.';
+            const results = currentSearchResults(nodes);
+            renderResults(results);
+            stateEl.textContent = nodes.length ? ('Showing ' + nodes.length + ' node(s), ' + visibleEdges.length + ' visible edge(s), and grouped entity/relationship/path results.') : 'No nodes match the current filters.';
             renderDetail(selected, visibleIds);
           }
 
           document.addEventListener('click', (event) => {
-            const button = event.target.closest('[data-select-node]');
+            const button = event.target.closest('[data-select-node], [data-select-edge], [data-select-path], [data-double-nav]');
             const nodeGroup = event.target.closest('[data-node-id]');
-            if (button) {
-              selectedId = button.getAttribute('data-select-node');
-              render();
-            } else if (nodeGroup) {
-              selectedId = nodeGroup.getAttribute('data-node-id');
-              render();
+            if (button?.hasAttribute('data-double-nav')) {
+              navigateToNode(button.getAttribute('data-double-nav'));
+              return;
+            }
+            if (button?.hasAttribute('data-select-node')) {
+              focusNode(button.getAttribute('data-select-node'));
+              return;
+            }
+            if (button?.hasAttribute('data-select-edge')) {
+              activateRelationship(button.getAttribute('data-select-edge'));
+              return;
+            }
+            if (button?.hasAttribute('data-select-path')) {
+              activatePath(
+                button.getAttribute('data-select-path'),
+                String(button.getAttribute('data-path-nodes') || '').split('|').filter(Boolean),
+                String(button.getAttribute('data-path-edges') || '').split('|').filter(Boolean)
+              );
+              return;
+            }
+            if (nodeGroup) {
+              focusNode(nodeGroup.getAttribute('data-node-id'));
             }
           });
 
-          [searchEl, groupEl, typeEl].forEach((el) => el.addEventListener('input', render));
+          document.addEventListener('dblclick', (event) => {
+            const nodeGroup = event.target.closest('[data-node-id]');
+            const nodeButton = event.target.closest('[data-select-node]');
+            const nodeId = nodeGroup?.getAttribute('data-node-id') || nodeButton?.getAttribute('data-select-node');
+            if (nodeId) navigateToNode(nodeId);
+          });
+
+          [searchEl, groupEl, typeEl].forEach((el) => el.addEventListener('input', () => {
+            activeRelationshipId = null;
+            activePathNodeIds = [];
+            activePathEdgeIds = [];
+            render();
+          }));
           resetEl.addEventListener('click', () => {
             searchEl.value = '';
             groupEl.value = '';
             typeEl.value = '';
+            activeRelationshipId = null;
+            activePathNodeIds = [];
+            activePathEdgeIds = [];
             render();
           });
+          syncUrl();
           render();
         })();
       </script>`

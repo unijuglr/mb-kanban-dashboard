@@ -23,6 +23,7 @@
     "proof:mb-052": "node scripts/prove-mb-052.mjs",
     "proof:mb-053": "node scripts/prove-mb-053.mjs",
     "proof:mb-089": "node scripts/prove-mb-089.mjs",
+    "proof:mb-094": "node scripts/prove-mb-094.mjs",
     "updates:timeline": "node scripts/read-updates-timeline.mjs",
     "metrics:backfill": "python3 scripts/mb_metrics_backfill.py"
   }
