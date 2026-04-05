@@ -9,15 +9,17 @@ Host: Motherbrain
 ```bash
 cd /Users/darthg/dev/samiverse/mb-kanban-dashboard
 ./venv/bin/python services/agilitas_ingestor/batch_processor.py data/agilitas/samples \
-  --output-dir artifacts/agilitas-batch-test \
-  --report artifacts/agilitas-batch-report.json
+  --output-dir artifacts/agilitas-batch-llama3.2 \
+  --report artifacts/agilitas-batch-llama3.2-report.json \
+  --provider ollama
 ```
 
 ### Output (Summary)
 ```json
 {
-  "batchId": "agilitas-batch-20260405T175201Z",
-  "processedAt": "2026-04-05T17:52:01.292495+00:00",
+  "batchId": "agilitas-batch-20260405T182318Z",
+  "processedAt": "2026-04-05T18:23:18.026599+00:00",
+  "requestedProvider": "ollama",
   "resultCounts": {
     "total": 2,
     "ok": 2,
@@ -27,9 +29,10 @@ cd /Users/darthg/dev/samiverse/mb-kanban-dashboard
 ```
 
 ### Verification
-- **Normalization:** Verified `teams-sample.vtt` and `zoom-sample.json` were correctly parsed into the Agilitas common transcript schema.
-- **Extraction:** Verified deterministic fallback extraction correctly identified pain points and feature requests from the sample transcripts.
-- **Durable Report:** Summary report written to `artifacts/agilitas-batch-report.json`.
+- **Network Routing:** Verified dashboard and graph explorer are reachable via Tailscale at `https://motherbrain.tailf99d2d.ts.net/graph`.
+- **Normalization:** Confirmed Zoom JSON and Teams VTT samples parse into the common Agilitas schema.
+- **AI Extraction:** Verified local Ollama (`llama3.2`) successfully extracts dimensions (Sentiment, Pain Points, Emotion) on Motherbrain.
+- **Data Integrity:** Refined Neo4j write logic to prevent duplicate linked entities (e.g., Tatooine) by matching on title before falling back to OLID.
 
 ## Result
-Successful verification of the Agilitas Batch Transcript Processing Service (MB-092) on Motherbrain.
+Motherbrain environment is fully operational for both OLN and Agilitas processing. MB-092 is complete.
