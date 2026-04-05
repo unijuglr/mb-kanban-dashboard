@@ -1070,5 +1070,60 @@
       "Reconciled into mb_tasks.json on 2026-04-04 after audit found the done card existed but the task-state entry was missing.",
       "This preserves early Kanban seed history so later queue reports stop silently dropping the board setup lineage."
     ]
+  },
+  {
+    "id": "MB-094",
+    "title": "Graph Explorer: interaction model v1 for search, inspect, and exploration",
+    "state": "ready",
+    "owner": "Motherbrain local coding agents",
+    "depends_on": [
+      "MB-093"
+    ],
+    "artifacts": [
+      "docs/cards/MB-094-graph-explorer-interaction-model-v1.md",
+      "PROOF_MB_094.md",
+      "src/graph-explorer/"
+    ],
+    "notes": [
+      "Backlog card existed conceptually but was missing from the current tree/task-state queue; restored during MB-094 audit so coder/QA flows can see the tranche.",
+      "Do not mark done without live proof on the running /graph route showing grouped result types plus single-click inspect/focus and a visible double-click destination."
+    ]
+  },
+  {
+    "id": "MB-095",
+    "title": "Graph Explorer: persistence, default state, and return-to-context behavior",
+    "state": "ready",
+    "owner": "Motherbrain local coding agents",
+    "depends_on": [
+      "MB-094"
+    ],
+    "artifacts": [
+      "docs/cards/MB-095-graph-explorer-persistence-and-default-state.md",
+      "PROOF_MB_095.md",
+      "src/graph-explorer/"
+    ],
+    "notes": [
+      "Restored to the queue alongside MB-094/096 so downstream explorer work is visible again.",
+      "Keep this sequenced after MB-094 so persistence is restoring a real interaction contract rather than a speculative one."
+    ]
+  },
+  {
+    "id": "MB-096",
+    "title": "Graph Explorer: adaptive expansion and intent modes",
+    "state": "ready",
+    "owner": "Motherbrain local coding agents",
+    "depends_on": [
+      "MB-094",
+      "MB-095"
+    ],
+    "artifacts": [
+      "docs/cards/MB-096-graph-explorer-adaptive-expansion-and-intent-modes.md",
+      "PROOF_MB_096.md",
+      "src/graph-explorer/"
+    ],
+    "notes": [
+      "Restored to the queue alongside MB-094/095 so the explorer tranche matches the intended dependency chain again.",
+      "Adaptive expansion should stay downstream of the repaired live route and the baseline interaction/persistence contracts."
+    ]
   }
 ]
