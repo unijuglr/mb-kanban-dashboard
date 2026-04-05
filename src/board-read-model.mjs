@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseDecisionMarkdown } from './decision-parser.mjs';
+import { loadDecisionResponses } from './decision-response-writes.mjs';
 import { readUpdatesTimeline } from './updatesTimeline.js';
 
 export const STATUS_ORDER = ['Backlog', 'Ready', 'In Progress', 'Blocked', 'Review', 'Done', 'Archive'];
@@ -93,6 +94,7 @@ export function loadDecisions(rootDir) {
   const decisionsDir = path.join(rootDir, 'docs', 'decisions');
   return listMarkdownFiles(decisionsDir).map((filePath) => {
     const parsed = parseDecisionMarkdown(readText(filePath), filePath);
+    const responses = loadDecisionResponses(rootDir, parsed.id);
     return {
       id: parsed.id,
       slug: slugForId(parsed.id || path.basename(filePath, '.md')),
@@ -108,6 +110,7 @@ export function loadDecisions(rootDir) {
       followUpTasks: parsed.followUpTasks
         .map((task) => `${task.done ? '[x]' : '[ ]'} ${task.text}`)
         .join('\n'),
+      responses,
       filePath,
       raw: parsed.raw
     };

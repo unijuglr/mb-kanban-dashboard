@@ -884,6 +884,28 @@
     ]
   },
   {
+    "id": "MB-090",
+    "title": "Decisions UI: Typed components and FormData submission fix",
+    "state": "done",
+    "owner": "Coder-1",
+    "depends_on": [
+      "MB-085"
+    ],
+    "artifacts": [
+      "scripts/dev-server.mjs",
+      "src/decision-models.mjs",
+      "scripts/prove-mb-090.mjs",
+      "PROOF_MB_090.md",
+      "docs/cards/MB-090-decisions-typed-components-and-fix.md"
+    ],
+    "completed_at": "2026-04-04T17:55:00-07:00",
+    "notes": [
+      "Reconciled MB-090 from the already-pushed feature branch `origin/feat/mb-090-decisions-typed-components` onto the current overnight branch.",
+      "This preserves the typed decision-response UI plus the FormData submission fix on top of the newer current-tree dashboard state instead of leaving it stranded on an older branch.",
+      "QA on this branch: `node scripts/prove-mb-090.mjs`."
+    ]
+  },
+  {
     "id": "MB-091",
     "title": "OLN: Large-scale ingestion harness (50+ pages)",
     "state": "done",

@@ -4,10 +4,10 @@ import { fileURLToPath } from 'node:url';
 import { findBySlug, loadDashboardModel } from '../src/app-data.mjs';
 import { allowedNextStatuses, createCardFromTemplate, transitionCardStatus } from '../src/card-writes.mjs';
 import { createDecisionFromTemplate } from '../src/decision-writes.mjs';
-import { appendDecisionResponse, loadDecisionResponseEnvelope } from '../src/decision-response-store.mjs';
+import { appendDecisionResponse } from '../src/decision-response-writes.mjs';
+import { classifyDecisionType, latestDecisionResponse } from '../src/decision-models.mjs';
 import { appendUpdate } from '../src/update-writes.mjs';
 import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
-import { loadGraphExplorerModel } from '../src/graph-explorer/adapter.mjs';
 
 function json(res, statusCode, payload) {
   res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -15,6 +15,8 @@ function json(res, statusCode, payload) {
 }
 
 const port = Number(process.env.PORT || 4187);
+const host = process.env.HOST || '127.0.0.1';
+const startedAt = new Date().toISOString();
 const root = process.env.MB_ROOT
   ? path.resolve(process.env.MB_ROOT)
   : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -42,7 +44,6 @@ function shell({ title, currentPath, body }) {
     ['/', 'Overview'],
     ['/metrics', 'Metrics'],
     ['/board', 'Board'],
-    ['/graph', 'Graph'],
     ['/decisions', 'Decisions'],
     ['/updates', 'Updates']
   ];
@@ -1047,7 +1048,7 @@ function renderBoard(model) {
             event.preventDefault();
             createSubmitEl.disabled = true;
             createResultEl.textContent = 'Creating card…';
-            const formData = new FormData(createFormEl);
+            const formData = new FormData(event.currentTarget);
             const data = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
 
             try {
@@ -1657,6 +1658,7 @@ function renderDecisions(model) {
               + '<button class="button" type="button" data-record-followup="' + esc(decision.slug) + '">Record follow-up decision</button>'
               + '<button class="button" type="button" data-duplicate-decision="' + esc(decision.slug) + '">Use as template</button>'
               + '</div>'
+              + renderDecisionActionComposerClient(decision)
               + '<div class="grid list" style="margin-top: 16px;">'
               + '<section class="panel"><h3>Context</h3>' + paragraphizeClient(decision.context) + '</section>'
               + '<section class="panel"><h3>Decision</h3>' + paragraphizeClient(decision.decision) + '</section>'
@@ -1665,6 +1667,64 @@ function renderDecisions(model) {
               + '<section class="panel"><h3>Follow-up tasks</h3><pre>' + esc(decision.followUpTasks || 'None listed.') + '</pre></section>'
               + '</div>'
               + actionPanelMarkup(decision);
+          }
+
+          function renderDecisionActionComposerClient(decision) {
+            const decisionType = decision.decisionType || { label: 'Nuanced', options: [], allowsBinary: false, allowsOptionSelection: false };
+            const optionsList = Array.isArray(decisionType.options) ? decisionType.options : [];
+            const responses = Array.isArray(decision.responses) ? decision.responses : [];
+            const responseMarkup = responses.length
+              ? '<div class="stack" style="margin-top: 12px;">' + responses.slice().reverse().map((response) => '<article class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;"><strong>' + esc(response.outcome || response.selectedOption || 'Nuanced response') + '</strong><span class="tiny muted">' + esc(response.createdAt || '') + '</span></div><div class="tiny muted">' + esc(response.responder || 'MB Operator') + (response.selectedOption ? ' · Option: ' + esc(response.selectedOption) : '') + '</div>' + (response.notes ? '<p style="margin:8px 0 0;">' + esc(response.notes) + '</p>' : '<p class="muted tiny" style="margin:8px 0 0;">No notes added.</p>') + '</article>').join('') + '</div>'
+              : '<p class="muted">No responses recorded yet. Use the controls above.</p>';
+            return '<section class="panel">'
+              + '<div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">'
+              + '<div><h3>Respond here</h3><p class="muted">Type: ' + esc(decisionType.label || 'Nuanced') + '. Notes are always available; controls only expose what this decision actually needs.</p></div>'
+              + '<div class="chip" style="margin-right:0;">Action required</div>'
+              + '</div>'
+              + '<form data-decision-response-form="' + esc(decision.slug) + '" class="stack" style="margin-top:12px;">'
+              + (decisionType.allowsBinary
+                  ? '<div class="button-row"><button class="button" type="button" data-decision-outcome="approve">Yes / Approve</button><button class="button" type="button" data-decision-outcome="reject">No / Reject</button><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>'
+                  : decisionType.allowsOptionSelection
+                    ? '<div class="button-row"><span class="chip" style="margin-right:0;">Choose an option below, then save</span><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>'
+                    : '<div class="button-row"><span class="chip" style="margin-right:0;">Nuanced response</span><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>')
+              + '<input type="hidden" name="outcome" value="" />'
+              + (decisionType.allowsOptionSelection
+                  ? '<label class="stack"><span class="muted">Choose one of the recorded options</span><select name="selectedOption"><option value="">No option selected</option>' + optionsList.map((option) => '<option value="' + esc(option) + '">' + esc(option) + '</option>').join('') + '</select></label>'
+                  : '')
+              + '<label class="stack"><span class="muted">Notes / nuance (always available)</span><textarea name="notes" placeholder="Why this call makes sense, caveats, partial approval, follow-up asks, etc."></textarea></label>'
+              + '<label class="stack"><span class="muted">Responder</span><input name="responder" type="text" value="MB Operator" /></label>'
+              + '<div class="button-row"><button class="button" type="submit">Save response</button></div>'
+              + '<p class="muted tiny" data-decision-response-result>Saved responses write to docs/decisions/responses/' + esc(decision.id) + '.responses.json.</p>'
+              + '</form>'
+              + '<div style="margin-top:16px;"><h3 style="margin-bottom:8px;">Recorded responses</h3>' + responseMarkup + '</div>'
+              + '</section>';
+          }
+
+          async function submitDecisionResponse(decision, form) {
+            const resultEl = form.querySelector('[data-decision-response-result]');
+            const buttons = Array.from(form.querySelectorAll('button'));
+            buttons.forEach((button) => { button.disabled = true; });
+            if (resultEl) resultEl.textContent = 'Saving response…';
+            const formData = new FormData(form);
+            const body = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
+            try {
+              const response = await fetch('/api/decisions/' + encodeURIComponent(decision.slug) + '/respond', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+              });
+              const result = await response.json();
+              if (!response.ok || !result.ok) throw new Error(result.error || 'Failed to save response');
+              const refreshed = await (await fetch('/api/decisions')).json();
+              payload = refreshed;
+              selectedSlug = decision.slug;
+              render();
+              detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+              if (resultEl) resultEl.textContent = error.message;
+            } finally {
+              buttons.forEach((button) => { button.disabled = false; });
+            }
           }
 
           function openDrawerWith(data, message) {
@@ -1706,7 +1766,7 @@ function renderDecisions(model) {
             event.preventDefault();
             createSubmitEl.disabled = true;
             createResultEl.textContent = 'Creating decision…';
-            const formData = new FormData(createFormEl);
+            const formData = new FormData(event.currentTarget);
             const data = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
 
             try {
@@ -1827,18 +1887,13 @@ function renderDecisions(model) {
               if (article) { selectedSlug = article.getAttribute('data-slug'); render(); }
             });
             detailEl.addEventListener('click', (event) => {
-              const actionButton = event.target.closest('[data-decision-action]');
-              if (actionButton) {
-                const form = document.getElementById('decision-response-form');
-                if (form) {
-                  form.elements.action.value = actionButton.getAttribute('data-decision-action') || '';
-                  Array.from(detailEl.querySelectorAll('[data-decision-action]')).forEach((el) => el.style.borderColor = '#334466');
-                  actionButton.style.borderColor = '#4f8cff';
-                  const result = document.getElementById('decision-response-result');
-                  if (result) result.textContent = 'Action selected: ' + form.elements.action.value + '.';
-                }
-                return;
+              const outcomeButton = event.target.closest('[data-decision-outcome]');
+              if (outcomeButton) {
+                const form = outcomeButton.closest('form');
+                const outcomeInput = form?.elements?.namedItem('outcome');
+                if (outcomeInput) outcomeInput.value = outcomeButton.getAttribute('data-decision-outcome') || '';
               }
+
               const followup = event.target.closest('[data-record-followup]');
               const duplicate = event.target.closest('[data-duplicate-decision]');
               const sourceSlug = followup?.getAttribute('data-record-followup') || duplicate?.getAttribute('data-duplicate-decision');
@@ -1857,7 +1912,12 @@ function renderDecisions(model) {
               }, followup ? 'Follow-up decision draft loaded.' : 'Template copied from ' + source.id + '.');
             });
             detailEl.addEventListener('submit', (event) => {
-              if (event.target && event.target.id === 'decision-response-form') submitDecisionResponse(event);
+              const form = event.target.closest('[data-decision-response-form]');
+              if (!form) return;
+              event.preventDefault();
+              const decision = (payload?.items || []).find((item) => item.slug === selectedSlug);
+              if (!decision) return;
+              submitDecisionResponse(decision, form);
             });
             render();
           }
@@ -1917,6 +1977,44 @@ function renderDecisionSwimlane(projectName, decisions, selectedSlug) {
   </div>`;
 }
 
+function renderDecisionActionComposer(decision, { compact = false } = {}) {
+  const decisionType = classifyDecisionType(decision);
+  const optionsList = Array.isArray(decisionType.options) ? decisionType.options : [];
+  const responses = Array.isArray(decision.responses) ? decision.responses : [];
+  const responseItems = responses.length
+    ? `<div class="stack" style="margin-top: 12px;">${responses.slice().reverse().map((response) => `<article class="card-item"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;"><strong>${escapeHtml(response.outcome || response.selectedOption || 'Nuanced response')}</strong><span class="tiny muted">${escapeHtml(response.createdAt || '')}</span></div><div class="tiny muted">${escapeHtml(response.responder || 'MB Operator')}${response.selectedOption ? ` · Option: ${escapeHtml(response.selectedOption)}` : ''}</div>${response.notes ? `<p style="margin:8px 0 0;">${escapeHtml(response.notes)}</p>` : '<p class="muted tiny" style="margin:8px 0 0;">No notes added.</p>'}</article>`).join('')}</div>`
+    : '<p class="muted">No responses recorded yet. Use the controls above.</p>';
+
+  return `<section class="panel">
+    <div style="display:flex;justify-content:space-between;gap:16px;align-items:start;flex-wrap:wrap;">
+      <div>
+        <h2>${compact ? 'Respond here' : 'Respond to this decision'}</h2>
+        <p class="muted">Type: ${escapeHtml(decisionType.label)}. Notes are always available; controls only expose what this decision actually needs.</p>
+      </div>
+      <div class="chip" style="margin-right:0;">Durably saved</div>
+    </div>
+    <form data-decision-response-form="${escapeHtml(decision.slug)}" class="stack" style="margin-top:12px;">
+      ${decisionType.allowsBinary ? `<div class="button-row">
+        <button class="button" type="button" data-decision-outcome="approve">Yes / Approve</button>
+        <button class="button" type="button" data-decision-outcome="reject">No / Reject</button>
+        <button class="button" type="button" data-decision-outcome="note">Notes only</button>
+      </div>` : decisionType.allowsOptionSelection ? `<div class="button-row"><span class="chip" style="margin-right:0;">Choose an option below, then save</span><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>` : `<div class="button-row"><span class="chip" style="margin-right:0;">Nuanced response</span><button class="button" type="button" data-decision-outcome="note">Notes only</button></div>`}
+      <input type="hidden" name="outcome" value="" />
+      ${decisionType.allowsOptionSelection ? `<label class="stack"><span class="muted">Choose one of the recorded options</span><select name="selectedOption"><option value="">No option selected</option>${optionsList.map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join('')}</select></label>` : ''}
+      <label class="stack"><span class="muted">Notes / nuance (always available)</span><textarea name="notes" placeholder="Why this call makes sense, caveats, partial approval, follow-up asks, etc."></textarea></label>
+      <label class="stack"><span class="muted">Responder</span><input name="responder" type="text" value="MB Operator" /></label>
+      <div class="button-row">
+        <button class="button" type="submit">Save response</button>
+      </div>
+      <p class="muted tiny" data-decision-response-result>Saved responses write to <code>docs/decisions/responses/${escapeHtml(decision.id)}.responses.json</code>.</p>
+    </form>
+    <div style="margin-top:16px;">
+      <h3 style="margin-bottom:8px;">Recorded responses</h3>
+      ${responseItems}
+    </div>
+  </section>`;
+}
+
 function renderDecisionDetail(model, slug) {
   const decision = findBySlug(model.decisions, slug);
   if (!decision) return notFound('/decisions', 'Decision not found');
@@ -1929,7 +2027,7 @@ function renderDecisionDetail(model, slug) {
         <div><h1>${escapeHtml(decision.id)} — ${escapeHtml(decision.title)}</h1><p>${escapeHtml(decision.status)} · ${escapeHtml(decision.date)} · ${escapeHtml(decision.owner)}</p></div>
         <a href="/decisions">← Back to decisions</a>
       </section>
-      ${decisionActionPanelMarkup(decision)}
+      ${renderDecisionActionComposer(decision)}
       <section class="grid list">
         <article class="panel"><h2>Context</h2>${paragraphize(decision.context)}</article>
         <article class="panel"><h2>Options considered</h2><pre>${escapeHtml(decision.options || 'Not available.')}</pre></article>
@@ -1937,39 +2035,39 @@ function renderDecisionDetail(model, slug) {
         <article class="panel"><h2>Consequences</h2><pre>${escapeHtml(decision.consequences || 'Not available.')}</pre></article>
         <article class="panel"><h2>Follow-up tasks</h2><pre>${escapeHtml(decision.followUpTasks || 'None listed.')}</pre></article>
       </section>
-      <script id="decision-detail-data" type="application/json">${decisionData}</script>
       <script>
         (() => {
-          const decision = JSON.parse(document.getElementById('decision-detail-data').textContent);
-          const form = document.getElementById('decision-response-form');
-          const resultEl = document.getElementById('decision-response-result');
-          const submitEl = document.getElementById('decision-response-submit');
+          const form = document.querySelector('[data-decision-response-form]');
           if (!form) return;
-          Array.from(document.querySelectorAll('[data-decision-action]')).forEach((button) => {
+          const outcomeButtons = Array.from(form.querySelectorAll('[data-decision-outcome]'));
+          const outcomeInput = form.elements.namedItem('outcome');
+          const resultEl = form.querySelector('[data-decision-response-result]');
+
+          outcomeButtons.forEach((button) => {
             button.addEventListener('click', () => {
-              form.elements.action.value = button.getAttribute('data-decision-action') || '';
-              Array.from(document.querySelectorAll('[data-decision-action]')).forEach((el) => el.style.borderColor = '#334466');
-              button.style.borderColor = '#4f8cff';
-              resultEl.textContent = 'Action selected: ' + form.elements.action.value + '.';
+              if (outcomeInput) outcomeInput.value = button.getAttribute('data-decision-outcome') || '';
             });
           });
+
           form.addEventListener('submit', async (event) => {
             event.preventDefault();
-            submitEl.disabled = true;
-            resultEl.textContent = 'Saving response…';
+            const buttons = Array.from(form.querySelectorAll('button'));
+            buttons.forEach((button) => { button.disabled = true; });
+            if (resultEl) resultEl.textContent = 'Saving response…';
+            const formData = new FormData(event.currentTarget);
+            const body = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
             try {
-              const response = await fetch('/api/decisions/' + encodeURIComponent(decision.slug) + '/responses', {
+              const response = await fetch('/api/decisions/${encodeURIComponent(decision.slug)}/respond', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
+                body: JSON.stringify(body)
               });
               const result = await response.json();
               if (!response.ok || !result.ok) throw new Error(result.error || 'Failed to save response');
               window.location.reload();
             } catch (error) {
-              resultEl.textContent = error.message;
-            } finally {
-              submitEl.disabled = false;
+              if (resultEl) resultEl.textContent = error.message;
+              buttons.forEach((button) => { button.disabled = false; });
             }
           });
         })();
@@ -2327,368 +2425,6 @@ function renderProjectDecisionsView(model, projectName) {
   });
 }
 
-function renderGraph(model) {
-  const initialData = JSON.stringify(model).replace(/</g, '\\u003c');
-  return shell({
-    title: 'Graph explorer',
-    currentPath: '/graph',
-    body: `
-      <section class="hero">
-        <div>
-          <h1>Graph explorer</h1>
-          <p>Read-only OLN proof graph over committed repo artifacts. Honest scope: zero-dependency SVG explorer, not fake 3D.</p>
-        </div>
-        <div class="muted">Generated ${escapeHtml(model.generatedAt)}</div>
-      </section>
-      <section class="grid stats">
-        <article class="card"><div class="muted">Nodes</div><div class="kpi">${model.summary.nodeCount}</div><div class="tiny muted">${model.summary.primaryCount} primary · ${model.summary.linkedCount} linked</div></article>
-        <article class="card"><div class="muted">Edges</div><div class="kpi">${model.summary.edgeCount}</div><div class="tiny muted">Proof-derived only</div></article>
-        <article class="card"><div class="muted">Source</div><div class="kpi" style="font-size:1rem;">${escapeHtml(model.source.mode)}</div><div class="tiny muted">Luke/Tatooine vertical slice</div></article>
-        <article class="card"><div class="muted">Live probe</div><div class="kpi" style="font-size:1rem;">${model.source.liveProbeAttempted ? 'attempted' : 'not attempted'}</div><div class="tiny muted">${escapeHtml(model.source.liveProbeReason || 'n/a')}</div></article>
-      </section>
-      <section class="panel">
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end;">
-          <label class="stack">
-            <span class="muted">Search nodes</span>
-            <input id="graph-search" type="search" placeholder="Luke, Tatooine, MB-088" />
-          </label>
-          <label class="stack">
-            <span class="muted">Filter by type</span>
-            <select id="graph-type-filter"><option value="">All types</option>${model.filters.types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('')}</select>
-          </label>
-          <label class="stack">
-            <span class="muted">Filter by group</span>
-            <select id="graph-group-filter"><option value="">All groups</option>${model.filters.groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join('')}</select>
-          </label>
-          <div class="stack">
-            <span class="muted">Quick actions</span>
-            <div class="button-row"><button class="button" id="graph-reset" type="button">Reset view</button><a class="button" href="/api/graph">Open JSON</a></div>
-          </div>
-        </div>
-      </section>
-      <section class="grid detail-layout" style="align-items: stretch;">
-        <article class="panel" style="min-height: 620px; overflow: hidden;">
-          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap; margin-bottom: 12px;">
-            <div class="muted" id="graph-state">Showing full proof graph.</div>
-            <div class="chip">Click a node to inspect neighbors</div>
-          </div>
-          <svg id="graph-canvas" viewBox="0 0 960 620" width="100%" height="620" role="img" aria-label="Interactive graph explorer"></svg>
-        </article>
-        <aside class="stack">
-          <article class="panel">
-            <h2>Selected node</h2>
-            <div id="graph-selection" class="muted">Nothing selected yet. Click Luke if you enjoy the obvious.</div>
-          </article>
-          <article class="panel">
-            <h2>Legend</h2>
-            <div class="stack tiny">
-              <div><span class="chip" style="background:#1d4ed8;color:#dbeafe;border-color:#3b82f6;">Primary</span> Luke/Tatooine slice anchors</div>
-              <div><span class="chip" style="background:#14532d;color:#dcfce7;border-color:#22c55e;">Linked</span> Mentioned entities from the proof artifact</div>
-              <div><span class="chip" style="background:#5b21b6;color:#f3e8ff;border-color:#8b5cf6;">Proof</span> Repo proof/card nodes</div>
-            </div>
-          </article>
-          <article class="panel">
-            <h2>Source honesty</h2>
-            <div class="tiny muted">This page reads committed proof data from <code>docs/oln/proofs/mb-080-two-page-local-proof-2026-04-03.json</code> plus the MB-088 card metadata. No writes, no paid APIs, no pretending a live graph exists when it doesn't.</div>
-          </article>
-        </aside>
-      </section>
-      <script id="graph-data" type="application/json">${initialData}</script>
-      <script>
-        (() => {
-          const payload = JSON.parse(document.getElementById('graph-data').textContent);
-          const svg = document.getElementById('graph-canvas');
-          const searchEl = document.getElementById('graph-search');
-          const typeEl = document.getElementById('graph-type-filter');
-          const groupEl = document.getElementById('graph-group-filter');
-          const resetEl = document.getElementById('graph-reset');
-          const stateEl = document.getElementById('graph-state');
-          const selectionEl = document.getElementById('graph-selection');
-          let selectedId = null;
-
-          const esc = (value) => String(value || '')
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
-          function colorFor(node) {
-            if (node.group === 'primary') return '#3b82f6';
-            if (node.group === 'linked') return '#22c55e';
-            if (node.group === 'proof') return '#a855f7';
-            return '#94a3b8';
-          }
-
-          function passes(node) {
-            const search = String(searchEl.value || '').trim().toLowerCase();
-            const type = typeEl.value;
-            const group = groupEl.value;
-            const haystack = [node.label, node.type, node.group, node.source, node.key].join(' ').toLowerCase();
-            return (!search || haystack.includes(search))
-              && (!type || node.type === type)
-              && (!group || node.group === group);
-          }
-
-          function neighborsFor(nodeId) {
-            const ids = new Set([nodeId]);
-            payload.edges.forEach((edge) => {
-              if (edge.source === nodeId) ids.add(edge.target);
-              if (edge.target === nodeId) ids.add(edge.source);
-            });
-            return ids;
-          }
-
-          function layout(nodes) {
-            const width = 960;
-            const height = 620;
-            const cx = width / 2;
-            const cy = height / 2;
-            const radius = Math.min(width, height) * 0.34;
-            return nodes.map((node, index) => {
-              const angle = (Math.PI * 2 * index) / Math.max(nodes.length, 1);
-              const ring = node.group === 'primary' ? radius * 0.55 : (node.group === 'proof' ? radius * 0.25 : radius);
-              return { ...node, x: cx + Math.cos(angle) * ring, y: cy + Math.sin(angle) * ring };
-            });
-          }
-
-          function renderSelection(node, visibleNodes, visibleEdges) {
-            if (!node) {
-              selectionEl.innerHTML = '<div class="muted">Nothing selected yet. Click a node to inspect neighbors.</div>';
-              return;
-            }
-            const related = visibleEdges.filter((edge) => edge.source === node.id || edge.target === node.id);
-            selectionEl.innerHTML = ''
-              + '<div><strong>' + esc(node.label) + '</strong></div>'
-              + '<div class="tiny muted" style="margin-top:6px;">' + esc(node.type) + ' · ' + esc(node.group) + '</div>'
-              + '<div class="tiny muted" style="margin-top:6px;">Source: ' + esc(node.source) + '</div>'
-              + '<div class="tiny muted" style="margin-top:10px;">Neighbors: ' + related.length + '</div>'
-              + '<pre style="margin-top:12px;">' + esc(JSON.stringify(node.properties || {}, null, 2)) + '</pre>'
-              + (related.length ? '<div class="stack tiny">' + related.map((edge) => {
-                  const otherId = edge.source === node.id ? edge.target : edge.source;
-                  const other = visibleNodes.find((candidate) => candidate.id === otherId) || payload.nodes.find((candidate) => candidate.id === otherId);
-                  return '<div class="card-item"><strong>' + esc(edge.type) + '</strong> → ' + esc(other ? other.label : otherId) + '</div>';
-                }).join('') + '</div>' : '');
-          }
-
-          function render() {
-            const baseNodes = payload.nodes.filter(passes);
-            const neighborhood = selectedId ? neighborsFor(selectedId) : null;
-            const visibleNodes = layout(baseNodes.filter((node) => !neighborhood || neighborhood.has(node.id) || node.id === selectedId));
-            const visibleNodeIds = new Set(visibleNodes.map((node) => node.id));
-            const visibleEdges = payload.edges.filter((edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target));
-
-            stateEl.textContent = selectedId
-              ? 'Focused on selected node neighborhood.'
-              : (baseNodes.length === payload.nodes.length ? 'Showing full proof graph.' : 'Showing filtered proof graph.');
-
-            svg.innerHTML = ''
-              + '<rect x="0" y="0" width="960" height="620" rx="18" fill="#0d1322" stroke="#26304a"></rect>'
-              + visibleEdges.map((edge) => {
-                  const source = visibleNodes.find((node) => node.id === edge.source);
-                  const target = visibleNodes.find((node) => node.id === edge.target);
-                  if (!source || !target) return '';
-                  const highlighted = selectedId && (edge.source === selectedId || edge.target === selectedId);
-                  return '<g>'
-                    + '<line x1="' + source.x + '" y1="' + source.y + '" x2="' + target.x + '" y2="' + target.y + '" stroke="' + (highlighted ? '#93c5fd' : '#334155') + '" stroke-width="' + (highlighted ? '3' : '1.5') + '" opacity="0.9"></line>'
-                    + '<text x="' + ((source.x + target.x) / 2) + '" y="' + ((source.y + target.y) / 2 - 6) + '" fill="#94a3b8" font-size="10" text-anchor="middle">' + esc(edge.type) + '</text>'
-                    + '</g>';
-                }).join('')
-              + visibleNodes.map((node) => {
-                  const selected = node.id === selectedId;
-                  const radius = node.group === 'primary' ? 18 : (node.group === 'proof' ? 15 : 12);
-                  return '<g class="graph-node" data-node-id="' + esc(node.id) + '" style="cursor:pointer;">'
-                    + '<circle cx="' + node.x + '" cy="' + node.y + '" r="' + radius + '" fill="' + colorFor(node) + '" stroke="' + (selected ? '#f8fafc' : '#0f172a') + '" stroke-width="' + (selected ? '4' : '2') + '"></circle>'
-                    + '<text x="' + node.x + '" y="' + (node.y + radius + 18) + '" fill="#e2e8f0" font-size="12" text-anchor="middle">' + esc(node.label) + '</text>'
-                    + '</g>';
-                }).join('');
-
-            svg.querySelectorAll('.graph-node').forEach((el) => {
-              el.addEventListener('click', () => {
-                selectedId = el.getAttribute('data-node-id');
-                const next = payload.nodes.find((node) => node.id === selectedId) || null;
-                renderSelection(next, visibleNodes, visibleEdges);
-                render();
-              });
-            });
-
-            const selectedNode = payload.nodes.find((node) => node.id === selectedId) || null;
-            renderSelection(selectedNode, visibleNodes, visibleEdges);
-          }
-
-          [searchEl, typeEl, groupEl].forEach((el) => el.addEventListener('input', () => {
-            selectedId = null;
-            render();
-          }));
-          resetEl.addEventListener('click', () => {
-            searchEl.value = '';
-            typeEl.value = '';
-            groupEl.value = '';
-            selectedId = null;
-            render();
-          });
-          render();
-        })();
-      </script>`
-  });
-}
-
-function renderGraphExplorer() {
-  const graph = loadGraphExplorerModel(root);
-  const graphData = JSON.stringify(graph).replace(/</g, '\\u003c');
-
-  return shell({
-    title: 'Graph explorer',
-    currentPath: '/graph',
-    body: `
-      <section class="hero">
-        <div>
-          <h1>Graph explorer</h1>
-          <p>Read-only OLN proof graph sourced from the Luke/Tatooine vertical-slice artifacts already committed in-repo.</p>
-        </div>
-        <div class="muted">${escapeHtml(graph.summary.nodeCount)} node(s) · ${escapeHtml(graph.summary.edgeCount)} edge(s)</div>
-      </section>
-      <section class="grid stats">
-        <article class="card"><div class="muted">Primary entities</div><div class="kpi">${escapeHtml(graph.summary.primaryCount)}</div></article>
-        <article class="card"><div class="muted">Linked entities</div><div class="kpi">${escapeHtml(graph.summary.linkedCount)}</div></article>
-        <article class="card"><div class="muted">Source mode</div><div class="kpi" style="font-size:1.05rem;">${escapeHtml(graph.source.mode)}</div></article>
-        <article class="card"><div class="muted">Live probe</div><div class="kpi" style="font-size:1.05rem;">${graph.source.liveProbeAttempted ? 'attempted' : 'offline proof only'}</div></article>
-      </section>
-      <section class="grid" style="grid-template-columns: minmax(260px, 320px) minmax(0, 1fr) minmax(280px, 360px); align-items:start;">
-        <article class="panel stack">
-          <h2>Controls</h2>
-          <label class="stack"><span class="muted">Search</span><input id="graph-search" type="search" placeholder="Luke, Tatooine, Jedi…" /></label>
-          <label class="stack"><span class="muted">Group</span><select id="graph-group-filter"><option value="">All groups</option>${graph.filters.groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join('')}</select></label>
-          <label class="stack"><span class="muted">Type</span><select id="graph-type-filter"><option value="">All types</option>${graph.filters.types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('')}</select></label>
-          <div class="button-row"><button id="graph-reset" class="button" type="button">Reset filters</button></div>
-          <div class="muted tiny" id="graph-filter-state">Showing all proof-backed nodes.</div>
-        </article>
-        <article class="panel">
-          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
-            <h2 style="margin:0;">Explorer canvas</h2>
-            <div class="muted tiny">Click a node or its badge to inspect neighbors and properties.</div>
-          </div>
-          <svg id="graph-canvas" viewBox="0 0 900 560" width="100%" role="img" aria-label="Graph explorer canvas" style="background: radial-gradient(circle at top, #15203b, #0b1020 68%); border:1px solid #26304a; border-radius:14px;"></svg>
-          <div class="stack" style="margin-top:12px;" id="graph-node-list"></div>
-        </article>
-        <article class="panel stack" id="graph-detail-panel">
-          <h2>Node detail</h2>
-          <p class="muted">Select a node to inspect its properties and direct neighbors.</p>
-        </article>
-      </section>
-      <script id="graph-data" type="application/json">${graphData}</script>
-      <script>
-        (() => {
-          const graph = JSON.parse(document.getElementById('graph-data').textContent);
-          const searchEl = document.getElementById('graph-search');
-          const groupEl = document.getElementById('graph-group-filter');
-          const typeEl = document.getElementById('graph-type-filter');
-          const resetEl = document.getElementById('graph-reset');
-          const stateEl = document.getElementById('graph-filter-state');
-          const listEl = document.getElementById('graph-node-list');
-          const detailEl = document.getElementById('graph-detail-panel');
-          const svg = document.getElementById('graph-canvas');
-          let selectedId = graph.nodes[0]?.id || null;
-
-          const esc = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-          const norm = (value) => String(value ?? '').toLowerCase();
-          const colorFor = (group) => ({ primary: '#8ad4ff', linked: '#c6a2ff', proof: '#ffd166' }[group] || '#8fb3ff');
-          const neighborMap = new Map();
-          for (const edge of graph.edges) {
-            if (!neighborMap.has(edge.source)) neighborMap.set(edge.source, []);
-            if (!neighborMap.has(edge.target)) neighborMap.set(edge.target, []);
-            neighborMap.get(edge.source).push(edge.target);
-            neighborMap.get(edge.target).push(edge.source);
-          }
-
-          function filteredNodes() {
-            const search = norm(searchEl.value).trim();
-            return graph.nodes.filter((node) => {
-              const matchesSearch = !search || [node.label, node.type, node.group, node.source, JSON.stringify(node.properties || {})].map(norm).join(' ').includes(search);
-              const matchesGroup = !groupEl.value || node.group === groupEl.value;
-              const matchesType = !typeEl.value || node.type === typeEl.value;
-              return matchesSearch && matchesGroup && matchesType;
-            });
-          }
-
-          function renderDetail(node, visibleIds) {
-            if (!node) {
-              detailEl.innerHTML = '<h2>Node detail</h2><p class="muted">No visible node selected.</p>';
-              return;
-            }
-            const neighbors = (neighborMap.get(node.id) || []).map((id) => graph.nodes.find((item) => item.id === id)).filter(Boolean);
-            detailEl.innerHTML = '<h2>' + esc(node.label) + '</h2>'
-              + '<div><span class="chip">' + esc(node.type) + '</span><span class="chip">' + esc(node.group) + '</span></div>'
-              + '<p class="muted">Source: ' + esc(node.source || 'unknown') + '</p>'
-              + '<h3>Properties</h3><pre>' + esc(JSON.stringify(node.properties || {}, null, 2)) + '</pre>'
-              + '<h3>Visible neighbors</h3>'
-              + (neighbors.filter((item) => visibleIds.has(item.id)).length
-                  ? '<div>' + neighbors.filter((item) => visibleIds.has(item.id)).map((item) => '<button class="button" type="button" data-select-node="' + esc(item.id) + '">' + esc(item.label) + '</button>').join(' ') + '</div>'
-                  : '<p class="muted">No visible neighbors under the current filters.</p>');
-          }
-
-          function render() {
-            const nodes = filteredNodes();
-            const visibleIds = new Set(nodes.map((node) => node.id));
-            if (!visibleIds.has(selectedId)) selectedId = nodes[0]?.id || null;
-            const selected = nodes.find((node) => node.id === selectedId) || null;
-            const width = 900;
-            const height = 560;
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const radius = 190;
-            const positions = new Map();
-            nodes.forEach((node, index) => {
-              const angle = (Math.PI * 2 * index) / Math.max(nodes.length, 1);
-              const orbit = node.group === 'primary' ? radius * 0.45 : node.group === 'proof' ? radius * 0.2 : radius;
-              positions.set(node.id, {
-                x: centerX + Math.cos(angle) * orbit,
-                y: centerY + Math.sin(angle) * orbit
-              });
-            });
-            const visibleEdges = graph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target));
-            svg.innerHTML = '<g>' + visibleEdges.map((edge) => {
-              const source = positions.get(edge.source);
-              const target = positions.get(edge.target);
-              if (!source || !target) return '';
-              return '<line x1="' + source.x + '" y1="' + source.y + '" x2="' + target.x + '" y2="' + target.y + '" stroke="' + (edge.emphasis === 'verified' ? '#ffd166' : '#38507e') + '" stroke-width="' + (edge.emphasis === 'verified' ? '3' : '1.5') + '" opacity="0.9" />';
-            }).join('') + '</g><g>' + nodes.map((node) => {
-              const pos = positions.get(node.id);
-              const selectedStroke = node.id === selectedId ? '#ffffff' : '#0b1020';
-              return '<g data-node-id="' + esc(node.id) + '" style="cursor:pointer;">'
-                + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="28" fill="' + colorFor(node.group) + '" stroke="' + selectedStroke + '" stroke-width="3"></circle>'
-                + '<text x="' + pos.x + '" y="' + (pos.y + 48) + '" text-anchor="middle" fill="#dfe9fb" font-size="15" font-family="Inter, sans-serif">' + esc(node.label) + '</text>'
-                + '</g>';
-            }).join('') + '</g>';
-            listEl.innerHTML = nodes.length
-              ? nodes.map((node) => '<button class="button" type="button" data-select-node="' + esc(node.id) + '" style="justify-content:flex-start; text-align:left;">' + esc(node.label) + ' <span class="muted tiny">· ' + esc(node.type) + '</span></button>').join('')
-              : '<p class="muted">No graph nodes match the current filters.</p>';
-            stateEl.textContent = nodes.length ? ('Showing ' + nodes.length + ' node(s) and ' + visibleEdges.length + ' visible edge(s).') : 'No nodes match the current filters.';
-            renderDetail(selected, visibleIds);
-          }
-
-          document.addEventListener('click', (event) => {
-            const button = event.target.closest('[data-select-node]');
-            const nodeGroup = event.target.closest('[data-node-id]');
-            if (button) {
-              selectedId = button.getAttribute('data-select-node');
-              render();
-            } else if (nodeGroup) {
-              selectedId = nodeGroup.getAttribute('data-node-id');
-              render();
-            }
-          });
-
-          [searchEl, groupEl, typeEl].forEach((el) => el.addEventListener('input', render));
-          resetEl.addEventListener('click', () => {
-            searchEl.value = '';
-            groupEl.value = '';
-            typeEl.value = '';
-            render();
-          });
-          render();
-        })();
-      </script>`
-  });
-}
-
 function notFound(backHref, label) {
   return shell({
     title: 'Not found',
@@ -2758,6 +2494,8 @@ function cardApiShape(card) {
 }
 
 function decisionApiShape(decision) {
+  const decisionType = classifyDecisionType(decision);
+  const responseHistory = Array.isArray(decision.responses) ? decision.responses : [];
   return {
     id: decision.id,
     slug: decision.slug,
@@ -2768,11 +2506,15 @@ function decisionApiShape(decision) {
     project: decision.project,
     context: decision.context,
     options: decision.options,
+    optionsList: decision.optionsList,
     decision: decision.decision,
     consequences: decision.consequences,
+    type: classifyDecisionType(decision),
     followUpTasks: decision.followUpTasks,
-    latestResponse: decision.latestResponse || null,
-    responseHistory: Array.isArray(decision.responseHistory) ? decision.responseHistory : [],
+    responses: responseHistory,
+    latestResponse: latestDecisionResponse(decision),
+    responseHistory,
+    decisionType,
     filePath: decision.filePath
   };
 }
@@ -2848,17 +2590,9 @@ function updateApiShape(update) {
   };
 }
 
-http.createServer(async (req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
   const model = loadDashboardModel(root);
-  model.decisions = model.decisions.map((decision) => {
-    const responseEnvelope = loadDecisionResponseEnvelope(root, decision.slug);
-    return {
-      ...decision,
-      latestResponse: responseEnvelope.latest,
-      responseHistory: responseEnvelope.responses
-    };
-  });
   const metricsLimit = Math.max(1, Math.min(200, Number(url.searchParams.get('limit') || 50)));
 
   if (req.method === 'POST' && url.pathname === '/api/cards') {
@@ -2905,9 +2639,21 @@ http.createServer(async (req, res) => {
 
     try {
       const body = await readJsonBody(req);
-      const result = appendDecisionResponse(root, slug, body);
-      const refreshedEnvelope = loadDecisionResponseEnvelope(root, slug);
-      json(res, 201, { ok: true, ...result, latestResponse: refreshedEnvelope.latest, responseHistory: refreshedEnvelope.responses });
+      const result = appendDecisionResponse({
+        rootDir: root,
+        slug,
+        outcome: body.action || body.outcome,
+        selectedOption: body.option || body.selectedOption,
+        notes: body.note || body.notes,
+        responder: body.actor || body.responder
+      });
+      if (!result.ok) {
+        json(res, result.statusCode || 400, result);
+        return;
+      }
+      const refreshedModel = loadDashboardModel(root);
+      const refreshedDecision = findBySlug(refreshedModel.decisions, slug);
+      json(res, result.statusCode || 201, { ...result, decision: refreshedDecision ? decisionApiShape(refreshedDecision) : null });
     } catch (error) {
       json(res, 400, { ok: false, error: error.message });
     }
@@ -2932,6 +2678,32 @@ http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && url.pathname.startsWith('/api/decisions/') && url.pathname.endsWith('/respond')) {
+    const slug = decodeURIComponent(url.pathname.slice('/api/decisions/'.length, -'/respond'.length));
+
+    try {
+      const body = await readJsonBody(req);
+      const result = appendDecisionResponse({
+        rootDir: root,
+        slug,
+        outcome: body.outcome,
+        selectedOption: body.selectedOption,
+        notes: body.notes,
+        responder: body.responder
+      });
+      if (!result.ok) {
+        json(res, result.statusCode || 400, result);
+        return;
+      }
+      const refreshedModel = loadDashboardModel(root);
+      const decision = findBySlug(refreshedModel.decisions, result.slug);
+      json(res, result.statusCode || 201, { ...result, decision: decision ? decisionApiShape(decision) : null });
+    } catch (error) {
+      json(res, 400, { ok: false, error: error.message });
+    }
+    return;
+  }
+
   if (req.method === 'POST' && url.pathname === '/api/updates') {
     try {
       const body = await readJsonBody(req);
@@ -2947,11 +2719,16 @@ http.createServer(async (req, res) => {
     json(res, 200, {
       ok: true,
       app: 'mb-kanban-dashboard',
+      pid: process.pid,
+      host,
+      port,
+      root,
+      startedAt,
+      uptimeMs: Math.round(process.uptime() * 1000),
       routes: [
         '/',
         '/metrics',
         '/board',
-        '/graph',
         '/cards/:id',
         '/decisions',
         '/decisions/projects/:projectName',
@@ -2959,7 +2736,6 @@ http.createServer(async (req, res) => {
         '/updates',
         '/api/summary',
         '/api/board',
-        '/api/graph',
         '/api/cards',
         'POST /api/cards',
         '/api/cards/:id',
@@ -2967,13 +2743,13 @@ http.createServer(async (req, res) => {
         '/api/decisions',
         'POST /api/decisions',
         '/api/decisions/:id',
+        'POST /api/decisions/:id/respond',
         '/api/updates',
         '/api/updates/:id',
         '/api/metrics/summary',
         '/api/metrics/runs',
         '/api/metrics/comparison',
-        '/api/metrics/timeline',
-        '/api/graph'
+        '/api/metrics/timeline'
       ]
     });
     return;
@@ -3042,16 +2818,6 @@ http.createServer(async (req, res) => {
     } catch (error) {
       json(res, 500, { ok: false, error: error.message });
     }
-    return;
-  }
-
-  if (url.pathname === '/api/graph') {
-    json(res, 200, loadGraphExplorerModel(root));
-    return;
-  }
-
-  if (url.pathname === '/api/graph') {
-    json(res, 200, loadGraphExplorerModel(root));
     return;
   }
 
@@ -3172,11 +2938,6 @@ http.createServer(async (req, res) => {
     return;
   }
 
-  if (url.pathname === '/graph') {
-    sendHtml(res, 200, renderGraphExplorer());
-    return;
-  }
-
   if (url.pathname.startsWith('/projects/')) {
     sendHtml(res, 200, renderProjectView(model, decodeURIComponent(url.pathname.slice('/projects/'.length))));
     return;
@@ -3209,17 +2970,19 @@ http.createServer(async (req, res) => {
     return;
   }
 
-  if (url.pathname === '/graph') {
-    sendHtml(res, 200, renderGraph(loadGraphExplorerModel(root)));
-    return;
-  }
-
   if (url.pathname === '/updates') {
     sendHtml(res, 200, renderUpdates(model));
     return;
   }
 
   sendHtml(res, 404, notFound('/', 'Route not found'));
-}).listen(port, () => {
-  console.log(`MB Kanban Dashboard listening on http://127.0.0.1:${port}`);
+});
+
+server.on('error', (error) => {
+  console.error(`[mb-kanban-dashboard] failed to start on http://${host}:${port}: ${error.message}`);
+  process.exitCode = 1;
+});
+
+server.listen(port, host, () => {
+  console.log(`MB Kanban Dashboard listening on http://${host}:${port} (pid=${process.pid}, root=${root})`);
 });
