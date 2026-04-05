@@ -109,3 +109,10 @@
 - Verified the current branch is clean and already pushed (`ahead/behind = 0/0`), so no completed repo-side work is stranded half-local on this pass.
 - Durable blocker truth remains unchanged: the only unresolved non-DTS tranche is the Motherbrain host-path/runtime chain (`MB-004`, `MB-022`, `MB-024`, `MB-025`, `MB-026`), which still requires host/runtime access rather than more repo-only implementation theater.
 - DTS stayed untouched.
+
+## 🌙 Overnight Swarm Notes (2026-04-05 02:13 PT QA/backlog-integrity pass)
+- Re-ran the graph explorer proof stack on `feat/mb-096-graph-explorer-intent-modes`: `node scripts/prove-mb-089.mjs`, `node scripts/prove-mb-094.mjs`, `node scripts/prove-mb-095.mjs`, and `node scripts/prove-mb-096.mjs`; all passed again on the current tree.
+- Re-verified branch sync state: `git rev-list --left-right --count HEAD...@{upstream}` returned `0 0`, so nothing on this branch is stranded locally.
+- Re-ran repo parity/backlog scan: still **0** `ready` tasks, **0** `Status: Ready` cards, **0** duplicate task IDs, and **0** cards missing task-state entries.
+- Found one remaining documentation-integrity gap worth daylight follow-up: 10 task entries still have no corresponding `docs/cards/*` file (`MB-010`, `MB-011`, `MB-013`, `MB-021`, `MB-060`, `MB-061`, `MB-063`, `MB-079`, `MB-081`, `MB-091`). That is backlog-shaping debt, not a fake overnight implementation tranche.
+- Durable blocker truth is unchanged: the only unresolved non-DTS executable chain remains the blocked Motherbrain host/runtime tranche (`MB-004`, `MB-022`, `MB-024`, `MB-025`, `MB-026`). DTS stayed untouched.
