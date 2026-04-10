@@ -11,6 +11,7 @@ import { loadMetricsSnapshot } from '../src/metrics-api.mjs';
 import { loadGraphExplorerModel } from '../src/graph-explorer/adapter.mjs';
 import { GRAPH_EXPLORER_STORAGE_KEY, resolveInitialGraphState } from '../src/graph-explorer/state.mjs';
 import { DEFAULT_GRAPH_INTENT_MODE, rankGraphForIntent, sanitizeIntentMode } from '../src/graph-explorer/scoring.mjs';
+import { loadSwarmOverview, loadSwarmResources, loadSwarmJobs, loadSwarmJobDetail, loadSwarmModels, loadSwarmHandlers, approveSwarmJob, rejectSwarmJob } from '../src/swarm/adapter.mjs';
 
 function json(res, statusCode, payload) {
   res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -49,7 +50,8 @@ function shell({ title, currentPath, body }) {
     ['/board', 'Board'],
     ['/graph', 'Graph'],
     ['/decisions', 'Decisions'],
-    ['/updates', 'Updates']
+    ['/updates', 'Updates'],
+    ['/swarm', 'Swarm']
   ];
 
   const nav = navItems
@@ -2486,6 +2488,150 @@ function renderDecisionDetail(model, slug) {
   });
 }
 
+// ======== SWARM RENDERERS ========
+
+function renderSwarmOverview(overview) {
+  const offline = overview.health?.offline;
+  const res = overview.resources || {};
+  const jobs = Array.isArray(overview.jobs) ? overview.jobs : [];
+  const models = Array.isArray(overview.models) ? overview.models : [];
+  const handlers = Array.isArray(overview.handlers) ? overview.handlers : [];
+
+  const activeJobs = jobs.filter(j => ['queued','running','awaiting_approval'].includes(j.status));
+  const recentDone = jobs.filter(j => ['done','failed'].includes(j.status)).slice(0, 10);
+
+  const cpuPct = typeof res.cpu_pct === 'number' ? res.cpu_pct.toFixed(1) : '—';
+  const ramUsed = typeof res.ram_used_mb === 'number' ? (res.ram_used_mb / 1024).toFixed(1) : '—';
+  const ramTotal = typeof res.ram_total_mb === 'number' ? (res.ram_total_mb / 1024).toFixed(1) : '—';
+  const vramUsed = typeof res.gpu_vram_used_mb === 'number' ? (res.gpu_vram_used_mb / 1024).toFixed(1) : '—';
+  const vramTotal = typeof res.gpu_vram_total_mb === 'number' ? (res.gpu_vram_total_mb / 1024).toFixed(1) : '—';
+
+  const statusBadge = (s) => {
+    const colors = { queued: '#6b7280', running: '#3b82f6', awaiting_approval: '#f59e0b', done: '#22c55e', failed: '#ef4444', rejected: '#ef4444', cancelled: '#6b7280', approved: '#22c55e' };
+    return `<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:0.8rem;background:${colors[s]||'#6b7280'}30;color:${colors[s]||'#6b7280'};border:1px solid ${colors[s]||'#6b7280'}50;">${s}</span>`;
+  };
+
+  const kpiCard = (label, value, sub) => `
+    <article class="card" style="text-align:center;">
+      <div class="muted" style="font-size:0.85rem;">${label}</div>
+      <div class="kpi" style="font-size:1.6rem;font-weight:700;margin:4px 0;">${value}</div>
+      ${sub ? `<div class="muted" style="font-size:0.8rem;">${sub}</div>` : ''}
+    </article>`;
+
+  let body = `
+    <div class="hero"><h1>Swarm Control Center</h1></div>
+    ${offline ? '<div class="card" style="border-color:#ef4444;"><strong>⚠ Foundry metrics API is offline.</strong> Start it on Motherbrain.</div>' : ''}
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+      ${kpiCard('CPU', cpuPct + '%', '24 cores')}
+      ${kpiCard('RAM', ramUsed + ' / ' + ramTotal + ' GB', '80% ceiling')}
+      ${kpiCard('GPU VRAM', vramUsed + ' / ' + vramTotal + ' GB', 'Ollama models')}
+      ${kpiCard('Active Jobs', activeJobs.length, jobs.length + ' total')}
+      ${kpiCard('Models Loaded', res.ollama_models_loaded ?? '—', '')}
+    </div>
+
+    <h2>Active Jobs</h2>`;
+
+  if (activeJobs.length === 0) {
+    body += '<div class="card"><p class="muted">No active jobs. Submit one with: <code>agent-worker submit oln.verify -p \'{}\' -a</code></p></div>';
+  } else {
+    body += '<div class="card" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:8px;">ID</th><th style="text-align:left;padding:8px;">Kind</th><th style="text-align:left;padding:8px;">Status</th><th style="text-align:left;padding:8px;">Submitted</th><th style="text-align:right;padding:8px;">Actions</th></tr></thead><tbody>';
+    for (const j of activeJobs) {
+      const actions = j.status === 'awaiting_approval'
+        ? `<a href="/api/swarm/jobs/${j.id}/approve" style="color:#22c55e;">Approve</a> · <a href="/api/swarm/jobs/${j.id}/reject" style="color:#ef4444;">Reject</a>`
+        : '';
+      body += `<tr><td style="padding:8px;"><a href="/swarm/jobs/${j.id}">${j.id}</a></td><td style="padding:8px;">${escapeHtml(j.kind)}</td><td style="padding:8px;">${statusBadge(j.status)}</td><td style="padding:8px;">${escapeHtml(j.submitted_by||'')}</td><td style="padding:8px;text-align:right;">${actions}</td></tr>`;
+    }
+    body += '</tbody></table></div>';
+  }
+
+  body += '<h2>Model Scorecard</h2>';
+  if (models.length === 0) {
+    body += '<div class="card"><p class="muted">No model runs yet. Run an extraction job first.</p></div>';
+  } else {
+    body += '<div class="card" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:8px;">Model</th><th style="text-align:left;padding:8px;">Handler</th><th style="text-align:right;padding:8px;">Runs</th><th style="text-align:right;padding:8px;">Avg tok/s</th><th style="text-align:right;padding:8px;">Avg ms</th><th style="text-align:right;padding:8px;">Pass %</th><th style="text-align:right;padding:8px;">Human Grade</th></tr></thead><tbody>';
+    for (const m of models) {
+      body += `<tr><td style="padding:8px;"><code>${escapeHtml(m.model||'')}</code></td><td style="padding:8px;">${escapeHtml(m.handler_kind||'')}</td><td style="padding:8px;text-align:right;">${m.runs}</td><td style="padding:8px;text-align:right;">${m.avg_tok_s ?? '—'}</td><td style="padding:8px;text-align:right;">${m.avg_wall_ms ?? '—'}</td><td style="padding:8px;text-align:right;">${m.pass_rate_pct ?? '—'}%</td><td style="padding:8px;text-align:right;">${m.avg_human_grade ?? '—'}</td></tr>`;
+    }
+    body += '</tbody></table></div>';
+  }
+
+  body += '<h2>Recent Completed Jobs</h2>';
+  if (recentDone.length === 0) {
+    body += '<div class="card"><p class="muted">No completed jobs yet.</p></div>';
+  } else {
+    body += '<div class="card" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:8px;">ID</th><th style="text-align:left;padding:8px;">Kind</th><th style="text-align:left;padding:8px;">Status</th><th style="text-align:left;padding:8px;">Submitted</th></tr></thead><tbody>';
+    for (const j of recentDone) {
+      body += `<tr><td style="padding:8px;"><a href="/swarm/jobs/${j.id}">${j.id}</a></td><td style="padding:8px;">${escapeHtml(j.kind)}</td><td style="padding:8px;">${statusBadge(j.status)}</td><td style="padding:8px;">${escapeHtml(j.submitted_by||'')}</td></tr>`;
+    }
+    body += '</tbody></table></div>';
+  }
+
+  return shell({ title: 'Swarm', currentPath: '/swarm', body });
+}
+
+
+function renderSwarmJobDetail(detail, jobId) {
+  if (detail.error) {
+    return shell({ title: 'Job Not Found', currentPath: '/swarm',
+      body: `<div class="card"><p class="muted">Job ${escapeHtml(jobId)} not found.</p></div>` });
+  }
+  const j = detail.job || {};
+  const events = detail.events || [];
+  const modelRuns = detail.model_runs || [];
+
+  const statusBadge = (s) => {
+    const colors = { queued: '#6b7280', running: '#3b82f6', awaiting_approval: '#f59e0b', done: '#22c55e', failed: '#ef4444', rejected: '#ef4444', cancelled: '#6b7280', approved: '#22c55e' };
+    return `<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:0.8rem;background:${colors[s]||'#6b7280'}30;color:${colors[s]||'#6b7280'};border:1px solid ${colors[s]||'#6b7280'}50;">${s}</span>`;
+  };
+
+  let body = `
+    <div class="hero"><h1>Job ${escapeHtml(jobId)}</h1><a href="/swarm">← Back to Swarm</a></div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><strong>Kind:</strong> ${escapeHtml(j.kind || '')}</div>
+        <div><strong>Project:</strong> ${escapeHtml(j.project || '')}</div>
+        <div><strong>Status:</strong> ${statusBadge(j.status || 'unknown')}</div>
+        <div><strong>Submitted by:</strong> ${escapeHtml(j.submitted_by || '')}</div>
+        <div><strong>Created:</strong> ${j.created_at ? new Date(j.created_at * 1000).toLocaleString() : '—'}</div>
+        <div><strong>Started:</strong> ${j.started_at ? new Date(j.started_at * 1000).toLocaleString() : '—'}</div>
+        <div><strong>Finished:</strong> ${j.finished_at ? new Date(j.finished_at * 1000).toLocaleString() : '—'}</div>
+        <div><strong>Duration:</strong> ${j.started_at && j.finished_at ? ((j.finished_at - j.started_at).toFixed(1) + 's') : '—'}</div>
+      </div>
+      ${j.error ? `<div style="margin-top:12px;padding:10px;background:#ef444420;border:1px solid #ef4444;border-radius:8px;"><strong>Error:</strong> ${escapeHtml(j.error)}</div>` : ''}
+    </div>
+
+    <h2>Payload</h2>
+    <div class="card"><pre style="overflow-x:auto;white-space:pre-wrap;">${escapeHtml(JSON.stringify(JSON.parse(j.payload_json || '{}'), null, 2))}</pre></div>
+
+    <h2>Events</h2>
+    <div class="card" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:8px;">Time</th><th style="text-align:left;padding:8px;">Event</th><th style="text-align:left;padding:8px;">Detail</th></tr></thead><tbody>`;
+  for (const e of events) {
+    body += `<tr><td style="padding:8px;">${new Date(e.ts * 1000).toLocaleString()}</td><td style="padding:8px;">${escapeHtml(e.event)}</td><td style="padding:8px;">${escapeHtml(e.detail || '')}</td></tr>`;
+  }
+  body += '</tbody></table></div>';
+
+  if (modelRuns.length > 0) {
+    body += '<h2>Model Runs</h2>';
+    body += '<div class="card" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:8px;">Model</th><th style="text-align:right;padding:8px;">Wall ms</th><th style="text-align:right;padding:8px;">tok/s</th><th style="text-align:right;padding:8px;">Tokens</th><th style="text-align:left;padding:8px;">Verdict</th></tr></thead><tbody>';
+    for (const m of modelRuns) {
+      body += `<tr><td style="padding:8px;"><code>${escapeHtml(m.model||'')}</code></td><td style="padding:8px;text-align:right;">${m.wall_clock_ms}</td><td style="padding:8px;text-align:right;">${m.tokens_per_sec}</td><td style="padding:8px;text-align:right;">${m.completion_tokens}</td><td style="padding:8px;">${statusBadge(m.verdict)}</td></tr>`;
+    }
+    body += '</tbody></table></div>';
+  }
+
+  if (j.status === 'awaiting_approval') {
+    body += `<div class="card" style="text-align:center;padding:20px;">
+      <a href="/api/swarm/jobs/${escapeHtml(jobId)}/approve" style="display:inline-block;padding:10px 24px;background:#22c55e30;border:1px solid #22c55e;border-radius:8px;color:#22c55e;margin-right:12px;">Approve</a>
+      <a href="/api/swarm/jobs/${escapeHtml(jobId)}/reject" style="display:inline-block;padding:10px 24px;background:#ef444430;border:1px solid #ef4444;border-radius:8px;color:#ef4444;">Reject</a>
+    </div>`;
+  }
+
+  return shell({ title: `Job ${jobId}`, currentPath: '/swarm', body });
+}
+
+// ======== END SWARM RENDERERS ========
+
 function renderUpdates(model) {
   const authorOptions = [...new Set(model.updates.map((update) => update.author).filter(Boolean))].sort();
   const initialSelected = model.updates[0]?.slug ?? '';
@@ -3162,7 +3308,17 @@ const server = http.createServer(async (req, res) => {
         '/api/metrics/summary',
         '/api/metrics/runs',
         '/api/metrics/comparison',
-        '/api/metrics/timeline'
+        '/api/metrics/timeline',
+        '/swarm',
+        '/swarm/jobs/:id',
+        '/api/swarm/overview',
+        '/api/swarm/resources',
+        '/api/swarm/jobs',
+        '/api/swarm/jobs/:id',
+        '/api/swarm/models',
+        '/api/swarm/handlers',
+        'POST /api/swarm/jobs/:id/approve',
+        'POST /api/swarm/jobs/:id/reject'
       ]
     });
     return;
@@ -3402,6 +3558,78 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === '/updates') {
     sendHtml(res, 200, renderUpdates(model));
+    return;
+  }
+
+  // ---- Swarm API routes (proxy to foundry metrics-api) ----
+  if (url.pathname === '/api/swarm/overview') {
+    try { const data = await loadSwarmOverview(); json(res, 200, data); }
+    catch (e) { json(res, 502, { error: e.message }); }
+    return;
+  }
+  if (url.pathname === '/api/swarm/resources') {
+    const hours = url.searchParams.get('hours') || '24';
+    try { const data = await loadSwarmResources(Number(hours)); json(res, 200, data); }
+    catch (e) { json(res, 502, { error: e.message }); }
+    return;
+  }
+  if (url.pathname === '/api/swarm/jobs') {
+    try { const data = await loadSwarmJobs(); json(res, 200, data); }
+    catch (e) { json(res, 502, { error: e.message }); }
+    return;
+  }
+  if (url.pathname.match(/^\/api\/swarm\/jobs\/([^/]+)\/approve$/)) {
+    const jid = url.pathname.match(/^\/api\/swarm\/jobs\/([^/]+)\/approve$/)[1];
+    try { const data = await approveSwarmJob(jid); json(res, 200, data); }
+    catch (e) { json(res, 502, { error: e.message }); }
+    return;
+  }
+  if (url.pathname.match(/^\/api\/swarm\/jobs\/([^/]+)\/reject$/)) {
+    const jid = url.pathname.match(/^\/api\/swarm\/jobs\/([^/]+)\/reject$/)[1];
+    try { const data = await rejectSwarmJob(jid); json(res, 200, data); }
+    catch (e) { json(res, 502, { error: e.message }); }
+    return;
+  }
+  if (url.pathname.match(/^\/api\/swarm\/jobs\/([^/]+)$/)) {
+    const jid = url.pathname.match(/^\/api\/swarm\/jobs\/([^/]+)$/)[1];
+    try { const data = await loadSwarmJobDetail(jid); json(res, 200, data); }
+    catch (e) { json(res, 502, { error: e.message }); }
+    return;
+  }
+  if (url.pathname === '/api/swarm/models') {
+    try { const data = await loadSwarmModels(); json(res, 200, data); }
+    catch (e) { json(res, 502, { error: e.message }); }
+    return;
+  }
+  if (url.pathname === '/api/swarm/handlers') {
+    try { const data = await loadSwarmHandlers(); json(res, 200, data); }
+    catch (e) { json(res, 502, { error: e.message }); }
+    return;
+  }
+
+  // ---- Swarm HTML pages ----
+  if (url.pathname === '/swarm') {
+    try {
+      const overview = await loadSwarmOverview();
+      sendHtml(res, 200, renderSwarmOverview(overview));
+    } catch (e) {
+      sendHtml(res, 502, shell({ title: 'Swarm — Offline', currentPath: '/swarm',
+        body: `<div class="card"><h2>Foundry Metrics API Offline</h2><p class="muted">Could not reach the metrics API at <code>${process.env.FOUNDRY_API_URL || 'http://127.0.0.1:51920'}</code>.</p><p>Start it with: <code>launchctl load ~/Library/LaunchAgents/com.foundry.metrics-api.plist</code></p><pre>${escapeHtml(e.message)}</pre></div>`
+      }));
+    }
+    return;
+  }
+
+  if (url.pathname.match(/^\/swarm\/jobs\/([^/]+)$/)) {
+    const jid = url.pathname.match(/^\/swarm\/jobs\/([^/]+)$/)[1];
+    try {
+      const detail = await loadSwarmJobDetail(jid);
+      sendHtml(res, 200, renderSwarmJobDetail(detail, jid));
+    } catch (e) {
+      sendHtml(res, 502, shell({ title: 'Job Error', currentPath: '/swarm',
+        body: `<div class="card"><p class="muted">Error loading job ${escapeHtml(jid)}: ${escapeHtml(e.message)}</p></div>`
+      }));
+    }
     return;
   }
 
