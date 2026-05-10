@@ -1,0 +1,35 @@
+{
+  "inputPath": "data/agilitas/samples/zoom-sample.json",
+  "normalized": {
+    "dateTime": "2026-04-02T10:00:00Z",
+    "agent": "Adam",
+    "customer": "Client",
+    "fullTranscript": "Adam: Hello, how can I help you today?\nClient: I'm having trouble with the dashboard.",
+    "customerTranscript": "I'm having trouble with the dashboard.",
+    "parts": [
+      {
+        "type": "Agent",
+        "text": "Hello, how can I help you today?"
+      },
+      {
+        "type": "Customer",
+        "text": "I'm having trouble with the dashboard."
+      }
+    ],
+    "sourceFormat": "zoom_json",
+    "sourcePath": "data/agilitas/samples/zoom-sample.json"
+  },
+  "extraction": {
+    "sentiment": "Negative",
+    "pain_points": [
+      "dashboard"
+    ],
+    "emotion": "Frustration",
+    "effort": "High",
+    "competitors": "",
+    "innovation": "",
+    "summary": "Having trouble with the dashboard",
+    "providerUsed": "ollama",
+    "deterministic": false
+  }
+}

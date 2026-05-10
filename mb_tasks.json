@@ -857,7 +857,7 @@
       "artifacts/oln/mb-088-live-ingest-proof-2026-04-03.txt"
     ],
     "notes": [
-      "Live Motherbrain ingest proof passed on 2026-04-03 with Luke, Tatooine, and a Luke→Tatooine MENTIONS edge verified in Neo4j.",
+      "Live Motherbrain ingest proof passed on 2026-04-03 with Luke, Tatooine, and a Luke\u2192Tatooine MENTIONS edge verified in Neo4j.",
       "Idempotence rerun stayed stable at entity_count=9 and mentions_count=7.",
       "Task state reconciled on 2026-04-04 so mb_tasks.json matches the committed proof/card evidence."
     ]
@@ -1181,5 +1181,19 @@
       "Enabled the path intent mode in the live dashboard UI via src/graph-explorer/adapter.mjs."
     ],
     "completed_at": "2026-05-10T09:45:00Z"
+  },
+  {
+    "id": "MB-098",
+    "title": "Agilitas: Normalization audit and extraction gap analysis",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-092"
+    ],
+    "artifacts": [
+      "artifacts/agilitas-audit-report.json",
+      "artifacts/agilitas-normalization-audit/"
+    ],
+    "completed_at": "2026-05-10T09:59:00Z"
   }
 ]
