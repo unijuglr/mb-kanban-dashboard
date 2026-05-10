@@ -1195,5 +1195,27 @@
       "artifacts/agilitas-normalization-audit/"
     ],
     "completed_at": "2026-05-10T09:59:00Z"
+  },
+  {
+    "id": "MB-SAM-003",
+    "title": "OLN: Refine Temporal Workflow & Activity Logic",
+    "state": "done",
+    "owner": "Prime Sam",
+    "depends_on": [
+      "MB-031",
+      "MB-032",
+      "MB-079"
+    ],
+    "artifacts": [
+      "src/oln/orchestration/temporal/workflow_v2.py",
+      "docs/cards/MB-SAM-003-oln-temporal-v2.md",
+      "src/oln/orchestration/temporal/activities.py",
+      "PROOF_MB_SAM_003.md",
+      "scripts/prove-mb-temporal-v2.py"
+    ],
+    "completed_at": "2026-05-10T20:10:22.793930Z",
+    "notes": [
+      "Implemented refined Temporal activity-based pipeline and verified logic path with proof script."
+    ]
   }
 ]
