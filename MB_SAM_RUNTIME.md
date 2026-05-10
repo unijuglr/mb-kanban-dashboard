@@ -32,6 +32,18 @@
 - Added deterministic graph-explorer intent scoring/helpers plus live `/graph` intent-mode UI for `facts`, `story`, `relationships`, and `debug`, all backed only by committed OLN proof artifacts.
 - Re-ran the graph explorer regression stack honestly: `node scripts/prove-mb-089.mjs`, `node scripts/prove-mb-094.mjs`, `node scripts/prove-mb-095.mjs`, and new proof `node scripts/prove-mb-096.mjs`; all passed on the current tree.
 
+## 🌙 Overnight Swarm Notes (2026-05-10 09:55 PT pass)
+- Implemented MB-097 on  without touching DTS or live Neo4j paths.
+- Enabled pathfinding logic (BFS) and  intent mode for the proof-backed graph explorer.
+- Verified path Luke -> Tatooine with ; all explorer proofs (MB-089, MB-094, MB-095, MB-096, MB-097) now pass on the current tree.
+- Updated  and marked MB-097 as Done.
+
+## 🌙 Overnight Swarm Notes (2026-05-10 10:15 PT pass)
+- Implemented MB-097 on feat/mb-097-pathfinding without touching DTS or live Neo4j paths.
+- Enabled pathfinding logic (BFS) and path intent mode for the proof-backed graph explorer.
+- Verified path Luke -> Tatooine with node scripts/prove-mb-097.mjs; all explorer proofs (MB-089, MB-094, MB-095, MB-096, MB-097) now pass on the current tree.
+- Updated mb_tasks.json and marked MB-097 as Done.
+
 ## 📝 Developer Notes
 - LLM response parsing handles markdown code blocks vs raw JSON.
 - Deterministic extraction mode preserves the 7-dimension contract when a live provider is unavailable.
