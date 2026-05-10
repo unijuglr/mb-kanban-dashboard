@@ -28,6 +28,7 @@ function bfsPath(graph, startId, targetId) {
 
 const root = process.cwd();
 const model = loadGraphExplorerModel(root);
+
 const start = 'entity:luke-skywalker';
 const target = 'entity:tatooine';
 
@@ -37,6 +38,8 @@ const path = bfsPath(model, start, target);
 if (path && path.length > 1) {
   console.log('✅ Path found:', path.join(' -> '));
 } else {
+  console.log('DEBUG: Model nodes:', model.nodes.map(n => n.id));
+  console.log('DEBUG: Model edges:', model.edges.map(e => e.source + ' -> ' + e.target));
   console.error('❌ Pathfinding failed between', start, 'and', target);
   process.exit(1);
 }

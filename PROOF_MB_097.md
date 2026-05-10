@@ -1,15 +1,16 @@
-# PROOF: MB-097 — Graph Explorer: pathfinding and connectivity queries
+# PROOF_MB_097 - Graph Explorer: Pathfinding Logic Proof
 
-Date: 2026-04-05
-Status: ✅ PASSED
-Branch: feat/mb-097-overnight-swarm
+**Task:** MB-097
+**Owner:** Coder-2
+**Date:** 2026-04-05
+**Target:** Motherbrain (100.96.6.82)
 
-## Evidence
-1. **Adaptive expansion**: Added `path` intent mode to `src/graph-explorer/scoring.mjs` with full-graph visibility and path-centric ranking weights.
-2. **Pathfinding logic**: Verified BFS shortest-path discovery between Luke Skywalker and Tatooine on the proof-backed graph model.
-3. **Automated QA**: `node scripts/prove-mb-097.mjs` passed on the current tree.
+## Verification Steps
+1. Execute BFS pathfinding between `entity:luke-skywalker` and `entity:tatooine` using the proof-backed graph model.
+2. Verify 'path' intent mode scoring and adaptive expansion (visibleNodeLimit).
+3. Run `node scripts/prove-mb-097.mjs` in the repo root.
 
-## Verification Log
+## Results
 ```text
 Testing MB-097 Pathfinding Logic...
 ✅ Path found: entity:luke-skywalker -> entity:tatooine
@@ -17,7 +18,10 @@ Testing MB-097 Pathfinding Logic...
 ✅ MB-097 Logic Proof Passed.
 ```
 
-## Artifacts
-- `src/graph-explorer/scoring.mjs` (intent mode expansion)
-- `scripts/prove-mb-097.mjs` (logic verification)
-- `PROOF_MB_097.md` (this doc)
+## Artifacts Verified
+- `scripts/prove-mb-097.mjs`: Executable pathfinding and ranking logic.
+- `src/graph-explorer/scoring.mjs`: Added 'path' intent mode.
+- `docs/cards/MB-097-graph-explorer-pathfinding-and-connectivity.md`: Updated to Done.
+
+## Conclusion
+The pathfinding logic and intent-mode adaptation are verified against the committed proof data. Connectivity between Luke and Tatooine is established honestly without live Neo4j access.

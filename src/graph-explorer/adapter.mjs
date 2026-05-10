@@ -168,7 +168,7 @@ export function loadGraphExplorerModel(rootDir) {
       intentMode: 'facts',
       nodeIds: ['entity:luke-skywalker', 'entity:tatooine', 'proof:mb-088-card']
     },
-    intentModes: ['facts', 'story', 'relationships', 'debug'],
+    intentModes: ['facts', 'story', 'relationships', 'debug', 'path'],
     summary: {
       nodeCount: nodes.length,
       edgeCount: edges.length,
